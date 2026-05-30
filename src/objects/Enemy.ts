@@ -82,11 +82,11 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
         if (this.st.clock >= this.st.nextAction) {
           this.st.clock = 0;
           this.st.nextAction = Phaser.Math.Between(1800, 3000);
-          // Spawn 3 bubbles — upward with individual random spread
+          // Spawn 3 bubbles — clearly upward, each with its own random kick
           for (let i = -1; i <= 1; i++) {
-            const vy = Phaser.Math.Between(-100, -70);
-            const vx = Phaser.Math.Between(-15, 15);
-            this.spawn(this.x + i * 16, this.y - 12, 'bubble', vx, vy);
+            const vy = Phaser.Math.Between(-130, -90);
+            const vx = Phaser.Math.Between(-20, 20);
+            this.spawn(this.x + i * 16, this.y - 14, 'bubble', vx, vy);
           }
         }
         break;

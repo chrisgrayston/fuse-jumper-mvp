@@ -4,11 +4,12 @@ import { ProjectileType } from '../levels/types';
 export class Projectile extends Phaser.Physics.Arcade.Sprite {
   readonly projType: ProjectileType;
 
-  // Bubble stochastic drift state (set once on construction)
+  // Bubble-specific stochastic state
   private readonly bubbleSineFreq: number;
   private readonly bubbleSineAmp: number;
   private readonly bubbleSinePhase: number;
   private bubbleSineT = 0;
+  private bubbleVY: number; // tracked independently — never read back from physics body
 
   constructor(
     scene: Phaser.Scene,
@@ -20,19 +21,31 @@ export class Projectile extends Phaser.Physics.Arcade.Sprite {
   ) {
     super(scene, x, y, `proj-${type}`);
     this.projType = type;
+    this.bubbleVY = vy;
     scene.add.existing(this);
     scene.physics.add.existing(this);
     this.setDepth(8);
 
     const body = this.body as Phaser.Physics.Arcade.Body;
-    body.allowGravity = type === 'crate';
+
+    // Restore original gravity: only crates and bubbles ignore world gravity;
+    // everything else (golf balls, mallets, padel balls…) falls naturally.
+    if (type === 'bubble') {
+      body.allowGravity = false;
+      // Belt-and-suspenders: zero out body-local gravity too
+      body.setGravityY(0);
+    } else if (type === 'crate') {
+      body.allowGravity = false; // crates use initial velocity only
+    } else {
+      body.allowGravity = true;  // other projectiles arc under gravity
+    }
+
     body.setVelocity(vx, vy);
     body.setCollideWorldBounds(false);
 
     if (type === 'bubble') {
-      // Each bubble gets unique drift characteristics
       this.bubbleSineFreq  = Phaser.Math.FloatBetween(0.9, 1.9);
-      this.bubbleSineAmp   = Phaser.Math.FloatBetween(24, 52);
+      this.bubbleSineAmp   = Phaser.Math.FloatBetween(28, 55);
       this.bubbleSinePhase = Phaser.Math.FloatBetween(0, Math.PI * 2);
     } else {
       this.bubbleSineFreq  = 0;
@@ -42,24 +55,21 @@ export class Projectile extends Phaser.Physics.Arcade.Sprite {
   }
 
   update(delta: number): void {
-    if (this.projType === 'bubble' && this.body) {
+    if (this.projType === 'bubble' && this.active) {
       const body = this.body as Phaser.Physics.Arcade.Body;
-      this.bubbleSineT += delta * 0.001; // seconds
+      this.bubbleSineT += delta * 0.001;
 
-      // Sinusoidal horizontal drift — each bubble out of phase with others
+      // Horizontal sine drift — unique per bubble
       const vx = this.bubbleSineAmp * Math.sin(
         this.bubbleSineT * this.bubbleSineFreq * Math.PI * 2 + this.bubbleSinePhase,
       );
 
-      // Upward speed bleeds toward a slow gentle float (~-20 px/s)
-      const targetVY = -20;
-      const currentVY = body.velocity.y;
-      const newVY = currentVY + (targetVY - currentVY) * Math.min(1, delta * 0.0009);
+      // Upward speed decays toward a slow float; always stays negative (upward)
+      this.bubbleVY += (-25 - this.bubbleVY) * Math.min(1, delta * 0.0008);
 
-      body.setVelocity(vx, newVY);
+      body.setVelocity(vx, this.bubbleVY);
     }
 
-    // Cull off-screen
     const { x, y } = this;
     if (x < -60 || x > 860 || y < -60 || y > 520) {
       this.destroy();
