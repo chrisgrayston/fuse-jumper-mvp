@@ -1,24 +1,27 @@
 import Phaser from 'phaser';
 
-const WALK_SPEED = 200;
+const WALK_SPEED    = 200;
 const JUMP_VELOCITY = -480;
-const FLOAT_GRAVITY = 120; // reduced gravity while holding jump
+const FLOAT_GRAVITY = 120;
 const NORMAL_GRAVITY = 600;
-const FLOAT_MAX_FALL = 80; // cap fall speed while floating
+const FLOAT_MAX_FALL = 80;
 
 export class Player extends Phaser.Physics.Arcade.Sprite {
-  private isFloating: boolean = false;
-  private jumpHeld: boolean = false;
-  private canJump: boolean = false;
+  private isFloating = false;
+  private canJump    = false;
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
-    super(scene, x, y, 'player');
+    super(scene, x, y, 'player-idle');
     scene.add.existing(this);
     scene.physics.add.existing(this);
     this.setDepth(10);
+
     const body = this.body as Phaser.Physics.Arcade.Body;
     body.setCollideWorldBounds(true);
     body.setMaxVelocityY(500);
+    // Fix hitbox to the character body regardless of which texture is active
+    body.setSize(22, 42);
+    body.setOffset(9, 4);
   }
 
   handleMovement(
@@ -28,7 +31,6 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     jumpHeld: boolean,
   ): void {
     const body = this.body as Phaser.Physics.Arcade.Body;
-    this.jumpHeld = jumpHeld;
 
     // Horizontal
     if (left) {
@@ -41,13 +43,13 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       body.setVelocityX(0);
     }
 
-    // Jump initiation
+    // Jump
     if (jumpPressed && this.canJump) {
       body.setVelocityY(JUMP_VELOCITY);
       this.canJump = false;
     }
 
-    // Float while holding jump and moving upward or early fall
+    // Float (hold jump while descending)
     if (jumpHeld && !body.blocked.down && body.velocity.y > -50) {
       this.isFloating = true;
     } else if (!jumpHeld) {
@@ -55,25 +57,36 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     if (this.isFloating) {
-      body.setGravityY(FLOAT_GRAVITY - NORMAL_GRAVITY); // net gravity override
-      if (body.velocity.y > FLOAT_MAX_FALL) {
-        body.setVelocityY(FLOAT_MAX_FALL);
-      }
+      body.setGravityY(FLOAT_GRAVITY - NORMAL_GRAVITY);
+      if (body.velocity.y > FLOAT_MAX_FALL) body.setVelocityY(FLOAT_MAX_FALL);
     } else {
       body.setGravityY(0);
     }
 
     // Ground check
     if (body.blocked.down) {
-      this.canJump = true;
+      this.canJump    = true;
       this.isFloating = false;
     }
+
+    // Pick sprite based on state
+    const onGround = body.blocked.down;
+    const velY     = body.velocity.y;
+    let key: string;
+    if (!onGround) {
+      if      (velY < -80)       key = 'player-jump';
+      else if (this.isFloating)  key = 'player-float';
+      else                       key = 'player-fall';
+    } else {
+      key = (left || right) ? 'player-run' : 'player-idle';
+    }
+    if (this.texture.key !== key) this.setTexture(key);
   }
 
   resetPosition(x: number, y: number): void {
     const body = this.body as Phaser.Physics.Arcade.Body;
     body.reset(x, y);
-    this.canJump = false;
+    this.canJump    = false;
     this.isFloating = false;
   }
 }

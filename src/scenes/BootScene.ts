@@ -50,13 +50,88 @@ export class BootScene extends Phaser.Scene {
   private generateTextures(): void {
     const g = this.make.graphics({ x: 0, y: 0 });
 
-    // ── Player — normal human (white shirt, jeans) ────────────────────────
-    g.clear();
-    g.fillStyle(0x3366cc); g.fillRect(0, 14, 22, 18);  // jeans
-    g.fillStyle(0xffffff); g.fillRect(2, 6,  18, 10);  // shirt
-    g.fillStyle(0xffcc88); g.fillRect(5, 0,  12, 8);   // head
-    g.fillStyle(0x553300); g.fillRect(6, 0,  10, 4);   // hair
-    g.generateTexture('player', 22, 32);
+    // ── Player — 5 animation states, 40×50 px, always drawn facing RIGHT ──
+    // setFlipX handles left-facing; cape is on the left = character's back.
+    {
+      const SK = 0xffcc88; // skin
+      const HR = 0x2b1d0e; // hair
+      const ST = 0xf0f0f0; // shirt
+      const JN = 0x1d3d8b; // jeans
+      const BT = 0x1a1a2e; // boots
+      const CA = 0x7700cc; // cape outer
+      const CI = 0xcc55ff; // cape inner
+
+      // ── idle: cape hanging straight down behind ────────────────────────
+      g.clear();
+      g.fillStyle(CA); g.fillRect(2,  14, 12, 32);
+      g.fillStyle(CI); g.fillRect(3,  15,  9, 28);
+      g.fillStyle(HR); g.fillRect(12,  2, 16,  7); g.fillRect(11,  5,  3,  8);
+      g.fillStyle(SK); g.fillRect(12,  5, 16, 11); g.fillRect(17, 16,  7,  3);
+      g.fillStyle(ST); g.fillRect(11, 19, 18, 10);
+      g.fillStyle(ST); g.fillRect( 4, 19,  8,  9); g.fillStyle(SK); g.fillRect( 4, 27,  7, 4);
+      g.fillStyle(ST); g.fillRect(28, 19,  8,  9); g.fillStyle(SK); g.fillRect(29, 27,  7, 4);
+      g.fillStyle(JN); g.fillRect(11, 29, 18,  5);
+      g.fillStyle(JN); g.fillRect(11, 34,  8, 11); g.fillRect(21, 34,  8, 11);
+      g.fillStyle(BT); g.fillRect(10, 44,  9,  5); g.fillRect(21, 44,  9,  5);
+      g.generateTexture('player-idle', 40, 50);
+
+      // ── run: cape triangle streaming backward-left ─────────────────────
+      g.clear();
+      g.fillStyle(CA); g.fillTriangle(14, 14,  0, 34,  8, 49);
+      g.fillStyle(CI); g.fillTriangle(14, 16,  2, 34,  9, 45);
+      g.fillStyle(HR); g.fillRect(14,  1, 16,  7); g.fillRect(13,  4,  3,  7);
+      g.fillStyle(SK); g.fillRect(14,  4, 16, 11); g.fillRect(18, 15,  7,  3);
+      g.fillStyle(ST); g.fillRect(12, 18, 18, 10);
+      g.fillStyle(ST); g.fillRect( 6, 20,  7,  6); g.fillStyle(SK); g.fillRect( 4, 25,  6, 4);
+      g.fillStyle(ST); g.fillRect(29, 16,  6,  9); g.fillStyle(SK); g.fillRect(31, 24,  5, 4);
+      g.fillStyle(JN); g.fillRect(12, 28, 18,  4);
+      g.fillStyle(JN); g.fillRect(21, 32,  8,  8); g.fillRect(22, 40,  7,  6); // forward leg
+      g.fillStyle(JN); g.fillRect(10, 32,  8,  5); g.fillRect( 9, 37,  7,  8); // back leg
+      g.fillStyle(BT); g.fillRect( 8, 44,  8,  4); g.fillRect(21, 45,  9,  4);
+      g.generateTexture('player-run', 40, 50);
+
+      // ── jump: arms raised, cape fans upward-left ──────────────────────
+      g.clear();
+      g.fillStyle(CA); g.fillTriangle(13, 16,  0,  1,  5, 34);
+      g.fillStyle(CI); g.fillTriangle(13, 18,  2,  3,  6, 30);
+      g.fillStyle(HR); g.fillRect(12,  3, 16,  7); g.fillRect(11,  6,  3,  7);
+      g.fillStyle(SK); g.fillRect(12,  6, 16, 11); g.fillRect(17, 17,  7,  3);
+      g.fillStyle(ST); g.fillRect(11, 20, 18,  9);
+      g.fillStyle(ST); g.fillRect( 4, 12,  8, 11); g.fillStyle(SK); g.fillRect( 3,  9,  7, 5);
+      g.fillStyle(ST); g.fillRect(28, 12,  8, 11); g.fillStyle(SK); g.fillRect(30,  9,  7, 5);
+      g.fillStyle(JN); g.fillRect(11, 29, 18,  4);
+      g.fillStyle(JN); g.fillRect(10, 33,  8, 10); g.fillRect(22, 33,  8,  9);
+      g.fillStyle(BT); g.fillRect( 9, 42,  8,  4); g.fillRect(21, 41,  8,  4);
+      g.generateTexture('player-jump', 40, 50);
+
+      // ── float: cape dramatically billows above, arms spread wide ───────
+      g.clear();
+      g.fillStyle(CA); g.fillRect(0,  0, 18,  9); g.fillRect(1,  9, 14,  8); g.fillRect(3, 17, 11, 6);
+      g.fillStyle(CI); g.fillRect(1,  1, 13,  6); g.fillRect(2,  7, 10,  7); g.fillRect(4, 15,  8, 5);
+      g.fillStyle(HR); g.fillRect(16,  5, 16,  7); g.fillRect(15,  8,  3,  7);
+      g.fillStyle(SK); g.fillRect(16,  8, 16, 11); g.fillRect(21, 19,  7,  3);
+      g.fillStyle(ST); g.fillRect(14, 22, 18,  9);
+      g.fillStyle(ST); g.fillRect( 4, 23, 11,  5); g.fillStyle(SK); g.fillRect( 1, 23,  5, 4);
+      g.fillStyle(ST); g.fillRect(31, 23,  8,  5); g.fillStyle(SK); g.fillRect(37, 23,  3, 4);
+      g.fillStyle(JN); g.fillRect(14, 31, 18,  4);
+      g.fillStyle(JN); g.fillRect(13, 35,  8, 12); g.fillRect(23, 35,  8, 12);
+      g.fillStyle(BT); g.fillRect(12, 46,  9,  4); g.fillRect(23, 46,  9,  4);
+      g.generateTexture('player-float', 40, 50);
+
+      // ── fall: arms bracing, cape trailing upward ───────────────────────
+      g.clear();
+      g.fillStyle(CA); g.fillTriangle(13, 15,  1,  2,  7, 38);
+      g.fillStyle(CI); g.fillTriangle(13, 17,  3,  5,  8, 33);
+      g.fillStyle(HR); g.fillRect(12,  3, 16,  7); g.fillRect(11,  6,  3,  7);
+      g.fillStyle(SK); g.fillRect(12,  6, 16, 11); g.fillRect(17, 17,  7,  3);
+      g.fillStyle(ST); g.fillRect(11, 20, 18,  9);
+      g.fillStyle(ST); g.fillRect( 3, 19, 10,  6); g.fillStyle(SK); g.fillRect( 1, 19,  4, 5);
+      g.fillStyle(ST); g.fillRect(27, 19, 10,  6); g.fillStyle(SK); g.fillRect(35, 19,  4, 5);
+      g.fillStyle(JN); g.fillRect(11, 29, 18,  4);
+      g.fillStyle(JN); g.fillRect(11, 33,  8, 12); g.fillRect(21, 33,  8, 12);
+      g.fillStyle(BT); g.fillRect(10, 44,  8,  5); g.fillRect(21, 44,  8,  5);
+      g.generateTexture('player-fall', 40, 50);
+    }
 
     // ── Bubble Blower — claret & blue, round ─────────────────────────────
     g.clear();
