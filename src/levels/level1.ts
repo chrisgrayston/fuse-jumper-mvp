@@ -1,93 +1,52 @@
-export interface PlatformData {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-}
+import { LevelData } from './types';
 
-export interface FuseData {
-  x: number;
-  y: number;
-}
-
-export interface EnemyData {
-  x: number;
-  y: number;
-  type: 'patrol' | 'flyer';
-  patrolLeft?: number;
-  patrolRight?: number;
-}
-
-export interface LevelData {
-  platforms: PlatformData[];
-  fuses: FuseData[];
-  enemies: EnemyData[];
-  playerStart: { x: number; y: number };
-}
-
+// Club 1800 — "No Rules. No Light. No Tomorrow."
+// Gritty dive bar. Dark red neon. Wet concrete.
 export const level1: LevelData = {
-  playerStart: { x: 100, y: 370 },
+  club: 1800,
+  bgPrimary:   0x0d0507,
+  bgSecondary: 0x1a0a0a,
+  accentColor: 0xcc1122,
+
+  playerStart: { x: 80, y: 390 },
 
   platforms: [
-    // Ground
+    // Bar floor
     { x: 0,   y: 430, width: 800, height: 20 },
-    // Low platforms
-    { x: 40,  y: 350, width: 130, height: 14 },
-    { x: 630, y: 350, width: 130, height: 14 },
-    // Mid platforms
-    { x: 160, y: 270, width: 140, height: 14 },
-    { x: 500, y: 270, width: 140, height: 14 },
-    { x: 310, y: 300, width: 180, height: 14 },
-    // Upper platforms
-    { x: 60,  y: 195, width: 120, height: 14 },
-    { x: 620, y: 195, width: 120, height: 14 },
-    { x: 280, y: 210, width: 240, height: 14 },
-    // Top platforms
-    { x: 130, y: 120, width: 140, height: 14 },
-    { x: 530, y: 120, width: 140, height: 14 },
-    { x: 310, y: 80,  width: 180, height: 14 },
+    // Bar stools
+    { x: 110, y: 362, width: 70,  height: 12 },
+    { x: 260, y: 362, width: 70,  height: 12 },
+    // Bar counter (right)
+    { x: 480, y: 295, width: 280, height: 12 },
+    // High shelf (left)
+    { x: 60,  y: 210, width: 150, height: 12 },
+    // Back shelf (right)
+    { x: 540, y: 210, width: 210, height: 12 },
+    // Top shelf (centre)
+    { x: 295, y: 128, width: 210, height: 12 },
   ],
 
-  fuses: [
-    // Ground level
-    { x: 120, y: 410 },
-    { x: 680, y: 410 },
-    // Low platforms
-    { x: 80,  y: 330 },
-    { x: 140, y: 330 },
-    { x: 660, y: 330 },
-    { x: 720, y: 330 },
-    // Mid
-    { x: 200, y: 250 },
-    { x: 560, y: 250 },
-    { x: 350, y: 280 },
-    { x: 420, y: 280 },
-    // Upper
-    { x: 100, y: 175 },
-    { x: 670, y: 175 },
-    { x: 330, y: 190 },
-    { x: 400, y: 190 },
-    { x: 460, y: 190 },
-    // Top
-    { x: 175, y: 100 },
-    { x: 560, y: 100 },
-    { x: 350, y: 60  },
-    { x: 400, y: 60  },
-    { x: 450, y: 60  },
+  players: [
+    { number: 1,  x: 180, y: 415 },
+    { number: 2,  x: 420, y: 415 },
+    { number: 3,  x: 130, y: 347 },
+    { number: 4,  x: 275, y: 347 },
+    { number: 5,  x: 520, y: 280 },
+    { number: 6,  x: 700, y: 280 },
+    { number: 7,  x: 90,  y: 195 },
+    { number: 8,  x: 175, y: 195 },
+    { number: 9,  x: 580, y: 195 },
+    { number: 10, x: 330, y: 113 },
+    { number: 11, x: 460, y: 113 },
   ],
 
   enemies: [
     {
-      type: 'patrol',
-      x: 310,
+      type: 'bubble-blower',
+      x: 220,
       y: 415,
-      patrolLeft: 180,
-      patrolRight: 620,
-    },
-    {
-      type: 'flyer',
-      x: 400,
-      y: 160,
+      patrolLeft: 50,
+      patrolRight: 440,
     },
   ],
 };

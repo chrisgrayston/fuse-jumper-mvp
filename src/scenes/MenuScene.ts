@@ -60,7 +60,7 @@ export class MenuScene extends Phaser.Scene {
     });
 
     const startGame = (): void => {
-      this.scene.start('GameScene');
+      this.scene.start('GameScene', { levelIndex: 0, score: 0, lives: 3 });
     };
 
     startText.on('pointerdown', startGame);

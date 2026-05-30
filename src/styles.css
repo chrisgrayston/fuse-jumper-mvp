@@ -67,7 +67,7 @@ body {
 /* LANDSCAPE — controls on sides, game in centre */
 @media (orientation: landscape) {
   #game-wrapper {
-    grid-template-columns: 90px 1fr 90px;
+    grid-template-columns: 150px 1fr 90px;
     grid-template-rows: 1fr;
     grid-template-areas: "ctrl-l game ctrl-r";
   }
@@ -80,8 +80,8 @@ body {
 
   #ctrl-left {
     grid-area: ctrl-l;
-    flex-direction: column;
-    gap: 12px;
+    flex-direction: row;
+    gap: 8px;
     justify-content: center;
     align-items: center;
     padding: 16px 8px;

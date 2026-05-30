@@ -39,7 +39,7 @@ export class GameOverScene extends Phaser.Scene {
     });
 
     const restart = (): void => {
-      this.scene.start('GameScene');
+      this.scene.start('GameScene', { levelIndex: 0, score: 0, lives: 3 });
     };
 
     restartText.on('pointerdown', restart);
