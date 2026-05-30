@@ -11,15 +11,25 @@ export class Collectible extends Phaser.Physics.Arcade.Sprite {
     scene.add.existing(this);
     scene.physics.add.existing(this, true);
     this.setDepth(5);
+  }
 
-    this.glowTween = scene.tweens.add({
+  startPulse(): void {
+    this.glowTween?.stop();
+    this.setTint(0xffee44);
+    this.glowTween = this.scene.tweens.add({
       targets: this,
-      alpha: 0.5,
-      duration: 500 + playerNumber * 30,
+      alpha: { from: 1, to: 0.45 },
+      duration: 320,
       yoyo: true,
       repeat: -1,
-      ease: 'Sine.easeInOut',
+      ease: 'Quad.easeInOut',
     });
+  }
+
+  stopPulse(): void {
+    this.glowTween?.stop();
+    this.clearTint();
+    this.setAlpha(1);
   }
 
   collect(): void {

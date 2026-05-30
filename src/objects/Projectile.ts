@@ -9,7 +9,8 @@ export class Projectile extends Phaser.Physics.Arcade.Sprite {
   private readonly bubbleSineAmp: number;
   private readonly bubbleSinePhase: number;
   private bubbleSineT = 0;
-  private bubbleVY: number; // tracked independently — never read back from physics body
+  private bubbleVY: number;   // tracked independently — never read back from physics body
+  private footballVX = 0;     // football: stored so we can re-assert it every frame
 
   constructor(
     scene: Phaser.Scene,
@@ -32,12 +33,15 @@ export class Projectile extends Phaser.Physics.Arcade.Sprite {
     // everything else (golf balls, mallets, padel balls…) falls naturally.
     if (type === 'bubble') {
       body.allowGravity = false;
-      // Belt-and-suspenders: zero out body-local gravity too
       body.setGravityY(0);
     } else if (type === 'crate') {
-      body.allowGravity = false; // crates use initial velocity only
+      body.allowGravity = false;
+    } else if (type === 'football') {
+      body.allowGravity = false;
+      body.setGravityY(0);
+      this.footballVX = vx;     // store so update() can re-assert it every frame
     } else {
-      body.allowGravity = true;  // other projectiles arc under gravity
+      body.allowGravity = true;
     }
 
     body.setVelocity(vx, vy);
@@ -68,6 +72,17 @@ export class Projectile extends Phaser.Physics.Arcade.Sprite {
       this.bubbleVY += (-25 - this.bubbleVY) * Math.min(1, delta * 0.0008);
 
       body.setVelocity(vx, this.bubbleVY);
+    }
+
+    // Football: re-assert both axes every frame — same pattern as bubbles.
+    // group.add() resets the body so allowGravity and velocity.x get wiped;
+    // driving them from stored state each tick is the only reliable fix.
+    if (this.projType === 'football' && this.active) {
+      const body = this.body as Phaser.Physics.Arcade.Body;
+      body.allowGravity = false;
+      body.gravity.y    = 0;
+      body.velocity.x   = this.footballVX;
+      body.velocity.y   = 0;
     }
 
     const { x, y } = this;

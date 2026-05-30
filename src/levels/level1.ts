@@ -14,8 +14,8 @@ export const level1: LevelData = {
     // Bar floor
     { x: 0,   y: 430, width: 800, height: 20 },
     // Bar stools
-    { x: 110, y: 362, width: 70,  height: 12 },
-    { x: 260, y: 362, width: 70,  height: 12 },
+    { x: 80,  y: 362, width: 70,  height: 12 },
+    { x: 230, y: 362, width: 70,  height: 12 },
     // Bar counter (right)
     { x: 480, y: 295, width: 280, height: 12 },
     // High shelf (left)
@@ -23,14 +23,14 @@ export const level1: LevelData = {
     // Back shelf (right)
     { x: 540, y: 210, width: 210, height: 12 },
     // Top shelf (centre)
-    { x: 295, y: 128, width: 210, height: 12 },
+    { x: 275, y: 128, width: 260, height: 12 },
   ],
 
   players: [
     { number: 1,  x: 180, y: 415 },
-    { number: 2,  x: 420, y: 415 },
-    { number: 3,  x: 130, y: 347 },
-    { number: 4,  x: 275, y: 347 },
+    { number: 2,  x: 560, y: 415 },
+    { number: 3,  x: 100, y: 347 },
+    { number: 4,  x: 245, y: 347 },
     { number: 5,  x: 520, y: 280 },
     { number: 6,  x: 700, y: 280 },
     { number: 7,  x: 90,  y: 195 },
@@ -44,7 +44,7 @@ export const level1: LevelData = {
     {
       type: 'bubble-blower',
       x: 400,
-      y: 415,
+      y: 406,
       patrolLeft: 150,
       patrolRight: 650,
     },

@@ -21,7 +21,8 @@ export type ProjectileType =
   | 'padel-ball'
   | 'golf-ball'
   | 'dark-magic'
-  | 'coat';
+  | 'coat'
+  | 'football';
 
 export interface PlatformData {
   x: number;

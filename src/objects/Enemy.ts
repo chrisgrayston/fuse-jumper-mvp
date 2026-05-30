@@ -13,6 +13,9 @@ interface State {
   travelling: boolean;     // mid-jump/travel
   travelTimer: number;
   sineT: number;
+  kickClock: number;       // bubble-blower: time since last kick
+  nextKick: number;        // bubble-blower: interval until next kick
+  kickDir: number;         // bubble-blower: alternates 1 / -1
 }
 
 const SPEEDS: Partial<Record<EnemyType, number>> = {
@@ -51,6 +54,9 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       travelling: false,
       travelTimer: 0,
       sineT: Phaser.Math.FloatBetween(0, Math.PI * 2),
+      kickClock: 0,
+      nextKick: Phaser.Math.Between(3000, 7000),
+      kickDir: 1,
     };
 
     const body = this.body as Phaser.Physics.Arcade.Body;
@@ -60,6 +66,16 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       body.setImmovable(false);
     } else {
       body.allowGravity = true;
+    }
+
+    // Per-type hitbox tuning
+    if (this.eType === 'bubble-blower') {
+      body.setSize(24, 44);
+      body.setOffset(8, 6);
+    }
+    if (this.eType === 'flanker') {
+      body.setSize(36, 46);
+      body.setOffset(4, 4);
     }
 
     // Ground patrol — set initial velocity
@@ -78,11 +94,38 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       // ── Club 1800 ───────────────────────────────────────────────────────
 
       case 'bubble-blower': {
+        this.st.sineT  += delta;
+        this.st.kickClock += delta;
         this.patrolBounce(body, this.eData.patrolLeft ?? 50, this.eData.patrolRight ?? 750, SPEEDS['bubble-blower']!);
+
+        // Kick the football periodically (independent of bubble timer)
+        if (this.st.kickClock >= this.st.nextKick) {
+          this.st.kickClock = 0;
+          this.st.nextKick  = Phaser.Math.Between(4000, 8000);
+          const kDir = this.st.kickDir;
+          this.st.kickDir   = -kDir;  // alternate next kick
+          const vx   = kDir * 340;
+          this.spawn(this.x + kDir * 18, this.y, 'football', vx, 0);
+          this.st.travelTimer = 450;
+        }
+
+        // Animation priority: blow > kick > keepup cycle
+        if (this.st.chargeTimer > 0) {
+          this.st.chargeTimer -= delta;
+          this.setTexture('enemy-bubble-blower-blow');
+        } else if (this.st.travelTimer > 0) {
+          this.st.travelTimer -= delta;
+          // Show whichever keepup frame matches kick direction
+          this.setTexture(this.st.direction > 0 ? 'enemy-bubble-blower' : 'enemy-bubble-blower-2');
+        } else {
+          const frame = Math.floor(this.st.sineT / 380) % 2;
+          this.setTexture(frame === 0 ? 'enemy-bubble-blower' : 'enemy-bubble-blower-2');
+        }
+
         if (this.st.clock >= this.st.nextAction) {
           this.st.clock = 0;
           this.st.nextAction = Phaser.Math.Between(8000, 12000);
-          // 3 bubbles: hard left, straight up, hard right
+          this.st.chargeTimer = 900;
           const baseAngles = [-170, -90, -10];
           for (let i = 0; i < 3; i++) {
             const rad = Phaser.Math.DegToRad(baseAngles[i] + Phaser.Math.Between(-6, 6));
@@ -96,20 +139,41 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       // ── Club 2000 ───────────────────────────────────────────────────────
 
       case 'flanker': {
+        this.st.sineT += delta;
         if (this.st.isCharging) {
+          // Phase 3: charge — fast run for 900ms
           this.st.chargeTimer -= delta;
+          body.setVelocityX(320 * this.st.direction);
+          this.setFlipX(this.st.direction < 0);
+          const cf = Math.floor(this.st.sineT / 130) % 2;
+          this.setTexture(cf === 0 ? 'enemy-flanker' : 'enemy-flanker-2');
           if (this.st.chargeTimer <= 0) {
             this.st.isCharging = false;
             body.setVelocityX(SPEEDS['flanker']! * this.st.direction);
           }
+        } else if (this.st.travelling) {
+          // Phase 2: stamp — stopped, sumo stomp animation for 1500ms
+          body.setVelocityX(0);
+          this.st.travelTimer -= delta;
+          const sf = Math.floor(this.st.sineT / 300) % 2;
+          this.setTexture(sf === 0 ? 'enemy-flanker-stamp' : 'enemy-flanker-stamp-2');
+          if (this.st.travelTimer <= 0) {
+            this.st.travelling = false;
+            this.st.isCharging = true;
+            this.st.chargeTimer = 900;
+            this.st.sineT = 0;
+          }
         } else {
+          // Phase 1: patrol walk
           this.patrolBounce(body, this.eData.patrolLeft ?? 50, this.eData.patrolRight ?? 750, SPEEDS['flanker']!);
+          const pf = Math.floor(this.st.sineT / 260) % 2;
+          this.setTexture(pf === 0 ? 'enemy-flanker' : 'enemy-flanker-2');
           if (this.st.clock >= this.st.nextAction) {
             this.st.clock = 0;
             this.st.nextAction = Phaser.Math.Between(3000, 5500);
-            this.st.isCharging = true;
-            this.st.chargeTimer = 900;
-            body.setVelocityX(320 * this.st.direction);
+            this.st.travelling = true;
+            this.st.travelTimer = 1500;
+            this.st.sineT = 0;
           }
         }
         break;

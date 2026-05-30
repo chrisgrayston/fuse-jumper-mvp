@@ -10,8 +10,11 @@ import { level3 } from '../levels/level3';
 import { level4 } from '../levels/level4';
 import { getTouchState, consumeJumpPressed } from '../input/touchInput';
 
+type CoinType = 'tc' | 'bb' | 'ww' | 'fh';
+
 const LEVELS: LevelData[] = [level1, level2, level3, level4];
 const MAX_LIVES      = 3;
+const COIN_INTERVAL  = 10000; // ms between coin-drop rolls
 const SCORE_PER_PICK = 100;
 const ORDER_BONUS    = 50;
 const RESPAWN_DELAY  = 1200;
@@ -38,6 +41,17 @@ export class GameScene extends Phaser.Scene {
   private pickupText!: Phaser.GameObjects.Text;
   private clubText!: Phaser.GameObjects.Text;
 
+  private collectibleMap!: Map<number, Collectible>;
+  private allPlayerPositions!: Map<number, { x: number; y: number }>;
+  private sequenceActive!: boolean;
+  private godMode = false;
+
+  private coinsGroup!: Phaser.Physics.Arcade.Group;
+  private coinList: Phaser.Physics.Arcade.Sprite[] = [];
+  private coinTimer    = 0;
+  private coinsDropped = 0;
+  private scoreMult    = 1;
+
   private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
   private wasd!: { up: Phaser.Input.Keyboard.Key; left: Phaser.Input.Keyboard.Key; right: Phaser.Input.Keyboard.Key };
 
@@ -56,6 +70,13 @@ export class GameScene extends Phaser.Scene {
     this.isRespawning   = false;
     this.enemyControllers = [];
     this.projectileList   = [];
+    this.collectibleMap      = new Map();
+    this.allPlayerPositions  = new Map();
+    this.sequenceActive      = true;
+    this.coinTimer           = 0;
+    this.coinsDropped        = 0;
+    this.scoreMult           = 1;
+    this.coinList            = [];
 
     const level = LEVELS[this.levelIndex];
     const { width, height } = this.scale;
@@ -74,11 +95,13 @@ export class GameScene extends Phaser.Scene {
 
     this.enemies = this.physics.add.group();
     this.projectilesGroup = this.physics.add.group();
+    this.coinsGroup = this.physics.add.group();
     this.buildEnemies(level);
 
     // Colliders
     this.physics.add.collider(this.player, this.platforms);
     this.physics.add.collider(this.enemies, this.platforms);
+    this.physics.add.collider(this.coinsGroup, this.platforms);
 
     this.physics.add.overlap(this.player, this.collectibles, (_p, c) => {
       this.pickupPlayer(c as Collectible);
@@ -88,6 +111,13 @@ export class GameScene extends Phaser.Scene {
       (proj as Projectile).destroy();
       this.hitPlayer();
     });
+    this.physics.add.overlap(this.player, this.coinsGroup, (_p, coinObj) => {
+      const coin = coinObj as Phaser.Physics.Arcade.Sprite;
+      if (!coin.active) return;
+      const type = coin.getData('coinType') as CoinType;
+      coin.destroy();
+      this.applyCoinEffect(type);
+    });
 
     this.cursors = this.input.keyboard!.createCursorKeys();
     this.wasd = {
@@ -95,6 +125,20 @@ export class GameScene extends Phaser.Scene {
       left:  this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.A),
       right: this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.D),
     };
+
+    // ── Dev keys ──────────────────────────────────────────────────────────
+    this.input.keyboard!.on('keydown', (e: KeyboardEvent) => {
+      if (e.key >= '1' && e.key <= '4') {
+        const idx = parseInt(e.key, 10) - 1;
+        if (idx < LEVELS.length) {
+          this.scene.start('GameScene', { levelIndex: idx, score: 0, lives: MAX_LIVES });
+        }
+      }
+      if (e.key === '5') {
+        this.godMode = !this.godMode;
+        this.updateHUD();
+      }
+    });
 
     this.createHUD(level);
   }
@@ -115,7 +159,21 @@ export class GameScene extends Phaser.Scene {
       this.wasd.up.isDown    || touch.jumpHeld;
     consumeJumpPressed();
 
-    this.player.handleMovement(left, right, jumpPressed, jumpHeld);
+    this.player.handleMovement(left, right, jumpPressed, jumpHeld, delta);
+
+    // Coin drop timer — every 60 s, 50 % chance
+    this.coinTimer += delta;
+    if (this.coinTimer >= COIN_INTERVAL) {
+      this.coinTimer = 0;
+      if (this.coinsDropped < 3 && Math.random() < 0.5) this.spawnCoin();
+    }
+
+    // Cull coins that have left the screen
+    for (let i = this.coinList.length - 1; i >= 0; i--) {
+      const c = this.coinList[i];
+      if (!c.active) { this.coinList.splice(i, 1); continue; }
+      if (c.y > 520 || c.x < -60 || c.x > 860) { c.destroy(); this.coinList.splice(i, 1); }
+    }
 
     const px = this.player.x;
     const py = this.player.y;
@@ -138,41 +196,51 @@ export class GameScene extends Phaser.Scene {
   // ── Build ─────────────────────────────────────────────────────────────────
 
   private drawBackground(level: LevelData, width: number, height: number): void {
-    // Club art backdrop at very low opacity
     const artKeys = ['art-club1800', 'art-club2000', 'art-club2100', 'art-club2200'];
-    const artKey = artKeys[this.levelIndex];
+    const artKey  = artKeys[this.levelIndex];
+
+    const artForward = this.levelIndex === 0; // Club 1800 — art-forward treatment
+
     if (artKey && this.textures.exists(artKey)) {
       const bgArt = this.add.image(width / 2, height / 2, artKey).setDepth(0);
-      const sx = width / bgArt.width;
+      const sx = width  / bgArt.width;
       const sy = height / bgArt.height;
-      bgArt.setScale(Math.max(sx, sy)).setAlpha(0.11);
+      bgArt.setScale(Math.max(sx, sy)).setAlpha(artForward ? 0.78 : 0.11);
     }
 
-    this.add.rectangle(width / 2, height / 2, width, height, level.bgPrimary, 0.80);
+    // Colour tint / dark overlay
+    const overlayAlpha = artForward ? 0.28 : 0.80;
+    this.add.rectangle(width / 2, height / 2, width, height, level.bgPrimary, overlayAlpha).setDepth(0);
 
-    // Ambient particles / stars
-    for (let i = 0; i < 60; i++) {
-      const sx = Phaser.Math.Between(0, width);
-      const sy = Phaser.Math.Between(0, height);
-      const sr = Phaser.Math.FloatBetween(0.3, 1.5);
-      const col = level.club === 2200
-        ? 0xf0d080 // gold stars for Club 2200
-        : 0xffffff;
-      this.add.circle(sx, sy, sr, col, Phaser.Math.FloatBetween(0.2, 0.8)).setDepth(0);
+    if (artForward) {
+      // Vignette: dark fade at top and bottom so platforms/HUD stay readable
+      this.add.rectangle(width / 2,      0, width, 90,  0x000000, 0.55).setDepth(0);
+      this.add.rectangle(width / 2, height, width, 110, 0x000000, 0.60).setDepth(0);
+
+      // Subtle accent scanlines
+      for (let row = 0; row < height; row += 60) {
+        this.add.rectangle(width / 2, row, width, 1, level.accentColor, 0.08).setDepth(0);
+      }
+    } else {
+      // Ambient particles / stars (other levels keep the original feel)
+      for (let i = 0; i < 60; i++) {
+        const px = Phaser.Math.Between(0, width);
+        const py = Phaser.Math.Between(0, height);
+        const pr = Phaser.Math.FloatBetween(0.3, 1.5);
+        const col = level.club === 2200 ? 0xf0d080 : 0xffffff;
+        this.add.circle(px, py, pr, col, Phaser.Math.FloatBetween(0.2, 0.8)).setDepth(0);
+      }
+
+      for (let row = 0; row < height; row += 50) {
+        this.add.rectangle(width / 2, row, width, 1, level.accentColor, 0.18).setDepth(0);
+      }
+
+      this.add.text(width / 2, height / 2, `CLUB\n${level.club}`, {
+        fontSize: '90px',
+        fontFamily: 'monospace',
+        color: '#ffffff',
+      }).setOrigin(0.5).setAlpha(0.04).setDepth(0);
     }
-
-    // Club-specific neon accent lines
-    const neonAlpha = 0.18;
-    for (let row = 0; row < height; row += 50) {
-      this.add.rectangle(width / 2, row, width, 1, level.accentColor, neonAlpha).setDepth(0);
-    }
-
-    // Club label (background watermark)
-    this.add.text(width / 2, height / 2, `CLUB\n${level.club}`, {
-      fontSize: '90px',
-      fontFamily: 'monospace',
-      color: '#ffffff',
-    }).setOrigin(0.5).setAlpha(0.04).setDepth(0);
   }
 
   private buildPlatforms(level: LevelData): void {
@@ -198,15 +266,12 @@ export class GameScene extends Phaser.Scene {
   private buildCollectibles(level: LevelData): void {
     for (const pd of level.players) {
       const c = new Collectible(this, pd.x, pd.y, pd.number);
-      // Overlay the number on the jersey texture
-      this.add.text(pd.x, pd.y, `${pd.number}`, {
-        fontSize: '10px',
-        fontFamily: 'monospace',
-        color: '#111111',
-        fontStyle: 'bold',
-      }).setOrigin(0.5).setDepth(6);
+      this.collectibleMap.set(pd.number, c);
+      this.allPlayerPositions.set(pd.number, { x: pd.x, y: pd.y });
       this.collectibles.add(c);
     }
+    // Pulse only the first expected collectible
+    this.collectibleMap.get(1)?.startPulse();
   }
 
   private buildEnemies(level: LevelData): void {
@@ -229,18 +294,25 @@ export class GameScene extends Phaser.Scene {
     const num = c.playerNumber;
     c.collect();
     this.collectibles.remove(c, true, true);
+    this.collectibleMap.delete(num);
 
     let pts = SCORE_PER_PICK;
-    if (num === this.nextExpected) {
+    if (this.sequenceActive && num === this.nextExpected) {
       pts += ORDER_BONUS;
       this.nextExpected++;
+      this.collectibleMap.get(this.nextExpected)?.startPulse();
+    } else if (this.sequenceActive && num !== this.nextExpected) {
+      // First out-of-order pickup — kill the flash and lock out future bonuses
+      this.sequenceActive = false;
+      this.collectibleMap.get(this.nextExpected)?.stopPulse();
     }
-    this.score += pts;
+    const earnedPts = pts * this.scoreMult;
+    this.score += earnedPts;
     this.pickupsLeft--;
     this.updateHUD();
 
     // Flash bonus text
-    const label = pts > SCORE_PER_PICK ? `+${pts} IN ORDER!` : `+${pts}`;
+    const label = pts > SCORE_PER_PICK ? `+${earnedPts} IN ORDER!` : `+${earnedPts}`;
     const flash = this.add.text(c.x, c.y - 10, label, {
       fontSize: '14px', fontFamily: 'monospace',
       color: pts > SCORE_PER_PICK ? '#ffee00' : '#aaffaa',
@@ -271,9 +343,10 @@ export class GameScene extends Phaser.Scene {
   }
 
   private hitPlayer(): void {
-    if (this.isInvincible || this.isRespawning) return;
+    if (this.godMode || this.isInvincible || this.isRespawning) return;
 
     this.lives--;
+    this.isRespawning = true;  // block all further hits immediately
     this.updateHUD();
 
     if (this.lives <= 0) {
@@ -283,21 +356,107 @@ export class GameScene extends Phaser.Scene {
       return;
     }
 
-    this.isRespawning = true;
     this.isInvincible = true;
 
-    this.tweens.add({
+    const flashTween = this.tweens.add({
       targets: this.player, alpha: 0, duration: 110,
       yoyo: true, repeat: 6,
       onComplete: () => { this.player.setAlpha(1); },
     });
 
     this.time.delayedCall(RESPAWN_DELAY, () => {
+      flashTween.stop();
       const { x, y } = LEVELS[this.levelIndex].playerStart;
       this.player.resetPosition(x, y);
+      this.player.setAlpha(1);
       this.isRespawning = false;
       this.time.delayedCall(1500, () => { this.isInvincible = false; });
     });
+  }
+
+  // ── Coins ─────────────────────────────────────────────────────────────────
+
+  private spawnCoin(): void {
+    this.coinsDropped++;
+    const types: CoinType[] = ['tc', 'bb', 'ww', 'fh'];
+    const type = types[Phaser.Math.Between(0, 3)];
+    const x    = Phaser.Math.Between(60, 640);
+    const coin = this.physics.add.sprite(x, -30, `coin-${type}`);
+    coin.setDepth(15);
+    coin.setData('coinType', type);
+    this.coinsGroup.add(coin);
+    const body = coin.body as Phaser.Physics.Arcade.Body;
+    body.allowGravity = true;
+    body.setBounce(0.5);
+    body.setCollideWorldBounds(false);
+    body.setVelocity(Phaser.Math.Between(30, 70), 80);
+    this.coinList.push(coin);
+
+    const names: Record<CoinType, string> = { tc: 'TRIPLE CAPTAIN!', bb: 'BENCH BOOST!', ww: 'WILDCARD!', fh: 'FREE HIT!' };
+    const clrs:  Record<CoinType, string> = { tc: '#ffcc00', bb: '#00ccff', ww: '#cc44ff', fh: '#44ee44' };
+    const flash = this.add.text(this.scale.width / 2, 55, names[type], {
+      fontSize: '15px', fontFamily: 'monospace',
+      color: clrs[type], stroke: '#000000', strokeThickness: 3,
+    }).setOrigin(0.5).setDepth(25).setScrollFactor(0);
+    this.tweens.add({ targets: flash, alpha: 0, duration: 2000, delay: 1200, onComplete: () => flash.destroy() });
+  }
+
+  private applyCoinEffect(type: CoinType): void {
+    const clrs: Record<CoinType, string> = { tc: '#ffcc00', bb: '#00ccff', ww: '#cc44ff', fh: '#44ee44' };
+    let msg = '';
+    switch (type) {
+      case 'tc':
+        this.scoreMult = 3;
+        msg = 'x3 SCORE ACTIVATED!';
+        this.updateHUD();
+        break;
+      case 'bb':
+        this.spawnBBShirts();
+        msg = 'BENCH BOOST! +4 SHIRTS';
+        break;
+      case 'ww':
+        this.applyWildcard();
+        msg = 'WILDCARD! SHIRTS RESTORED';
+        break;
+      case 'fh':
+        this.lives++;
+        msg = 'FREE HIT! +1 LIFE';
+        this.updateHUD();
+        break;
+    }
+    const flash = this.add.text(this.scale.width / 2, 200, msg, {
+      fontSize: '18px', fontFamily: 'monospace',
+      color: clrs[type], stroke: '#000000', strokeThickness: 3,
+    }).setOrigin(0.5).setDepth(25).setScrollFactor(0);
+    this.tweens.add({ targets: flash, y: flash.y - 50, alpha: 0, duration: 1800, onComplete: () => flash.destroy() });
+  }
+
+  private spawnBBShirts(): void {
+    const plats = LEVELS[this.levelIndex].platforms.filter(p => p.height < 20);
+    for (let num = 12; num <= 15; num++) {
+      if (this.collectibleMap.has(num)) continue;
+      const plat = plats[Phaser.Math.Between(0, plats.length - 1)];
+      const rx = Phaser.Math.Between(plat.x + 10, plat.x + plat.width - 10);
+      const ry = plat.y - 18;
+      const c = new Collectible(this, rx, ry, num);
+      this.collectibleMap.set(num, c);
+      this.allPlayerPositions.set(num, { x: rx, y: ry });
+      this.collectibles.add(c);
+      this.pickupsLeft++;
+    }
+    this.updateHUD();
+  }
+
+  private applyWildcard(): void {
+    for (const [num, pos] of this.allPlayerPositions) {
+      if (!this.collectibleMap.has(num)) {
+        const c = new Collectible(this, pos.x, pos.y, num);
+        this.collectibleMap.set(num, c);
+        this.collectibles.add(c);
+        this.pickupsLeft++;
+      }
+    }
+    this.updateHUD();
   }
 
   // ── HUD ───────────────────────────────────────────────────────────────────
@@ -317,8 +476,8 @@ export class GameScene extends Phaser.Scene {
   }
 
   private updateHUD(): void {
-    this.scoreText.setText(`SCORE: ${this.score}`);
-    this.livesText.setText(`LIVES: ${'♥ '.repeat(this.lives).trim()}`);
-    this.pickupText.setText(`SQUAD: ${11 - this.pickupsLeft}/11`);
+    this.scoreText.setText(`SCORE: ${this.score}${this.scoreMult > 1 ? ` x${this.scoreMult}` : ''}`);
+    this.livesText.setText(this.godMode ? 'LIVES: ∞' : `LIVES: ${'♥ '.repeat(this.lives).trim()}`);
+    this.pickupText.setText(`SQUAD: ${this.pickupsLeft} left`);
   }
 }
