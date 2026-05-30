@@ -49,7 +49,7 @@ export const level2: LevelData = {
     {
       type: 'flanker',
       x: 380,
-      y: 395,
+      y: 404,
       patrolLeft: 120,
       patrolRight: 680,
     },

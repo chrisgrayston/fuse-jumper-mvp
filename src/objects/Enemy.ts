@@ -73,10 +73,6 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       body.setSize(24, 44);
       body.setOffset(8, 6);
     }
-    if (this.eType === 'flanker') {
-      body.setSize(36, 46);
-      body.setOffset(4, 4);
-    }
 
     // Ground patrol — set initial velocity
     const speed = SPEEDS[this.eType];
