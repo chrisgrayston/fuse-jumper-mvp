@@ -20,7 +20,7 @@ interface State {
 
 const SPEEDS: Partial<Record<EnemyType, number>> = {
   'bubble-blower':  55,
-  'flanker':        70,
+  'flanker':        110,
   'clippy':         60,
   'giant-bear':     50,
 };
@@ -143,7 +143,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
         if (this.st.isCharging) {
           // Phase 3: charge — fast run for 900ms
           this.st.chargeTimer -= delta;
-          body.setVelocityX(320 * this.st.direction);
+          body.setVelocityX(420 * this.st.direction);
           this.setFlipX(this.st.direction < 0);
           const cf = Math.floor(this.st.sineT / 130) % 2;
           this.setTexture(cf === 0 ? 'enemy-flanker' : 'enemy-flanker-2');
