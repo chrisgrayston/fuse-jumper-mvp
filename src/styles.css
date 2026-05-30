@@ -4,26 +4,135 @@
   padding: 0;
 }
 
-html, body {
+html {
+  height: 100%;
+  height: -webkit-fill-available;
+}
+
+body {
   width: 100%;
   height: 100%;
+  min-height: 100vh;
+  min-height: -webkit-fill-available;
   overflow: hidden;
   background: #1a0a2e;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   touch-action: none;
   -webkit-user-select: none;
   user-select: none;
 }
 
-#game-container {
+/* ── Wrapper grid ────────────────────────────────────────────────────────── */
+
+#game-wrapper {
+  display: grid;
   width: 100%;
   height: 100%;
+  background: #1a0a2e;
+}
+
+/* PORTRAIT — game on top, controls split below */
+@media (orientation: portrait) {
+  #game-wrapper {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto 1fr;
+    grid-template-areas:
+      "game    game"
+      "ctrl-l  ctrl-r";
+    align-content: start;
+  }
+
+  #game-container {
+    grid-area: game;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+  }
+
+  #ctrl-left {
+    grid-area: ctrl-l;
+    flex-direction: row;
+    gap: 16px;
+    justify-content: center;
+    align-items: center;
+    padding: 20px 16px;
+  }
+
+  #ctrl-right {
+    grid-area: ctrl-r;
+    justify-content: center;
+    align-items: center;
+    padding: 20px 16px;
+  }
+}
+
+/* LANDSCAPE — controls on sides, game in centre */
+@media (orientation: landscape) {
+  #game-wrapper {
+    grid-template-columns: 90px 1fr 90px;
+    grid-template-rows: 1fr;
+    grid-template-areas: "ctrl-l game ctrl-r";
+  }
+
+  #game-container {
+    grid-area: game;
+    width: 100%;
+    height: 100%;
+  }
+
+  #ctrl-left {
+    grid-area: ctrl-l;
+    flex-direction: column;
+    gap: 12px;
+    justify-content: center;
+    align-items: center;
+    padding: 16px 8px;
+  }
+
+  #ctrl-right {
+    grid-area: ctrl-r;
+    justify-content: center;
+    align-items: center;
+    padding: 16px 8px;
+  }
+}
+
+/* ── Control pads ────────────────────────────────────────────────────────── */
+
+.ctrl-pad {
+  display: flex;
+}
+
+/* ── Buttons ─────────────────────────────────────────────────────────────── */
+
+.ctrl-btn {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  background: rgba(30, 50, 90, 0.75);
+  color: #ffffff;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
+  /* prevent text selection on hold */
+  -webkit-user-select: none;
+  user-select: none;
+  transition: background 80ms, border-color 80ms;
 }
+
+.ctrl-btn:active,
+.ctrl-btn.pressed {
+  background: rgba(60, 120, 220, 0.85);
+  border-color: rgba(120, 200, 255, 0.7);
+}
+
+/* ── Canvas ──────────────────────────────────────────────────────────────── */
 
 canvas {
   display: block;
