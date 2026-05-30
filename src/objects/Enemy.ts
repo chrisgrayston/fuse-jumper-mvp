@@ -81,12 +81,13 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
         this.patrolBounce(body, this.eData.patrolLeft ?? 50, this.eData.patrolRight ?? 750, SPEEDS['bubble-blower']!);
         if (this.st.clock >= this.st.nextAction) {
           this.st.clock = 0;
-          this.st.nextAction = Phaser.Math.Between(1800, 3000);
-          // Spawn 3 bubbles — clearly upward, each with its own random kick
-          for (let i = -1; i <= 1; i++) {
-            const vy = Phaser.Math.Between(-130, -90);
-            const vx = Phaser.Math.Between(-20, 20);
-            this.spawn(this.x + i * 16, this.y - 14, 'bubble', vx, vy);
+          this.st.nextAction = Phaser.Math.Between(3300, 4500);
+          // 3 bubbles fanned at different angles around vertical
+          const baseAngles = [-130, -90, -50]; // degrees: upper-left, straight up, upper-right
+          for (let i = 0; i < 3; i++) {
+            const rad = Phaser.Math.DegToRad(baseAngles[i] + Phaser.Math.Between(-8, 8));
+            const spd = Phaser.Math.Between(100, 135);
+            this.spawn(this.x + (i - 1) * 14, this.y - 14, 'bubble', Math.cos(rad) * spd, Math.sin(rad) * spd);
           }
         }
         break;
