@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { initTouchInput } from './input/touchInput';
 import { BootScene } from './scenes/BootScene';
 import { MenuScene } from './scenes/MenuScene';
+import { LevelIntroScene } from './scenes/LevelIntroScene';
 import { GameScene } from './scenes/GameScene';
 import { GameOverScene } from './scenes/GameOverScene';
 import { LevelCompleteScene } from './scenes/LevelCompleteScene';
@@ -23,7 +24,7 @@ const config: Phaser.Types.Core.GameConfig = {
       debug: false,
     },
   },
-  scene: [BootScene, MenuScene, GameScene, GameOverScene, LevelCompleteScene],
+  scene: [BootScene, MenuScene, LevelIntroScene, GameScene, GameOverScene, LevelCompleteScene],
 };
 
 initTouchInput();

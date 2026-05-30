@@ -5,6 +5,43 @@ export class BootScene extends Phaser.Scene {
     super({ key: 'BootScene' });
   }
 
+  preload(): void {
+    const { width, height } = this.scale;
+
+    const bgBar = this.add.graphics();
+    bgBar.fillStyle(0x222222);
+    bgBar.fillRect(width / 2 - 200, height / 2 - 14, 400, 28);
+
+    const fillBar = this.add.graphics();
+    this.load.on('progress', (v: number) => {
+      fillBar.clear();
+      fillBar.fillStyle(0xffee00);
+      fillBar.fillRect(width / 2 - 198, height / 2 - 12, 396 * v, 24);
+    });
+    this.load.on('complete', () => { bgBar.destroy(); fillBar.destroy(); });
+
+    this.load.image('art-heroes',         './art/HeroesAndVillains.jpeg');
+    this.load.image('art-club1800',       './art/Club1800.jpeg');
+    this.load.image('art-club1900',       './art/Club1900.jpeg');
+    this.load.image('art-club2000',       './art/Club2000.jpeg');
+    this.load.image('art-club2100',       './art/Club2100.jpeg');
+    this.load.image('art-club2200',       './art/Club2200.jpeg');
+    this.load.image('art-bubble-blower',  './art/BubbleBlower.jpeg');
+    this.load.image('art-flanker',        './art/TheFlanker.jpeg');
+    this.load.image('art-rushy',          './art/Rushy.jpeg');
+    this.load.image('art-smaller-bear',   './art/SmallerBear.jpeg');
+    this.load.image('art-melonhead',      './art/melonhead.jpeg');
+    this.load.image('art-clippy',         './art/CLippy.jpeg');
+    this.load.image('art-butter-fingers', './art/ButterFingers.jpeg');
+    this.load.image('art-padel-punisher', './art/PadelPunisher.jpeg');
+    this.load.image('art-giant-bear',     './art/GiantBear.jpeg');
+    this.load.image('art-condor',         './art/Condor.jpeg');
+    this.load.image('art-actuary-man',    './art/ActuaryMan.jpeg');
+    this.load.image('art-puffin',         './art/ThePuffin.jpeg');
+    this.load.image('art-vascular-man',   './art/VascularMan.jpeg');
+    this.load.image('art-skeletor',       './art/Skeletor.jpeg');
+  }
+
   create(): void {
     this.generateTextures();
     this.scene.start('MenuScene');

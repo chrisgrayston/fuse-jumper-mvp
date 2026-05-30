@@ -52,9 +52,9 @@ export class LevelCompleteScene extends Phaser.Scene {
 
     const next = (): void => {
       if (isGameComplete) {
-        this.scene.start('GameScene', { levelIndex: 0, score: 0, lives: 3 });
+        this.scene.start('LevelIntroScene', { levelIndex: 0, score: 0, lives: 3 });
       } else {
-        this.scene.start('GameScene', {
+        this.scene.start('LevelIntroScene', {
           levelIndex: data.nextLevelIndex,
           score: data.score,
           lives: data.lives,

@@ -138,7 +138,17 @@ export class GameScene extends Phaser.Scene {
   // ── Build ─────────────────────────────────────────────────────────────────
 
   private drawBackground(level: LevelData, width: number, height: number): void {
-    this.add.rectangle(width / 2, height / 2, width, height, level.bgPrimary);
+    // Club art backdrop at very low opacity
+    const artKeys = ['art-club1800', 'art-club2000', 'art-club2100', 'art-club2200'];
+    const artKey = artKeys[this.levelIndex];
+    if (artKey && this.textures.exists(artKey)) {
+      const bgArt = this.add.image(width / 2, height / 2, artKey).setDepth(0);
+      const sx = width / bgArt.width;
+      const sy = height / bgArt.height;
+      bgArt.setScale(Math.max(sx, sy)).setAlpha(0.11);
+    }
+
+    this.add.rectangle(width / 2, height / 2, width, height, level.bgPrimary, 0.80);
 
     // Ambient particles / stars
     for (let i = 0; i < 60; i++) {
