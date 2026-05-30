@@ -179,14 +179,14 @@ export class LevelIntroScene extends Phaser.Scene {
     gfx.lineStyle(1, 0x444466, 1);
     gfx.strokeRect(cardLeft, cardTop, cw, ch);
 
-    // Image: top 60 % of card height
-    const imgAreaH = Math.floor(ch * 0.60);
+    // Image: top 75 % of card height
+    const imgAreaH = Math.floor(ch * 0.75);
     const texSrc   = this.textures.get(v.key).source[0];
     const origW    = texSrc.width;
     const origH    = texSrc.height;
 
-    // Crop top 68 % of source — characters live in the upper portion
-    const cropH = Math.floor(origH * 0.68);
+    // Crop top 42 % of source — strips text/nameplate, shows just the character art
+    const cropH = Math.floor(origH * 0.42);
 
     // Scale to fit within cw × imgAreaH, preserving aspect ratio
     const scale = Math.min(cw / origW, imgAreaH / cropH);
@@ -198,9 +198,9 @@ export class LevelIntroScene extends Phaser.Scene {
     img.setCrop(0, 0, origW, cropH);
     img.setDisplaySize(dispW, dispH);
 
-    // Name label
+    // Name label — sits just below the image area
     const bigCard = cw > 155;
-    const textY = cardTop + imgAreaH + 4;
+    const textY = cardTop + imgAreaH + 3;
     this.add.text(cx, textY, v.name, {
       fontSize: bigCard ? '10px' : '9px',
       fontFamily: 'monospace',

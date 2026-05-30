@@ -130,7 +130,7 @@ export class GameScene extends Phaser.Scene {
         this.projectileList.splice(i, 1);
         continue;
       }
-      p.update();
+      p.update(delta);
       if (!p.active) this.projectileList.splice(i, 1);
     }
   }
