@@ -138,21 +138,13 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
         this.st.sineT += delta;
         if (this.st.isCharging) {
           // Phase 3: charge — fast run for 900ms
-          const pLeft  = this.eData.patrolLeft  ?? 50;
-          const pRight = this.eData.patrolRight ?? 750;
           this.st.chargeTimer -= delta;
           body.setVelocityX(420 * this.st.direction);
           this.setFlipX(this.st.direction < 0);
           const cf = Math.floor(this.st.sineT / 130) % 2;
           this.setTexture(cf === 0 ? 'enemy-flanker' : 'enemy-flanker-2');
-          // End charge early if boundary reached, to prevent overshooting
-          const hitBoundary = (this.st.direction > 0 && this.x >= pRight) ||
-                              (this.st.direction < 0 && this.x <= pLeft);
-          if (this.st.chargeTimer <= 0 || hitBoundary) {
+          if (this.st.chargeTimer <= 0) {
             this.st.isCharging = false;
-            // Snap back inside patrol zone
-            if (this.x > pRight) { this.x = pRight; }
-            if (this.x < pLeft)  { this.x = pLeft;  }
             body.setVelocityX(SPEEDS['flanker']! * this.st.direction);
           }
         } else if (this.st.travelling) {
@@ -163,9 +155,12 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
           this.setTexture(sf === 0 ? 'enemy-flanker-stamp' : 'enemy-flanker-stamp-2');
           if (this.st.travelTimer <= 0) {
             this.st.travelling = false;
-            this.st.direction  = -this.st.direction;  // alternate charge direction
-            this.st.isCharging = true;
-            this.st.chargeTimer = 900;
+            // atPosA alternates true/false to give right/left charges independently
+            // of whichever direction patrolBounce set between stamps
+            this.st.atPosA    = !this.st.atPosA;
+            this.st.direction = this.st.atPosA ? 1 : -1;
+            this.st.isCharging  = true;
+            this.st.chargeTimer = 550;
             this.st.sineT = 0;
           }
         } else {
