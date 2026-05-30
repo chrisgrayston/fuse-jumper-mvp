@@ -44,8 +44,8 @@ export class Projectile extends Phaser.Physics.Arcade.Sprite {
     body.setCollideWorldBounds(false);
 
     if (type === 'bubble') {
-      this.bubbleSineFreq  = Phaser.Math.FloatBetween(0.9, 1.9);
-      this.bubbleSineAmp   = Phaser.Math.FloatBetween(28, 55);
+      this.bubbleSineFreq  = Phaser.Math.FloatBetween(0.3, 0.7);
+      this.bubbleSineAmp   = Phaser.Math.FloatBetween(80, 160);
       this.bubbleSinePhase = Phaser.Math.FloatBetween(0, Math.PI * 2);
     } else {
       this.bubbleSineFreq  = 0;

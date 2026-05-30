@@ -43,10 +43,10 @@ export const level1: LevelData = {
   enemies: [
     {
       type: 'bubble-blower',
-      x: 220,
+      x: 400,
       y: 415,
-      patrolLeft: 50,
-      patrolRight: 440,
+      patrolLeft: 150,
+      patrolRight: 650,
     },
   ],
 };
