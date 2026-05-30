@@ -188,15 +188,14 @@ export class LevelIntroScene extends Phaser.Scene {
     // Crop top 42 % of source — strips text/nameplate, shows just the character art
     const cropH = Math.floor(origH * 0.42);
 
-    // Scale to fit within cw × imgAreaH, preserving aspect ratio
+    // Uniform scale to fit the cropped region within cw × imgAreaH
     const scale = Math.min(cw / origW, imgAreaH / cropH);
-    const dispW = origW * scale;
-    const dispH = cropH * scale;
 
-    const img = this.add.image(cx, cardTop + dispH / 2, v.key);
-    img.setOrigin(0.5, 0.5);
+    // setOrigin(0.5, 0) anchors top-centre; y = cardTop starts the image exactly there
+    const img = this.add.image(cx, cardTop, v.key);
+    img.setOrigin(0.5, 0);
     img.setCrop(0, 0, origW, cropH);
-    img.setDisplaySize(dispW, dispH);
+    img.setScale(scale);
 
     // Name label — sits just below the image area
     const bigCard = cw > 155;
