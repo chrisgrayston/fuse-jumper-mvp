@@ -45,7 +45,7 @@ export class Projectile extends Phaser.Physics.Arcade.Sprite {
       this.pieVX = vx;
     } else if (type === 'glass-shard') {
       body.allowGravity = true;
-      this.glassLifespan = 1200;
+      this.glassLifespan = 1600;
     } else if (type === 'football') {
       body.allowGravity = false;
       body.setGravityY(0);
