@@ -52,6 +52,10 @@ export class GameScene extends Phaser.Scene {
   private coinsDropped = 0;
   private scoreMult    = 1;
 
+  private eelsGroup!: Phaser.Physics.Arcade.Group;
+  private eelList:  Phaser.Physics.Arcade.Sprite[] = [];
+  private eelTimer  = 0;
+
   private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
   private wasd!: { up: Phaser.Input.Keyboard.Key; left: Phaser.Input.Keyboard.Key; right: Phaser.Input.Keyboard.Key };
 
@@ -96,6 +100,9 @@ export class GameScene extends Phaser.Scene {
     this.enemies = this.physics.add.group();
     this.projectilesGroup = this.physics.add.group();
     this.coinsGroup = this.physics.add.group();
+    this.eelsGroup  = this.physics.add.group();
+    this.eelList    = [];
+    this.eelTimer   = 2000;   // first eel after 3 s
     this.buildEnemies(level);
 
     // Colliders
@@ -111,6 +118,15 @@ export class GameScene extends Phaser.Scene {
       (proj as Projectile).destroy();
       this.hitPlayer();
     });
+    this.physics.add.overlap(this.player, this.eelsGroup, (_p, eelObj) => {
+      const e = eelObj as Phaser.Physics.Arcade.Sprite;
+      if (!e.active) return;
+      e.destroy();
+      const idx = this.eelList.indexOf(e);
+      if (idx >= 0) this.eelList.splice(idx, 1);
+      this.hitPlayer();
+    });
+
     this.physics.add.overlap(this.player, this.coinsGroup, (_p, coinObj) => {
       const coin = coinObj as Phaser.Physics.Arcade.Sprite;
       if (!coin.active) return;
@@ -166,6 +182,28 @@ export class GameScene extends Phaser.Scene {
     if (this.coinTimer >= COIN_INTERVAL) {
       this.coinTimer = 0;
       if (this.coinsDropped < 3 && Math.random() < 0.5) this.spawnCoin();
+    }
+
+    // Eel spawner — every 5 s
+    this.eelTimer += delta;
+    if (this.eelTimer >= 5000) {
+      this.eelTimer = 0;
+      this.spawnEel();
+    }
+
+    // Update eels — manual position control, sinusoidal bob
+    for (let i = this.eelList.length - 1; i >= 0; i--) {
+      const e = this.eelList[i];
+      if (!e.active) { this.eelList.splice(i, 1); continue; }
+      const st  = (e.getData('sineT')  as number) + delta * 0.004;
+      const at  = (e.getData('animT')  as number) + delta;
+      e.setData('sineT', st);
+      e.setData('animT', at);
+      const newX = e.x - 60 * (delta / 1000);
+      const newY = (e.getData('baseY') as number) + Math.sin(st) * 28;
+      (e.body as Phaser.Physics.Arcade.Body).reset(newX, newY);
+      e.setTexture(`enemy-eel-${(Math.floor(at / 150) % 3) + 1}`);
+      if (newX < -80) { e.destroy(); this.eelList.splice(i, 1); }
     }
 
     // Cull coins that have left the screen
@@ -372,6 +410,20 @@ export class GameScene extends Phaser.Scene {
       this.isRespawning = false;
       this.time.delayedCall(1500, () => { this.isInvincible = false; });
     });
+  }
+
+  // ── Eels ──────────────────────────────────────────────────────────────────
+
+  private spawnEel(): void {
+    const baseY = Phaser.Math.Between(30, 210);
+    const eel = this.physics.add.sprite(840, baseY, 'enemy-eel-1');
+    eel.setDepth(7);
+    eel.setData('baseY', baseY);
+    eel.setData('sineT', Phaser.Math.FloatBetween(0, Math.PI * 2));
+    eel.setData('animT', 0);
+    this.eelsGroup.add(eel);
+    (eel.body as Phaser.Physics.Arcade.Body).allowGravity = false;
+    this.eelList.push(eel);
   }
 
   // ── Coins ─────────────────────────────────────────────────────────────────

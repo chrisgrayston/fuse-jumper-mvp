@@ -386,6 +386,66 @@ export class BootScene extends Phaser.Scene {
     g.fillStyle(0x3a1f0a); g.fillRect(30, 44, 8, 3);    // right boot raised
     g.generateTexture('enemy-flanker-stamp-2', 44, 52);
 
+    // ── Eel — 3-frame dark moray, 52×18, head faces LEFT (moves left) ────
+    {
+      const DK = 0x0a1510;  // near-black shadow
+      const BD = 0x1a4a28;  // dark green body
+      const HL = 0x2e8048;  // lighter green scales/highlight
+      const EY = 0xff3300;  // glowing red eye
+      const TH = 0xddeedd;  // pale teeth
+      const MB = 0x060d08;  // near-black mouth cavity
+
+      // Body-wave Y offsets for 5 segments (x=16-48, 8px each) per frame
+      const waves: number[][] = [
+        [0, -3, -4, -3,  0],   // hump up
+        [0,  0,  0,  0,  0],   // straight
+        [0, +3, +4, +3,  0],   // hump down
+      ];
+
+      for (let f = 0; f < 3; f++) {
+        g.clear();
+        const w = waves[f];
+
+        // Tail fin (rightmost, x=44-52)
+        g.fillStyle(BD); g.fillRect(44, 6, 8, 6);
+        g.fillStyle(HL); g.fillRect(47, 3, 5, 3);   // upper lobe
+        g.fillStyle(HL); g.fillRect(47, 12, 5, 3);  // lower lobe
+        g.fillStyle(DK); g.fillRect(44, 9, 3, 1);   // spine line
+
+        // Body segments — drawn right-to-left so head overlaps
+        for (let s = 4; s >= 0; s--) {
+          const bx = 16 + s * 7;
+          const by = 5 + w[s];
+          g.fillStyle(BD); g.fillRect(bx,     by,     7,  8);
+          g.fillStyle(HL); g.fillRect(bx + 1, by + 1, 4,  2);  // scale sheen
+          g.fillStyle(DK); g.fillRect(bx + 6, by + 1, 1,  6);  // segment shadow
+        }
+
+        // Head (x=0-16, facing left — open snarling mouth)
+        g.fillStyle(BD);  g.fillRect(0,  3, 16,  7);   // upper skull
+        g.fillStyle(HL);  g.fillRect(1,  3, 13,  2);   // top ridge highlight
+        g.fillStyle(BD);  g.fillRect(2, 10, 15,  5);   // lower jaw
+        g.fillStyle(MB);  g.fillRect(0,  7,  9,  3);   // open mouth cavity
+        g.fillStyle(DK);  g.fillRect(0,  9,  7,  1);   // gum line
+        // Teeth — upper
+        g.fillStyle(TH);
+        g.fillRect(1,  8, 2, 3);
+        g.fillRect(4,  8, 2, 3);
+        g.fillRect(7,  8, 2, 2);
+        // Teeth — lower
+        g.fillStyle(TH);
+        g.fillRect(2, 10, 2, 2);
+        g.fillRect(5, 10, 2, 2);
+        // Glowing eye
+        g.fillStyle(EY);        g.fillRect(10, 4, 4, 4);
+        g.fillStyle(0xffaa00);  g.fillRect(11, 5, 2, 2);  // eye highlight
+        g.fillStyle(DK);        g.fillRect(10, 4, 1, 1);  // pupil slit
+        g.fillStyle(DK);        g.fillRect(10, 7, 1, 1);
+
+        g.generateTexture(`enemy-eel-${f + 1}`, 52, 18);
+      }
+    }
+
     // ── Rushy — black cassock, white collar, Man Utd red flash ───────────
     g.clear();
     g.fillStyle(0x111111); g.fillRect(2, 6, 22, 26);
