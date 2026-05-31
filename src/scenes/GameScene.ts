@@ -400,6 +400,18 @@ export class GameScene extends Phaser.Scene {
 
     this.isInvincible = true;
 
+    // Reset all enemies to spawn positions
+    for (const enemy of this.enemyControllers) enemy.resetEnemy();
+
+    // Clear in-flight projectiles
+    for (const proj of this.projectileList) { if (proj.active) proj.destroy(); }
+    this.projectileList = [];
+
+    // Clear eels
+    for (const eel of this.eelList) { if (eel.active) eel.destroy(); }
+    this.eelList  = [];
+    this.eelTimer = 2000;
+
     const flashTween = this.tweens.add({
       targets: this.player, alpha: 0, duration: 110,
       yoyo: true, repeat: 6,

@@ -505,7 +505,39 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     }
   }
 
-  // ── Helpers ──────────────────────────────────────────────────────────────
+  // ── Public API ───────────────────────────────────────────────────────────
+
+  resetEnemy(): void {
+    const body = this.body as Phaser.Physics.Arcade.Body;
+    body.reset(this.eData.x, this.eData.y);
+    body.setVelocity(0, 0);
+
+    if (this.coatSprite) { this.coatSprite.destroy(); this.coatSprite = null; }
+
+    this.st.clock        = 0;
+    this.st.nextAction   = Phaser.Math.Between(1500, 3000);
+    this.st.direction    = 1;
+    this.st.isCharging   = false;
+    this.st.chargeTimer  = 0;
+    this.st.atPosA       = true;
+    this.st.travelling   = false;
+    this.st.travelTimer  = 0;
+    this.st.sineT        = Phaser.Math.FloatBetween(0, Math.PI * 2);
+    this.st.kickClock    = 0;
+    this.st.nextKick     = Phaser.Math.Between(3000, 7000);
+    this.st.kickDir      = 1;
+
+    this.setTexture(`enemy-${this.eType}`);
+    this.setFlipX(false);
+
+    const floaters: EnemyType[] = ['rushy', 'condor', 'actuary-man', 'vascular-man', 'skeletor'];
+    body.allowGravity = !floaters.includes(this.eType);
+
+    const speed = SPEEDS[this.eType];
+    if (speed !== undefined) body.setVelocityX(speed);
+  }
+
+  // ── Helpers ───────────────────────────────────────────────────────────────
 
   private patrolBounce(
     body: Phaser.Physics.Arcade.Body,
