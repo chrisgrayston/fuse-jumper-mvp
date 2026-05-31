@@ -4,9 +4,9 @@ import { LevelData } from './types';
 // Neon nightclub. Purple/pink. Disco ball.
 export const level2: LevelData = {
   club: 2000,
-  bgPrimary:   0x0a0515,
-  bgSecondary: 0x150a25,
-  accentColor: 0xcc44ff,
+  bgPrimary:   0x0a0005,
+  bgSecondary: 0x150008,
+  accentColor: 0xff1a44,
 
   playerStart: { x: 80, y: 390 },
 

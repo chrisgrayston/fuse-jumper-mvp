@@ -233,17 +233,20 @@ export class GameScene extends Phaser.Scene {
     const artKeys = ['art-club1800', 'art-club2000', 'art-club2100', 'art-club2200'];
     const artKey  = artKeys[this.levelIndex];
 
-    const artForward = this.levelIndex === 0; // Club 1800 — art-forward treatment
+    const artForward = this.levelIndex <= 1;  // Club 1800 + 2000 both have full-art backgrounds
+    // Club 2000 image is already very dark — show at near-full brightness with thin overlay
+    const artAlpha   = this.levelIndex === 1 ? 0.85 : 0.78;
+    const overlayAmt = this.levelIndex === 1 ? 0.18 : 0.28;
 
     if (artKey && this.textures.exists(artKey)) {
       const bgArt = this.add.image(width / 2, height / 2, artKey).setDepth(0);
       const sx = width  / bgArt.width;
       const sy = height / bgArt.height;
-      bgArt.setScale(Math.max(sx, sy)).setAlpha(artForward ? 0.78 : 0.11);
+      bgArt.setScale(Math.max(sx, sy)).setAlpha(artForward ? artAlpha : 0.11);
     }
 
     // Colour tint / dark overlay
-    const overlayAlpha = artForward ? 0.28 : 0.80;
+    const overlayAlpha = artForward ? overlayAmt : 0.80;
     this.add.rectangle(width / 2, height / 2, width, height, level.bgPrimary, overlayAlpha).setDepth(0);
 
     if (artForward) {
@@ -280,11 +283,16 @@ export class GameScene extends Phaser.Scene {
   private buildPlatforms(level: LevelData): void {
     for (const p of level.platforms) {
       const gfx = this.add.graphics().setDepth(2);
-      gfx.fillStyle(level.club === 2200 ? 0x998855 : 0x445566);
+      const platBody   = level.club === 2200 ? 0x998855
+                       : level.club === 2000 ? 0x18080e
+                       : 0x445566;
+      const platShadow = level.club === 2000 ? 0x0a0003 : 0x223344;
+      const glowAlpha  = level.club === 2000 ? 0.75 : 0.5;
+      gfx.fillStyle(platBody);
       gfx.fillRect(p.x, p.y, p.width, p.height);
-      gfx.fillStyle(level.accentColor, 0.5);
+      gfx.fillStyle(level.accentColor, glowAlpha);
       gfx.fillRect(p.x, p.y, p.width, 3);
-      gfx.fillStyle(0x223344, 0.4);
+      gfx.fillStyle(platShadow, 0.5);
       gfx.fillRect(p.x, p.y + p.height - 3, p.width, 3);
 
       const zone = this.physics.add.staticImage(
