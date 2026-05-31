@@ -411,8 +411,9 @@ export class GameScene extends Phaser.Scene {
   // ── Eels ──────────────────────────────────────────────────────────────────
 
   private spawnEel(): void {
-    const spawnY = Phaser.Math.Between(20, 180);
-    const eel = this.physics.add.sprite(840, spawnY, 'enemy-eel-1');
+    const spawnX = Phaser.Math.Between(520, 660);
+    const spawnY = Phaser.Math.Between(-20, 40);
+    const eel = this.physics.add.sprite(spawnX, spawnY, 'enemy-eel-1');
     eel.setDepth(7);
     eel.setData('animT', 0);
     this.eelsGroup.add(eel);
