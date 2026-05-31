@@ -346,6 +346,8 @@ export class GameScene extends Phaser.Scene {
     this.spawnFn = (x, y, type: ProjectileType, vx, vy) => {
       const proj = new Projectile(this, x, y, type, vx, vy);
       this.projectilesGroup.add(proj);
+      // group.add() resets the physics body, wiping velocity; re-apply immediately
+      (proj.body as Phaser.Physics.Arcade.Body).setVelocity(vx, vy);
       this.projectileList.push(proj);
     };
 
@@ -412,17 +414,17 @@ export class GameScene extends Phaser.Scene {
 
   private createCrateSmash(x: number, y: number): void {
     const img = this.add.image(x, y, 'proj-crate-smash-1').setDepth(12);
-    this.time.delayedCall(160, () => {
+    this.time.delayedCall(200, () => {
       if (img.active) img.setTexture('proj-crate-smash-2');
-      this.time.delayedCall(160, () => {
+      this.time.delayedCall(200, () => {
         if (img.active) img.setTexture('proj-crate-smash-3');
-        this.time.delayedCall(160, () => { if (img.active) img.destroy(); });
+        this.time.delayedCall(200, () => { if (img.active) img.destroy(); });
       });
     });
     for (let i = 0; i < 6; i++) {
       const vx = Phaser.Math.Between(-340, 340);
       const vy  = -Phaser.Math.Between(260, 460);  // always upward
-      this.spawnFn(x, y - 8, 'glass-shard', vx, vy);
+      this.spawnFn(x, y - 20, 'glass-shard', vx, vy);
     }
   }
 
