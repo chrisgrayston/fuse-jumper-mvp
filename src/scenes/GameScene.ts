@@ -414,14 +414,14 @@ export class GameScene extends Phaser.Scene {
 
   private createCrateSmash(x: number, y: number): void {
     const img = this.add.image(x, y, 'proj-crate-smash-1').setDepth(12);
-    this.time.delayedCall(200, () => {
+    this.time.delayedCall(240, () => {
       if (img.active) img.setTexture('proj-crate-smash-2');
-      this.time.delayedCall(200, () => {
+      this.time.delayedCall(240, () => {
         if (img.active) img.setTexture('proj-crate-smash-3');
-        this.time.delayedCall(200, () => { if (img.active) img.destroy(); });
+        this.time.delayedCall(240, () => { if (img.active) img.destroy(); });
       });
     });
-    for (let i = 0; i < 6; i++) {
+    for (let i = 0; i < 3; i++) {
       const vx = Phaser.Math.Between(-340, 340);
       const vy  = -Phaser.Math.Between(260, 460);  // always upward
       this.spawnFn(x, y - 20, 'glass-shard', vx, vy);
