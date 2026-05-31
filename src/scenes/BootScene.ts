@@ -1141,28 +1141,41 @@ export class BootScene extends Phaser.Scene {
     g.fillStyle(0xaa7744); g.fillRect(12, 0, 6, 28);
     g.generateTexture('proj-mallet', 30, 28);
 
-    // Beer crate — 26×20, three visible bottle necks, slow gravity
+    // Beer crate — 26×20, three bottles in cells (side view)
     {
-      const CW = 0xb89220;  // crate wood (golden tan)
-      const CD = 0x8a6a10;  // dark slat
-      const BG = 0x447722;  // green bottle glass
+      const CW = 0xc89830;  // crate wood (warm golden)
+      const CD = 0x7a5c08;  // dark frame/posts
+      const BG = 0x336622;  // green bottle glass
       const BC = 0xddaa00;  // bottle cap gold
-      const BL = 0xff7700;  // orange label band
+      const BL = 0xff6600;  // orange label band
 
       g.clear();
-      // Crate body
-      g.fillStyle(CW); g.fillRect(0, 4, 26, 16);
-      // Horizontal slats
-      g.fillStyle(CD); g.fillRect(0, 4, 26, 2); g.fillRect(0, 18, 26, 2);
-      // Vertical slats + dividers
-      g.fillStyle(CD); g.fillRect(0, 4, 2, 16); g.fillRect(24, 4, 2, 16);
-      g.fillRect(8, 4, 2, 16); g.fillRect(16, 4, 2, 16);
-      // Three bottle necks above crate top
-      g.fillStyle(BG); g.fillRect(2, 0, 5, 5); g.fillRect(10, 0, 5, 5); g.fillRect(18, 0, 5, 5);
-      // Bottle caps
-      g.fillStyle(BC); g.fillRect(2, 0, 5, 2); g.fillRect(10, 0, 5, 2); g.fillRect(18, 0, 5, 2);
-      // Label bands
-      g.fillStyle(BL); g.fillRect(2, 3, 5, 2); g.fillRect(10, 3, 5, 2); g.fillRect(18, 3, 5, 2);
+      // Wood fill
+      g.fillStyle(CW); g.fillRect(0, 0, 26, 20);
+      // Outer frame (2px posts top/bottom/sides)
+      g.fillStyle(CD);
+      g.fillRect(0,  0, 26,  2);   // top rail
+      g.fillRect(0, 18, 26,  2);   // bottom rail
+      g.fillRect(0,  0,  2, 20);   // left post
+      g.fillRect(24, 0,  2, 20);   // right post
+      // Vertical dividers creating 3 cells (x=2-8, 10-16, 18-24)
+      g.fillRect(8,  0, 2, 20);
+      g.fillRect(16, 0, 2, 20);
+      // Bottle in cell 1 (x=2-8)
+      g.fillStyle(BG); g.fillRect(3, 2, 4, 16);    // bottle body
+      g.fillStyle(BC); g.fillRect(3, 2, 4,  3);    // cap
+      g.fillStyle(BL); g.fillRect(3, 9, 4,  4);    // label
+      g.fillStyle(0x222200); g.fillRect(4, 14, 2, 4); // shadow/liquid
+      // Bottle in cell 2 (x=10-16)
+      g.fillStyle(BG); g.fillRect(11, 2, 4, 16);
+      g.fillStyle(BC); g.fillRect(11, 2, 4,  3);
+      g.fillStyle(BL); g.fillRect(11, 9, 4,  4);
+      g.fillStyle(0x222200); g.fillRect(12, 14, 2, 4);
+      // Bottle in cell 3 (x=18-24)
+      g.fillStyle(BG); g.fillRect(19, 2, 4, 16);
+      g.fillStyle(BC); g.fillRect(19, 2, 4,  3);
+      g.fillStyle(BL); g.fillRect(19, 9, 4,  4);
+      g.fillStyle(0x222200); g.fillRect(20, 14, 2, 4);
       g.generateTexture('proj-crate', 26, 20);
     }
 

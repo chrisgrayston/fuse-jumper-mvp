@@ -117,13 +117,21 @@ export class GameScene extends Phaser.Scene {
     this.physics.add.collider(this.coinsGroup, this.platforms);
     this.physics.add.collider(this.eelsGroup, this.platforms);
 
-    // Crate smash: detect when a crate projectile overlaps a platform
-    this.physics.add.overlap(this.projectilesGroup, this.platforms, (a, _b) => {
-      const proj = a as unknown as Projectile;
-      if (!proj.active || proj.projType !== 'crate') return;
-      proj.destroy();
-      this.createCrateSmash(proj.x, proj.y);
-    });
+    // Crate smash: crates physically stop on platforms and shatter
+    this.physics.add.collider(
+      this.projectilesGroup,
+      this.platforms,
+      (projObj) => {
+        const proj = projObj as unknown as Projectile;
+        if (!proj.active) return;
+        proj.destroy();
+        this.createCrateSmash(proj.x, proj.y);
+      },
+      (projObj) => {
+        const proj = projObj as unknown as Projectile;
+        return 'projType' in proj && (proj as Projectile).projType === 'crate';
+      },
+    );
 
     this.physics.add.overlap(this.player, this.collectibles, (_p, c) => {
       this.pickupPlayer(c as Collectible);

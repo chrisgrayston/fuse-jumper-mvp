@@ -402,7 +402,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
           this.setTexture('enemy-butter-fingers-throw-1');
           this.setFlipX(!this.st.atPosA);
           if (this.st.chargeTimer <= 0) {
-            this.spawn(this.x, this.y + 30, 'crate', Phaser.Math.Between(-25, 25), 50);
+            this.spawn(this.x, this.y + 55, 'crate', Phaser.Math.Between(-25, 25), 50);
             this.st.nextKick = PHO;
             this.st.chargeTimer = 250;
           }
