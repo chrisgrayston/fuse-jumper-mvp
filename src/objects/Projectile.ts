@@ -38,7 +38,7 @@ export class Projectile extends Phaser.Physics.Arcade.Sprite {
       body.setGravityY(0);
     } else if (type === 'crate') {
       body.allowGravity = true;
-      body.setGravityY(-480);   // world gravity 600 - 480 = ~120 effective → slow fall
+      body.setGravityY(-520);   // world gravity 600 - 520 = ~80 effective → slower fall
     } else if (type === 'pie') {
       body.allowGravity = false;
       body.setGravityY(0);
