@@ -288,9 +288,13 @@ export class BootScene extends Phaser.Scene {
 
     // ── Flanker run-1 — bald wide Dartford RFC rugby player, left leg fwd ──
     g.clear();
-    g.fillStyle(0xffcc88); g.fillRect(14, 2, 16, 16);   // bald head (rect, no fillCircle)
-    g.fillStyle(0x222222); g.fillRect(19, 8, 2, 2);     // left eye
-    g.fillStyle(0x222222); g.fillRect(24, 8, 2, 2);     // right eye
+    g.fillStyle(0xffcc88); g.fillCircle(22, 9, 9);      // rounded bald head
+    g.fillStyle(0xffcc88); g.fillRect(13, 8, 3, 5);     // left ear
+    g.fillStyle(0xffcc88); g.fillRect(28, 8, 3, 5);     // right ear
+    g.fillStyle(0x222222); g.fillRect(17, 8, 3, 3);     // left eye
+    g.fillStyle(0xffffff); g.fillRect(17, 8, 1, 1);     // L eye highlight
+    g.fillStyle(0x222222); g.fillRect(23, 8, 3, 3);     // right eye
+    g.fillStyle(0xffffff); g.fillRect(23, 8, 1, 1);     // R eye highlight
     g.fillStyle(0xffcc88); g.fillRect(19, 17, 6, 3);    // neck
     g.fillStyle(0x0033aa); g.fillRect(4, 20, 36, 4);    // jersey hoop blue
     g.fillStyle(0xffffff); g.fillRect(4, 24, 36, 4);    // jersey hoop white
@@ -313,9 +317,13 @@ export class BootScene extends Phaser.Scene {
 
     // ── Flanker run-2 — right leg fwd ────────────────────────────────────
     g.clear();
-    g.fillStyle(0xffcc88); g.fillRect(14, 2, 16, 16);
-    g.fillStyle(0x222222); g.fillRect(19, 8, 2, 2);
-    g.fillStyle(0x222222); g.fillRect(24, 8, 2, 2);
+    g.fillStyle(0xffcc88); g.fillCircle(22, 9, 9);
+    g.fillStyle(0xffcc88); g.fillRect(13, 8, 3, 5);
+    g.fillStyle(0xffcc88); g.fillRect(28, 8, 3, 5);
+    g.fillStyle(0x222222); g.fillRect(17, 8, 3, 3);
+    g.fillStyle(0xffffff); g.fillRect(17, 8, 1, 1);
+    g.fillStyle(0x222222); g.fillRect(23, 8, 3, 3);
+    g.fillStyle(0xffffff); g.fillRect(23, 8, 1, 1);
     g.fillStyle(0xffcc88); g.fillRect(19, 17, 6, 3);
     g.fillStyle(0x0033aa); g.fillRect(4, 20, 36, 4);
     g.fillStyle(0xffffff); g.fillRect(4, 24, 36, 4);
@@ -338,9 +346,13 @@ export class BootScene extends Phaser.Scene {
 
     // ── Flanker stamp-1 — left foot raised high ───────────────────────────
     g.clear();
-    g.fillStyle(0xffcc88); g.fillRect(14, 2, 16, 16);
-    g.fillStyle(0x222222); g.fillRect(19, 8, 2, 2);
-    g.fillStyle(0x222222); g.fillRect(24, 8, 2, 2);
+    g.fillStyle(0xffcc88); g.fillCircle(22, 9, 9);
+    g.fillStyle(0xffcc88); g.fillRect(13, 8, 3, 5);
+    g.fillStyle(0xffcc88); g.fillRect(28, 8, 3, 5);
+    g.fillStyle(0x222222); g.fillRect(17, 8, 3, 3);
+    g.fillStyle(0xffffff); g.fillRect(17, 8, 1, 1);
+    g.fillStyle(0x222222); g.fillRect(23, 8, 3, 3);
+    g.fillStyle(0xffffff); g.fillRect(23, 8, 1, 1);
     g.fillStyle(0xffcc88); g.fillRect(19, 17, 6, 3);
     g.fillStyle(0x0033aa); g.fillRect(4, 20, 36, 4);
     g.fillStyle(0xffffff); g.fillRect(4, 24, 36, 4);
@@ -363,9 +375,13 @@ export class BootScene extends Phaser.Scene {
 
     // ── Flanker stamp-2 — right foot raised high ──────────────────────────
     g.clear();
-    g.fillStyle(0xffcc88); g.fillRect(14, 2, 16, 16);
-    g.fillStyle(0x222222); g.fillRect(19, 8, 2, 2);
-    g.fillStyle(0x222222); g.fillRect(24, 8, 2, 2);
+    g.fillStyle(0xffcc88); g.fillCircle(22, 9, 9);
+    g.fillStyle(0xffcc88); g.fillRect(13, 8, 3, 5);
+    g.fillStyle(0xffcc88); g.fillRect(28, 8, 3, 5);
+    g.fillStyle(0x222222); g.fillRect(17, 8, 3, 3);
+    g.fillStyle(0xffffff); g.fillRect(17, 8, 1, 1);
+    g.fillStyle(0x222222); g.fillRect(23, 8, 3, 3);
+    g.fillStyle(0xffffff); g.fillRect(23, 8, 1, 1);
     g.fillStyle(0xffcc88); g.fillRect(19, 17, 6, 3);
     g.fillStyle(0x0033aa); g.fillRect(4, 20, 36, 4);
     g.fillStyle(0xffffff); g.fillRect(4, 24, 36, 4);
@@ -446,13 +462,70 @@ export class BootScene extends Phaser.Scene {
       }
     }
 
-    // ── Rushy — black cassock, white collar, Man Utd red flash ───────────
-    g.clear();
-    g.fillStyle(0x111111); g.fillRect(2, 6, 22, 26);
-    g.fillStyle(0xffffff); g.fillRect(9, 6, 8, 6);     // collar
-    g.fillStyle(0xcc0000); g.fillRect(0, 14, 26, 4);   // Man Utd stripe
-    g.fillStyle(0xffcc88); g.fillRect(7, 0, 12, 8);    // face
-    g.generateTexture('enemy-rushy', 26, 32);
+    // ── Rushy — cross-legged floating vicar, black jacket, white collar, Man Utd red ─
+    {
+      const SK  = 0xffcc88;   // skin
+      const HR  = 0x1a0a05;   // dark hair
+      const JK  = 0x111111;   // black jacket
+      const RS  = 0xcc0000;   // Man Utd red shirt
+      const CL  = 0xffffff;   // white collar
+      const TR  = 0x1a1828;   // dark trousers
+      const SH  = 0x080808;   // black shoes
+      const EY  = 0x1a1005;   // dark eyes
+      const SKD = 0xddaa77;   // skin shadow
+
+      g.clear();
+
+      // Cross-legged lower body (drawn first — torso overlaps top)
+      g.fillStyle(TR); g.fillRect(0,  30, 10, 14);   // left knee protruding out
+      g.fillStyle(TR); g.fillRect(26, 30, 10, 14);   // right knee protruding out
+      g.fillStyle(TR); g.fillRect(4,  33, 28,  9);   // thigh/hip base
+      g.fillStyle(TR); g.fillRect(5,  40, 26,  8);   // crossed shin area
+      g.fillStyle(0x0a0a18); g.fillRect(17, 34, 2, 6);  // trouser centre crease
+      g.fillStyle(SH); g.fillRect(5,  42, 11,  6);   // right foot tucked to left
+      g.fillStyle(SH); g.fillRect(20, 42, 11,  6);   // left foot tucked to right
+
+      // Arms + hands
+      g.fillStyle(JK); g.fillRect(1,  22, 5, 12);
+      g.fillStyle(JK); g.fillRect(30, 22, 5, 12);
+      g.fillStyle(SK); g.fillRect(1,  32, 5,  4);
+      g.fillStyle(SK); g.fillRect(30, 32, 5,  4);
+
+      // Jacket torso
+      g.fillStyle(JK); g.fillRect(6, 17, 24, 18);
+      g.fillStyle(RS); g.fillRect(14, 17, 8, 8);     // red shirt at open V-neck
+      g.fillStyle(JK); g.fillRect(6,  17, 9, 12);    // left lapel over red
+      g.fillStyle(JK); g.fillRect(21, 17, 9, 12);    // right lapel over red
+
+      // Clerical collar
+      g.fillStyle(SK);     g.fillRect(14, 13, 8, 5);    // neck skin
+      g.fillStyle(CL);     g.fillRect(11, 14, 14, 4);   // white band around throat
+      g.fillStyle(CL);     g.fillRect(16, 13,  4, 7);   // white collar tab (the signature piece)
+      g.fillStyle(0xcccccc); g.fillRect(11, 16, 14, 2); // collar underside shadow
+
+      // Head
+      g.fillStyle(SK);  g.fillCircle(18, 7, 9);          // round face
+      g.fillStyle(SK);  g.fillRect(8,  5, 3, 6);          // left ear
+      g.fillStyle(SK);  g.fillRect(25, 5, 3, 6);          // right ear
+      g.fillStyle(SKD); g.fillRect(9,  6, 2, 4);          // ear shadow
+      g.fillStyle(SKD); g.fillRect(26, 6, 2, 4);
+      g.fillStyle(HR);  g.fillRect(9,  0, 18, 5);         // top hair
+      g.fillStyle(HR);  g.fillRect(9,  3,  3, 4);         // left sideburn
+      g.fillStyle(HR);  g.fillRect(24, 3,  3, 4);         // right sideburn
+      g.fillStyle(HR);  g.fillRect(12, 5,  4, 1);         // left eyebrow
+      g.fillStyle(HR);  g.fillRect(20, 5,  4, 1);         // right eyebrow
+      g.fillStyle(EY);  g.fillRect(12, 7,  4, 3);         // left eye
+      g.fillStyle(EY);  g.fillRect(20, 7,  4, 3);         // right eye
+      g.fillStyle(0xffffff); g.fillRect(12, 7, 2, 1);     // eye highlights
+      g.fillStyle(0xffffff); g.fillRect(20, 7, 2, 1);
+      g.fillStyle(SKD); g.fillRect(16,  9, 4, 3);         // nose bridge
+      g.fillStyle(SKD); g.fillRect(15, 10, 2, 2);         // left nostril
+      g.fillStyle(SKD); g.fillRect(19, 10, 2, 2);         // right nostril
+      g.fillStyle(0xcc7744); g.fillRect(14, 12, 8, 2);    // lips
+      g.fillStyle(0x441100); g.fillRect(15, 13, 6, 1);    // mouth line
+
+      g.generateTexture('enemy-rushy', 36, 48);
+    }
 
     // ── Smaller Bear — brown bear, red shirt, 24×28 ─────────────────────
     {

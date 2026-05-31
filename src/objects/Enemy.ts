@@ -188,11 +188,11 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       }
 
       case 'rushy': {
-        this.st.sineT += delta * 0.0018;
+        this.st.sineT += delta * 0.0004;
         const baseX = 400;
         const baseY = this.eData.y;
-        this.x = baseX + Math.cos(this.st.sineT * 0.7) * 310;
-        this.y = baseY + Math.sin(this.st.sineT) * 35;
+        this.x = baseX + Math.cos(this.st.sineT * 0.7) * 200;
+        this.y = baseY + Math.sin(this.st.sineT) * 25;
         body.reset(this.x, this.y);
         break;
       }
