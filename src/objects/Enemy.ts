@@ -388,7 +388,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
           this.setFlipX(!this.st.atPosA);  // face center: right at posA, left at posB
           if (this.st.chargeTimer <= 0) {
             this.st.kickClock++;
-            const isPie = (this.st.kickClock % 4 === 0);
+            const isPie = (this.st.kickClock % 3 === 0);
             if (isPie) {
               this.st.nextKick = PTR;
               this.st.chargeTimer = 900;
@@ -437,7 +437,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
           const elapsed = 900 - this.st.chargeTimer;
           const t = Phaser.Math.Clamp(elapsed / 900, 0, 1);
           this.x = Phaser.Math.Linear(from.x, to.x, t);
-          this.y = Phaser.Math.Linear(from.y, to.y, t) - Math.sin(t * Math.PI) * 70;
+          this.y = Phaser.Math.Linear(from.y, to.y, t) - Math.sin(t * Math.PI) * 40;
           body.reset(this.x, this.y);
           this.setTexture('enemy-butter-fingers-jump');
           this.setFlipX(to.x < from.x);
@@ -459,7 +459,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
           this.setTexture(`enemy-butter-fingers-roll-${rf + 1}`);
           if (this.st.chargeTimer <= 0) {
             this.st.sineT = 0;
-            const goToPie = (this.st.kickClock % 4 === 0);
+            const goToPie = (this.st.kickClock % 3 === 0);
             if (goToPie) {
               this.st.nextKick = PWN;
               this.st.chargeTimer = 320;
