@@ -56,6 +56,11 @@ export class GameScene extends Phaser.Scene {
   private eelList:  Phaser.Physics.Arcade.Sprite[] = [];
   private eelTimer  = 0;
 
+  private isPaused = false;
+  private pauseOverlayRect!: Phaser.GameObjects.Rectangle;
+  private pauseLabelText!: Phaser.GameObjects.Text;
+  private pauseHintText!: Phaser.GameObjects.Text;
+
   private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
   private wasd!: { up: Phaser.Input.Keyboard.Key; left: Phaser.Input.Keyboard.Key; right: Phaser.Input.Keyboard.Key };
 
@@ -155,13 +160,17 @@ export class GameScene extends Phaser.Scene {
         this.godMode = !this.godMode;
         this.updateHUD();
       }
+      if (e.key === 'p' || e.key === 'P' || e.key === 'Escape') {
+        this.togglePause();
+      }
     });
 
     this.createHUD(level);
+    this.createPauseUI(width, height);
   }
 
   update(_time: number, delta: number): void {
-    if (this.isRespawning) return;
+    if (this.isRespawning || this.isPaused) return;
 
     const touch = getTouchState();
     const left  = this.cursors.left.isDown  || this.wasd.left.isDown  || touch.left;
@@ -538,10 +547,56 @@ export class GameScene extends Phaser.Scene {
     this.scoreText  = this.add.text(8,  6,  '', s).setDepth(20).setScrollFactor(0);
     this.livesText  = this.add.text(8,  24, '', s).setDepth(20).setScrollFactor(0);
     this.pickupText = this.add.text(8,  42, '', s).setDepth(20).setScrollFactor(0);
-    this.clubText   = this.add.text(this.scale.width - 8, 6, `CLUB ${level.club}`, {
+    this.clubText   = this.add.text(this.scale.width - 52, 6, `CLUB ${level.club}`, {
       ...s, color: `#${level.accentColor.toString(16).padStart(6, '0')}`,
     }).setDepth(20).setScrollFactor(0).setOrigin(1, 0);
     this.updateHUD();
+  }
+
+  private createPauseUI(width: number, height: number): void {
+    // Dark overlay — only visible + interactive when paused
+    this.pauseOverlayRect = this.add.rectangle(width / 2, height / 2, width, height, 0x000000, 0.65)
+      .setScrollFactor(0).setDepth(40).setVisible(false);
+    this.pauseOverlayRect.setInteractive();
+    this.pauseOverlayRect.on('pointerdown', () => this.togglePause());
+    this.pauseOverlayRect.removeInteractive();
+
+    this.pauseLabelText = this.add.text(width / 2, height / 2, 'PAUSED', {
+      fontSize: '34px', fontFamily: 'monospace',
+      color: '#ffffff', stroke: '#000000', strokeThickness: 4,
+    }).setOrigin(0.5).setScrollFactor(0).setDepth(41).setVisible(false);
+
+    this.pauseHintText = this.add.text(width / 2, height / 2 + 38, 'tap anywhere  /  press P to resume', {
+      fontSize: '12px', fontFamily: 'monospace', color: '#aaaaaa',
+    }).setOrigin(0.5).setScrollFactor(0).setDepth(41).setVisible(false);
+
+    // Pause button — top-right corner, always visible
+    const bx = width - 22, by = 16;
+    const btnGfx = this.add.graphics().setScrollFactor(0).setDepth(41);
+    btnGfx.fillStyle(0x000000, 0.55);
+    btnGfx.fillRoundedRect(bx - 18, by - 13, 36, 26, 5);
+    btnGfx.fillStyle(0xffffff, 0.88);
+    btnGfx.fillRect(bx - 7, by - 7, 5, 14);
+    btnGfx.fillRect(bx + 2, by - 7, 5, 14);
+
+    this.add.zone(bx, by, 48, 38)
+      .setScrollFactor(0).setDepth(42).setInteractive()
+      .on('pointerdown', () => this.togglePause());
+  }
+
+  private togglePause(): void {
+    this.isPaused = !this.isPaused;
+    if (this.isPaused) {
+      this.physics.pause();
+      this.pauseOverlayRect.setVisible(true).setInteractive();
+      this.pauseLabelText.setVisible(true);
+      this.pauseHintText.setVisible(true);
+    } else {
+      this.physics.resume();
+      this.pauseOverlayRect.setVisible(false).removeInteractive();
+      this.pauseLabelText.setVisible(false);
+      this.pauseHintText.setVisible(false);
+    }
   }
 
   private updateHUD(): void {
