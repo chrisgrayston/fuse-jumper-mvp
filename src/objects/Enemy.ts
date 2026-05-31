@@ -81,6 +81,11 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       body.setSize(24, 44);
       body.setOffset(8, 6);
     }
+    if (this.eType === 'melonhead') {
+      body.setCollideWorldBounds(true);
+      body.setSize(24, 44);
+      body.setOffset(10, 16);
+    }
 
     // Ground patrol — set initial velocity
     const speed = SPEEDS[this.eType];

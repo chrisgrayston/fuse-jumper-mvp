@@ -16,8 +16,9 @@ export const level3: LevelData = {
     // Low flanks
     { x: 35,  y: 372, width: 120, height: 12 },
     { x: 645, y: 372, width: 120, height: 12 },
-    // Mid flanks
+    // Mid
     { x: 75,  y: 302, width: 140, height: 12 },
+    { x: 325, y: 292, width: 160, height: 12 },
     { x: 575, y: 302, width: 140, height: 12 },
     // Upper flanks
     { x: 150, y: 232, width: 140, height: 12 },
@@ -56,7 +57,7 @@ export const level3: LevelData = {
     {
       type: 'melonhead',
       x: 200,
-      y: 415,
+      y: 400,
       patrolLeft: 60,
       patrolRight: 740,
     },
@@ -68,11 +69,11 @@ export const level3: LevelData = {
       posA: { x: 95,  y: 136 },
       posB: { x: 650, y: 136 },
     },
-    // Padel Punisher on mid-right platform
+    // Padel Punisher on centre-mid platform
     {
       type: 'padel-punisher',
-      x: 650,
-      y: 286,
+      x: 400,
+      y: 276,
     },
   ],
 };
