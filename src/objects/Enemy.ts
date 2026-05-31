@@ -196,20 +196,31 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
             this.st.nextAction = Phaser.Math.Between(3000, 5000);
             this.st.atPosA = !this.st.atPosA;
             this.st.travelling = true;
-            this.st.travelTimer = 600;
-            // Throw coat projectile ahead of jump
+            this.st.travelTimer = 1200;
+            // Throw coat in a ballistic arc from current pos toward destination
             const target = this.st.atPosA ? this.eData.posA! : this.eData.posB!;
-            const dir = target.x > this.x ? 1 : -1;
-            this.spawn(this.x, this.y, 'coat', dir * 180, -80);
+            const dx = target.x - this.x;
+            const dy = target.y - this.y;
+            const T  = 1.0;
+            this.spawn(this.x, this.y, 'coat', dx / T, (dy / T) - (980 * T / 2));
+            // Growl text
+            const growl = this.scene.add.text(this.x, this.y - 28, 'GRAAARR!', {
+              fontSize: '13px', fontFamily: 'monospace',
+              color: '#ff4400', stroke: '#000000', strokeThickness: 3,
+            }).setOrigin(0.5).setDepth(25);
+            this.scene.tweens.add({
+              targets: growl, y: growl.y - 30, alpha: 0, duration: 1000,
+              onComplete: () => growl.destroy(),
+            });
           }
         } else {
           this.st.travelTimer -= delta;
           const target = this.st.atPosA ? this.eData.posA! : this.eData.posB!;
-          const lerp = 1 - Math.max(0, this.st.travelTimer) / 600;
+          const lerp = 1 - Math.max(0, this.st.travelTimer) / 1200;
           const startX = this.st.atPosA ? this.eData.posB!.x : this.eData.posA!.x;
           const startY = this.st.atPosA ? this.eData.posB!.y : this.eData.posA!.y;
           this.x = Phaser.Math.Linear(startX, target.x, lerp);
-          this.y = Phaser.Math.Linear(startY, target.y, lerp) - Math.sin(lerp * Math.PI) * 60;
+          this.y = Phaser.Math.Linear(startY, target.y, lerp) - Math.sin(lerp * Math.PI) * 80;
           body.reset(this.x, this.y);
           if (this.st.travelTimer <= 0) this.st.travelling = false;
         }

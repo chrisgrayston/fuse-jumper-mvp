@@ -454,12 +454,37 @@ export class BootScene extends Phaser.Scene {
     g.fillStyle(0xffcc88); g.fillRect(7, 0, 12, 8);    // face
     g.generateTexture('enemy-rushy', 26, 32);
 
-    // ── Smaller Bear — small brown, Spurs white kit ──────────────────────
-    g.clear();
-    g.fillStyle(0x8b5e3c); g.fillRect(2, 4, 20, 22);
-    g.fillStyle(0xffffff); g.fillRect(4, 8, 16, 10);   // Spurs kit
-    g.fillStyle(0x8b5e3c); g.fillCircle(12, 4, 6);     // head
-    g.generateTexture('enemy-smaller-bear', 24, 28);
+    // ── Smaller Bear — brown bear, red shirt, 24×28 ─────────────────────
+    {
+      const BRN = 0x5c2e0c;   // dark brown
+      const FUR = 0x7a4520;   // mid fur
+      const SNT = 0xaa6640;   // snout / inner ear / paws
+      const EY  = 0x0a0500;   // near-black eyes
+      const RSH = 0xcc1100;   // red shirt
+
+      g.clear();
+      // Ears
+      g.fillStyle(FUR); g.fillRect(1,  0, 5, 5);   g.fillStyle(SNT); g.fillRect(2,  1, 3, 3);  // L
+      g.fillStyle(FUR); g.fillRect(18, 0, 5, 5);   g.fillStyle(SNT); g.fillRect(19, 1, 3, 3);  // R
+      // Head
+      g.fillStyle(FUR); g.fillRect(3, 2, 18, 12);
+      // Eyes
+      g.fillStyle(EY);       g.fillRect(6,  5, 3, 3);  g.fillStyle(0xffffff); g.fillRect(6,  5, 1, 1);
+      g.fillStyle(EY);       g.fillRect(15, 5, 3, 3);  g.fillStyle(0xffffff); g.fillRect(15, 5, 1, 1);
+      // Snout + nose
+      g.fillStyle(SNT); g.fillRect(8, 9, 8, 5);
+      g.fillStyle(EY);  g.fillRect(10, 10, 4, 2);  g.fillRect(11, 12, 2, 1);  // nose + mouth
+      // Neck
+      g.fillStyle(FUR); g.fillRect(9, 14, 6, 2);
+      // Red shirt body
+      g.fillStyle(RSH); g.fillRect(3, 16, 18, 8);
+      // Arms + paw pads
+      g.fillStyle(FUR); g.fillRect(0,  16, 4, 8);  g.fillStyle(SNT); g.fillRect(0,  22, 4, 3);  // L
+      g.fillStyle(FUR); g.fillRect(20, 16, 4, 8);  g.fillStyle(SNT); g.fillRect(20, 22, 4, 3);  // R
+      // Lower body / fur
+      g.fillStyle(FUR); g.fillRect(5, 24, 14, 4);
+      g.generateTexture('enemy-smaller-bear', 24, 28);
+    }
 
     // ── Melonhead — green watermelon head, QPR blue/white stripes ────────
     g.clear();
@@ -500,12 +525,39 @@ export class BootScene extends Phaser.Scene {
     g.fillStyle(0xffcc88); g.fillRect(8, 8, 12, 8);
     g.generateTexture('enemy-condor', 28, 28);
 
-    // ── Giant Bear — large brown, Spurs kit ──────────────────────────────
-    g.clear();
-    g.fillStyle(0x7a4e2d); g.fillRect(0, 6, 40, 30);
-    g.fillStyle(0xffffff); g.fillRect(6, 10, 28, 14);  // Spurs kit
-    g.fillStyle(0x7a4e2d); g.fillCircle(20, 6, 8);
-    g.generateTexture('enemy-giant-bear', 40, 36);
+    // ── Giant Bear — brown bear, white shirt, 40×36 ──────────────────────
+    {
+      const FUR = 0x7a4520;   // mid fur
+      const SNT = 0xaa6640;   // snout / inner ear / paws
+      const EY  = 0x0a0500;   // near-black eyes
+      const WSH = 0xffffff;   // white shirt
+      const SHD = 0xcccccc;   // shirt shadow
+
+      g.clear();
+      // Ears
+      g.fillStyle(FUR); g.fillRect(2,  0, 8, 7);  g.fillStyle(SNT); g.fillRect(3,  1, 5, 4);  // L
+      g.fillStyle(FUR); g.fillRect(30, 0, 8, 7);  g.fillStyle(SNT); g.fillRect(31, 1, 5, 4);  // R
+      // Head
+      g.fillStyle(FUR); g.fillRect(5, 3, 30, 18);
+      // Eyes (larger — it's a bigger bear)
+      g.fillStyle(EY);       g.fillRect(12, 8, 5, 5);  g.fillStyle(0xffffff); g.fillRect(12, 8, 2, 2);
+      g.fillStyle(EY);       g.fillRect(23, 8, 5, 5);  g.fillStyle(0xffffff); g.fillRect(23, 8, 2, 2);
+      // Snout + nose + nostrils
+      g.fillStyle(SNT); g.fillRect(13, 15, 14, 8);
+      g.fillStyle(EY);  g.fillRect(17, 16, 6, 3);   // nose bridge
+      g.fillStyle(EY);  g.fillRect(18, 19, 4, 2);   // mouth line
+      g.fillStyle(SNT); g.fillRect(18, 17, 2, 2);   // L nostril
+      g.fillStyle(SNT); g.fillRect(22, 17, 2, 2);   // R nostril
+      // Neck
+      g.fillStyle(FUR); g.fillRect(16, 21, 8, 4);
+      // White shirt
+      g.fillStyle(WSH); g.fillRect(5, 25, 30, 11);
+      g.fillStyle(SHD); g.fillRect(5, 34, 30, 2);   // hem shadow
+      // Arms + paw pads
+      g.fillStyle(FUR); g.fillRect(0,  25, 6, 11);  g.fillStyle(SNT); g.fillRect(0,  33, 6, 3);  // L
+      g.fillStyle(FUR); g.fillRect(34, 25, 6, 11);  g.fillStyle(SNT); g.fillRect(34, 33, 6, 3);  // R
+      g.generateTexture('enemy-giant-bear', 40, 36);
+    }
 
     // ── Actuary Man — Liverpool red suit, glasses ─────────────────────────
     g.clear();
