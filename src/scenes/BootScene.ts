@@ -804,11 +804,41 @@ export class BootScene extends Phaser.Scene {
     g.fillStyle(0xcc44ff, 0.7); g.fillCircle(8, 8, 5);
     g.generateTexture('proj-dark-magic', 16, 16);
 
-    // Coat (smaller bear throw)
-    g.clear();
-    g.fillStyle(0x886644); g.fillRect(0, 4, 24, 14);
-    g.fillStyle(0xaa8866); g.fillRect(0, 0, 10, 6); g.fillRect(14, 0, 10, 6);
-    g.generateTexture('proj-coat', 24, 18);
+    // Coat — trench coat / overcoat, 26×20
+    {
+      const CB = 0x7a5028;   // camel coat body
+      const CL = 0xa07848;   // highlight
+      const CD = 0x3a2008;   // dark crease / shadow
+      const LN = 0xc09050;   // lapel lining
+      const GD = 0xd4aa30;   // gold buckle
+
+      g.clear();
+      // Left sleeve
+      g.fillStyle(CB); g.fillRect(0,  0, 9, 9);
+      g.fillStyle(CL); g.fillRect(0,  0, 9, 2);  // top highlight
+      g.fillStyle(CD); g.fillRect(0,  7, 9, 2);  // cuff shadow
+      // Right sleeve
+      g.fillStyle(CB); g.fillRect(17, 0, 9, 9);
+      g.fillStyle(CL); g.fillRect(17, 0, 9, 2);
+      g.fillStyle(CD); g.fillRect(17, 7, 9, 2);
+      // Main body
+      g.fillStyle(CB); g.fillRect(6, 3, 14, 17);
+      // Left lapel (open, showing lining)
+      g.fillStyle(LN); g.fillRect(6,  3, 4, 8);
+      g.fillStyle(CB); g.fillRect(7,  4, 3, 7);
+      // Right lapel
+      g.fillStyle(LN); g.fillRect(16, 3, 4, 8);
+      g.fillStyle(CB); g.fillRect(16, 4, 3, 7);
+      // Belt + gold buckle
+      g.fillStyle(CD); g.fillRect(6, 13, 14, 2);
+      g.fillStyle(GD); g.fillRect(11, 12, 4, 4);
+      g.fillStyle(CD); g.fillRect(12, 13, 2, 2);  // buckle hole
+      // Buttons
+      g.fillStyle(CD); g.fillRect(12, 5, 2, 2); g.fillRect(12, 9, 2, 2);
+      // Crease lines
+      g.fillStyle(CD); g.fillRect(6, 5, 1, 8); g.fillRect(19, 5, 1, 8);
+      g.generateTexture('proj-coat', 26, 20);
+    }
 
     // Platform tile (reused)
     g.clear();

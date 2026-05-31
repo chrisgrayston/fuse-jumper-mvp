@@ -31,6 +31,14 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
   private readonly spawn: SpawnFn;
   private st: State;
 
+  // Smaller-bear coat animation
+  private coatSprite: Phaser.GameObjects.Image | null = null;
+  private coatT = 0;
+  private coatStartX = 0;
+  private coatStartY = 0;
+  private coatEndX   = 0;
+  private coatEndY   = 0;
+
   constructor(
     scene: Phaser.Scene,
     data: EnemyData,
@@ -190,20 +198,63 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       }
 
       case 'smaller-bear': {
-        if (!this.st.travelling) {
+        if (this.st.isCharging) {
+          // Phase 3 — wearing coat: keep coat overlaid on bear
+          this.st.chargeTimer -= delta;
+          if (this.coatSprite) this.coatSprite.setPosition(this.x, this.y - 4);
+          if (this.st.chargeTimer <= 0) {
+            this.st.isCharging = false;
+            if (this.coatSprite) { this.coatSprite.destroy(); this.coatSprite = null; }
+          }
+        } else if (this.st.travelling) {
+          // Phase 2 — jumping: bear arcs to destination, coat flies ahead
+          this.coatT += delta;
+          if (this.coatSprite) {
+            const COAT_FLIGHT = 700;  // coat arrives 500ms before bear
+            const cl = Math.min(1, this.coatT / COAT_FLIGHT);
+            const cx = Phaser.Math.Linear(this.coatStartX, this.coatEndX, cl);
+            const cy = Phaser.Math.Linear(this.coatStartY, this.coatEndY, cl)
+                       - Math.sin(cl * Math.PI) * 140;   // big visible arc
+            this.coatSprite.setPosition(cx, cy);
+            this.coatSprite.setAngle(cl * 360);           // one spin in flight
+            if (cl >= 1) {
+              // landed — lie flat at destination
+              this.coatSprite.setPosition(this.coatEndX, this.coatEndY + 10);
+              this.coatSprite.setAngle(0);
+            }
+          }
+          this.st.travelTimer -= delta;
+          const target = this.st.atPosA ? this.eData.posA! : this.eData.posB!;
+          const lerp = 1 - Math.max(0, this.st.travelTimer) / 1200;
+          const startX = this.st.atPosA ? this.eData.posB!.x : this.eData.posA!.x;
+          const startY = this.st.atPosA ? this.eData.posB!.y : this.eData.posA!.y;
+          this.x = Phaser.Math.Linear(startX, target.x, lerp);
+          this.y = Phaser.Math.Linear(startY, target.y, lerp) - Math.sin(lerp * Math.PI) * 80;
+          body.reset(this.x, this.y);
+          if (this.st.travelTimer <= 0) {
+            this.st.travelling = false;
+            // Snap coat onto bear to start wearing phase
+            if (this.coatSprite) this.coatSprite.setPosition(this.x, this.y - 4);
+            this.st.isCharging  = true;
+            this.st.chargeTimer = 1500;
+          }
+        } else {
+          // Phase 1 — idle: wait then throw coat and jump
           if (this.st.clock >= this.st.nextAction) {
-            this.st.clock = 0;
-            this.st.nextAction = Phaser.Math.Between(3000, 5000);
-            this.st.atPosA = !this.st.atPosA;
-            this.st.travelling = true;
+            this.st.clock       = 0;
+            this.st.nextAction  = Phaser.Math.Between(3000, 5000);
+            this.st.atPosA      = !this.st.atPosA;
+            this.st.travelling  = true;
             this.st.travelTimer = 1200;
-            // Throw coat in a ballistic arc from current pos toward destination
             const target = this.st.atPosA ? this.eData.posA! : this.eData.posB!;
-            const dx = target.x - this.x;
-            const dy = target.y - this.y;
-            const T  = 1.0;
-            this.spawn(this.x, this.y, 'coat', dx / T, (dy / T) - (980 * T / 2));
-            // Growl text
+            // Launch coat sprite on a manual arc to the destination
+            this.coatStartX = this.x;
+            this.coatStartY = this.y;
+            this.coatEndX   = target.x;
+            this.coatEndY   = target.y;
+            this.coatT      = 0;
+            this.coatSprite = this.scene.add.image(this.x, this.y, 'proj-coat').setDepth(7);
+            // Growl
             const growl = this.scene.add.text(this.x, this.y - 28, 'GRAAARR!', {
               fontSize: '13px', fontFamily: 'monospace',
               color: '#ff4400', stroke: '#000000', strokeThickness: 3,
@@ -213,16 +264,6 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
               onComplete: () => growl.destroy(),
             });
           }
-        } else {
-          this.st.travelTimer -= delta;
-          const target = this.st.atPosA ? this.eData.posA! : this.eData.posB!;
-          const lerp = 1 - Math.max(0, this.st.travelTimer) / 1200;
-          const startX = this.st.atPosA ? this.eData.posB!.x : this.eData.posA!.x;
-          const startY = this.st.atPosA ? this.eData.posB!.y : this.eData.posA!.y;
-          this.x = Phaser.Math.Linear(startX, target.x, lerp);
-          this.y = Phaser.Math.Linear(startY, target.y, lerp) - Math.sin(lerp * Math.PI) * 80;
-          body.reset(this.x, this.y);
-          if (this.st.travelTimer <= 0) this.st.travelling = false;
         }
         break;
       }
