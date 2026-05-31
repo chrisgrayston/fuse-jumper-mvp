@@ -21,7 +21,7 @@ export class BootScene extends Phaser.Scene {
     this.load.on('complete', () => { bgBar.destroy(); fillBar.destroy(); });
 
     this.load.image('art-heroes',         './art/HeroesAndVillains.jpeg');
-    this.load.image('art-club1800',       './art/Club1800b.jpeg');
+    this.load.image('art-club1800',       './art/Club1800c.jpeg');
     this.load.image('art-club1900',       './art/Club1900.jpeg');
     this.load.image('art-club2000',       './art/Club2000.jpeg');
     this.load.image('art-club2100',       './art/Club2100.jpeg');
