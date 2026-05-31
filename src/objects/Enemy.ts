@@ -274,27 +274,68 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       // ── Club 2100 ───────────────────────────────────────────────────────
 
       case 'melonhead': {
-        if (!this.st.travelling) {
-          if (this.st.clock >= this.st.nextAction) {
-            this.st.clock = 0;
-            this.st.nextAction = Phaser.Math.Between(2000, 3500);
-            this.st.atPosA = !this.st.atPosA;
-            this.st.travelling = true;
-            this.st.travelTimer = 700;
-            // Mallet swing — spawn short-lived hitbox represented as projectile
-            this.spawn(this.x + this.st.direction * 30, this.y, 'mallet', this.st.direction * 20, -10);
+        const onGround = body.blocked.down;
+        const distX    = Math.abs(playerX - this.x);
+        const pLeft    = this.eData.patrolLeft  ?? 60;
+        const pRight   = this.eData.patrolRight ?? 740;
+
+        // Swing attack when player is within mallet range
+        if (distX < 65 && !this.st.isCharging && onGround) {
+          this.st.isCharging  = true;
+          this.st.chargeTimer = 800;
+          body.setVelocityX(0);
+        }
+
+        if (this.st.isCharging) {
+          this.st.chargeTimer -= delta;
+          this.setTexture(this.st.chargeTimer > 400 ? 'enemy-melonhead-swing-1' : 'enemy-melonhead-swing-2');
+          this.setFlipX(playerX < this.x);
+          if (this.st.chargeTimer <= 0) {
+            this.st.isCharging = false;
+            this.st.clock      = 0;
+            this.st.nextAction = Phaser.Math.Between(600, 1800);
           }
+          break;
+        }
+
+        // Bounce at patrol edges
+        if (this.x <= pLeft) {
+          this.st.direction = 1;
+          body.setVelocityX(80);
+        } else if (this.x >= pRight) {
+          this.st.direction = -1;
+          body.setVelocityX(-80);
+        }
+
+        // Periodic direction change — biased 70% toward player
+        if (this.st.clock >= this.st.nextAction) {
+          this.st.clock      = 0;
+          this.st.nextAction = Phaser.Math.Between(700, 2200);
+          const toPlayer     = playerX > this.x ? 1 : -1;
+          this.st.direction  = Phaser.Math.Between(0, 9) < 7 ? toPlayer : -toPlayer;
+          body.setVelocityX(80 * this.st.direction);
+        }
+
+        // Random jump when grounded
+        if (onGround && this.st.travelTimer <= 0 && Phaser.Math.Between(0, 240) === 0) {
+          body.setVelocityY(-400);
+          this.st.travelTimer = 1400;
+        }
+        if (this.st.travelTimer > 0) this.st.travelTimer -= delta;
+
+        // Keep moving if stalled on ground
+        if (onGround && Math.abs(body.velocity.x) < 5) {
+          body.setVelocityX(80 * this.st.direction);
+        }
+
+        // Animation
+        this.st.sineT += delta;
+        this.setFlipX(this.st.direction < 0);
+        if (!onGround) {
+          this.setTexture(body.velocity.y < 0 ? 'enemy-melonhead-jump' : 'enemy-melonhead-float');
         } else {
-          this.st.travelTimer -= delta;
-          const target = this.st.atPosA ? this.eData.posA! : this.eData.posB!;
-          const startX = this.st.atPosA ? this.eData.posB!.x : this.eData.posA!.x;
-          const startY = this.st.atPosA ? this.eData.posB!.y : this.eData.posA!.y;
-          const lerp = 1 - Math.max(0, this.st.travelTimer) / 700;
-          this.x = Phaser.Math.Linear(startX, target.x, lerp);
-          this.y = Phaser.Math.Linear(startY, target.y, lerp) - Math.sin(lerp * Math.PI) * 80;
-          body.reset(this.x, this.y);
-          this.st.direction = target.x > startX ? 1 : -1;
-          if (this.st.travelTimer <= 0) this.st.travelling = false;
+          const wf = Math.floor(this.st.sineT / 280) % 2;
+          this.setTexture(wf === 0 ? 'enemy-melonhead' : 'enemy-melonhead-walk-2');
         }
         break;
       }

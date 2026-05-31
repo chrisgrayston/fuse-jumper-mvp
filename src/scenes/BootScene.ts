@@ -555,14 +555,146 @@ export class BootScene extends Phaser.Scene {
       g.generateTexture('enemy-smaller-bear', 24, 28);
     }
 
-    // ── Melonhead — green watermelon head, QPR blue/white stripes ────────
-    g.clear();
-    g.fillStyle(0x1144aa); g.fillRect(1, 10, 26, 22);
-    g.fillStyle(0xffffff);
-    for (let i = 0; i < 4; i++) g.fillRect(1 + i * 7, 10, 3, 22); // stripes
-    g.fillStyle(0x22aa44); g.fillCircle(14, 6, 9);     // melon head
-    g.fillStyle(0x115522); g.fillRect(8, 2, 12, 3);    // rind
-    g.generateTexture('enemy-melonhead', 28, 32);
+    // ── Melonhead — 44×60, human body + melon helmet + big mallet, 6 frames ─
+    {
+      const SK  = 0xffcc88;  const MG  = 0x22aa33;  const MD  = 0x115522;
+      const MR  = 0xcc1100;  const QRB = 0x1144aa;  const QRW = 0xffffff;
+      const TR  = 0x222233;  const BT  = 0x180808;  const EY  = 0x222222;
+      const WD  = 0x7a4010;  const WH  = 0xaa6622;
+      const W = 44, H = 60, CX = 18;
+
+      const helmet = () => {
+        g.fillStyle(MG);  g.fillCircle(CX, 7, 9);
+        g.fillStyle(MD);
+        g.fillRect(CX-8, 0, 2, 13);  g.fillRect(CX-3, 0, 2, 14);
+        g.fillRect(CX+2, 0, 2, 14);  g.fillRect(CX+6, 0, 2, 13);
+        g.fillStyle(MR);  g.fillRect(CX-9, 13, 18, 4);
+        g.fillStyle(QRW); g.fillRect(CX-10, 12, 20, 2);
+        g.fillStyle(0x111111);
+        g.fillRect(CX-4, 14, 2, 2);  g.fillRect(CX+1, 14, 2, 2);  g.fillRect(CX+5, 14, 2, 2);
+      };
+
+      const face = () => {
+        g.fillStyle(SK);       g.fillRect(CX-7, 15, 14, 9);
+        g.fillStyle(EY);       g.fillRect(CX-5, 17, 3, 3);  g.fillRect(CX+2, 17, 3, 3);
+        g.fillStyle(QRW);      g.fillRect(CX-5, 17, 1, 1);  g.fillRect(CX+2, 17, 1, 1);
+        g.fillStyle(0xcc7744); g.fillRect(CX-2, 21, 4, 2);
+        g.fillStyle(SK);       g.fillRect(CX-3, 24, 6, 3);
+      };
+
+      const stripes = (ty: number) => {
+        const sc = [QRB, QRW, QRB, QRW, QRB];
+        for (let i = 0; i < 5; i++) { g.fillStyle(sc[i]); g.fillRect(CX-9, ty + i*3, 18, 3); }
+      };
+
+      const shorts = (ty: number) => { g.fillStyle(TR); g.fillRect(CX-9, ty, 18, 7); };
+
+      const armsIdle = (ty: number) => {
+        g.fillStyle(QRB); g.fillRect(CX-13, ty, 4, 9);   g.fillRect(CX+9, ty, 4, 9);
+        g.fillStyle(SK);  g.fillRect(CX-13, ty+9, 4, 3); g.fillRect(CX+9, ty+9, 4, 3);
+      };
+
+      const armsJump = (ty: number) => {
+        g.fillStyle(QRB); g.fillRect(CX-15, ty-4, 4, 10); g.fillRect(CX+11, ty-8, 4, 14);
+        g.fillStyle(SK);  g.fillRect(CX-15, ty-7, 5,  4); g.fillRect(CX+11, ty-11, 4, 4);
+      };
+
+      const armsWindup = (ty: number) => {
+        g.fillStyle(QRB); g.fillRect(CX-13, ty, 4, 9);       // left at side
+        g.fillStyle(SK);  g.fillRect(CX-13, ty+9, 4, 3);
+        g.fillStyle(QRB); g.fillRect(CX+11, ty-14, 4, 18);   // right arm raised high
+        g.fillStyle(SK);  g.fillRect(CX+11, ty-17, 4, 4);
+      };
+
+      const armsSwing = (ty: number) => {
+        g.fillStyle(QRB); g.fillRect(CX+9, ty, 4, 9);        // right tucked back
+        g.fillStyle(SK);  g.fillRect(CX+9, ty+9, 4, 3);
+        g.fillStyle(QRB); g.fillRect(CX-12, ty+2, 22, 4);    // left arm: horizontal follow-through
+        g.fillStyle(SK);  g.fillRect(CX-16, ty+1, 5, 5);
+      };
+
+      const malletDown = () => {
+        g.fillStyle(WD);       g.fillRect(30, 27, 4, 25);     // handle
+        g.fillStyle(WH);       g.fillRect(23, 16, 18, 11);    // head
+        g.fillStyle(0xcc8833); g.fillRect(23, 16, 18,  2);    // top face
+        g.fillStyle(0xffeebb); g.fillRect(24, 17,  5,  2);    // highlight
+      };
+
+      const malletUp = () => {
+        g.fillStyle(WD);       g.fillRect(31, 10, 4, 28);     // handle high
+        g.fillStyle(WH);       g.fillRect(23,  4, 18, 8);     // head at top
+        g.fillStyle(0xcc8833); g.fillRect(23,  4, 18, 2);
+        g.fillStyle(0xffeebb); g.fillRect(24,  5,  5, 2);
+      };
+
+      const malletSwing = () => {
+        g.fillStyle(WD);       g.fillRect(4, 30, 26, 4);      // handle horizontal
+        g.fillStyle(WH);       g.fillRect(0, 20, 12, 16);     // head on left
+        g.fillStyle(0xcc8833); g.fillRect(0, 20, 12,  2);
+        g.fillStyle(0xffeebb); g.fillRect(1, 21,  4,  2);
+      };
+
+      const legsW1 = (ty: number) => {
+        g.fillStyle(TR); g.fillRect(CX-9, ty, 7, 6); g.fillRect(CX-8, ty+6, 5, 4);
+        g.fillStyle(BT); g.fillRect(CX-10, ty+9, 9, 3);
+        g.fillStyle(TR); g.fillRect(CX+2, ty, 7, 4); g.fillRect(CX+3, ty+4, 5, 6);
+        g.fillStyle(BT); g.fillRect(CX+1, ty+9, 9, 3);
+      };
+
+      const legsW2 = (ty: number) => {
+        g.fillStyle(TR); g.fillRect(CX+2, ty, 7, 6); g.fillRect(CX+3, ty+6, 5, 4);
+        g.fillStyle(BT); g.fillRect(CX+1, ty+9, 9, 3);
+        g.fillStyle(TR); g.fillRect(CX-9, ty, 7, 4); g.fillRect(CX-8, ty+4, 5, 6);
+        g.fillStyle(BT); g.fillRect(CX-10, ty+9, 9, 3);
+      };
+
+      const legsJump = (ty: number) => {
+        g.fillStyle(TR); g.fillRect(CX-11, ty, 8, 5); g.fillRect(CX-12, ty+4, 8, 5);
+        g.fillStyle(BT); g.fillRect(CX-13, ty+8, 9, 3);
+        g.fillStyle(TR); g.fillRect(CX+3, ty, 8, 5);  g.fillRect(CX+4, ty+4, 8, 5);
+        g.fillStyle(BT); g.fillRect(CX+4, ty+8, 9, 3);
+      };
+
+      const legsFloat = (ty: number) => {
+        g.fillStyle(TR); g.fillRect(CX-8, ty, 6, 10); g.fillRect(CX+2, ty, 6, 10);
+        g.fillStyle(BT); g.fillRect(CX-9, ty+9, 8, 3); g.fillRect(CX+1, ty+9, 8, 3);
+      };
+
+      const TY = 25, SY = 40, LY = 47;   // torso / shorts / legs y offsets
+
+      // walk-1
+      g.clear();
+      helmet(); face(); stripes(TY); armsIdle(TY); shorts(SY); legsW1(LY); malletDown();
+      g.generateTexture('enemy-melonhead', W, H);
+
+      // walk-2
+      g.clear();
+      helmet(); face(); stripes(TY); armsIdle(TY); shorts(SY); legsW2(LY); malletDown();
+      g.generateTexture('enemy-melonhead-walk-2', W, H);
+
+      // jump
+      g.clear();
+      helmet(); face(); stripes(TY); armsJump(TY); shorts(SY); legsJump(LY); malletUp();
+      g.generateTexture('enemy-melonhead-jump', W, H);
+
+      // float — arms spread wide
+      g.clear();
+      helmet(); face(); stripes(TY);
+      g.fillStyle(QRB); g.fillRect(0, TY, 9, 7);  g.fillStyle(SK); g.fillRect(0, TY+7, 5, 4);
+      g.fillStyle(QRB); g.fillRect(27, TY, 9, 7); g.fillStyle(SK); g.fillRect(30, TY+7, 5, 4);
+      shorts(SY); legsFloat(LY); malletDown();
+      g.generateTexture('enemy-melonhead-float', W, H);
+
+      // swing-1 windup
+      g.clear();
+      helmet(); face(); stripes(TY); armsWindup(TY); shorts(SY); legsW1(LY); malletUp();
+      g.generateTexture('enemy-melonhead-swing-1', W, H);
+
+      // swing-2 impact
+      g.clear();
+      helmet(); face(); stripes(TY); armsSwing(TY); shorts(SY); legsW2(LY); malletSwing();
+      g.generateTexture('enemy-melonhead-swing-2', W, H);
+    }
 
     // ── Clippy — grey suit, red folder, SE3 ──────────────────────────────
     g.clear();

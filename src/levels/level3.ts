@@ -13,22 +13,18 @@ export const level3: LevelData = {
   platforms: [
     // Ground
     { x: 0,   y: 430, width: 800, height: 20 },
-    // Low
+    // Low flanks
     { x: 35,  y: 372, width: 120, height: 12 },
     { x: 645, y: 372, width: 120, height: 12 },
-    { x: 240, y: 372, width: 160, height: 12 },
-    // Mid
+    // Mid flanks
     { x: 75,  y: 302, width: 140, height: 12 },
-    { x: 325, y: 292, width: 160, height: 12 },  // Padel Punisher platform
     { x: 575, y: 302, width: 140, height: 12 },
-    // Upper
+    // Upper flanks
     { x: 150, y: 232, width: 140, height: 12 },
     { x: 505, y: 232, width: 140, height: 12 },
-    { x: 310, y: 202, width: 180, height: 12 },
-    // High
+    // High flanks
     { x: 55,  y: 152, width: 120, height: 12 },
     { x: 625, y: 152, width: 120, height: 12 },
-    { x: 280, y: 122, width: 240, height: 12 },
     // Top
     { x: 320, y: 58,  width: 160, height: 12 },
   ],
@@ -37,14 +33,14 @@ export const level3: LevelData = {
     { number: 1,  x: 130, y: 415 },
     { number: 2,  x: 450, y: 415 },
     { number: 3,  x: 65,  y: 357 },
-    { number: 4,  x: 290, y: 357 },
+    { number: 4,  x: 95,  y: 357 },   // low-left
     { number: 5,  x: 680, y: 357 },
-    { number: 6,  x: 365, y: 276 },
-    { number: 7,  x: 600, y: 286 },
+    { number: 6,  x: 145, y: 286 },   // mid-left
+    { number: 7,  x: 620, y: 286 },
     { number: 8,  x: 185, y: 216 },
-    { number: 9,  x: 360, y: 186 },
-    { number: 10, x: 320, y: 106 },
-    { number: 11, x: 400, y: 40  },
+    { number: 9,  x: 560, y: 216 },   // upper-right
+    { number: 10, x: 400, y: 42  },   // top platform
+    { number: 11, x: 460, y: 42  },
   ],
 
   enemies: [
@@ -56,15 +52,15 @@ export const level3: LevelData = {
       patrolLeft: 80,
       patrolRight: 620,
     },
-    // Melonhead jumps between low-left and low-right
+    // Melonhead roams the arena with physics
     {
       type: 'melonhead',
-      x: 55,
-      y: 355,
-      posA: { x: 85,  y: 355 },
-      posB: { x: 680, y: 355 },
+      x: 200,
+      y: 415,
+      patrolLeft: 60,
+      patrolRight: 740,
     },
-    // Butter Fingers patrols top platforms
+    // Butter Fingers patrols high flanks
     {
       type: 'butter-fingers',
       x: 330,
@@ -72,11 +68,11 @@ export const level3: LevelData = {
       posA: { x: 95,  y: 136 },
       posB: { x: 650, y: 136 },
     },
-    // Padel Punisher is static on centre-mid platform
+    // Padel Punisher on mid-right platform
     {
       type: 'padel-punisher',
-      x: 400,
-      y: 276,
+      x: 650,
+      y: 286,
     },
   ],
 };
