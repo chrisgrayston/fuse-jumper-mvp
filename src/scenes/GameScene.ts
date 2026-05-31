@@ -109,6 +109,7 @@ export class GameScene extends Phaser.Scene {
     this.physics.add.collider(this.player, this.platforms);
     this.physics.add.collider(this.enemies, this.platforms);
     this.physics.add.collider(this.coinsGroup, this.platforms);
+    this.physics.add.collider(this.eelsGroup, this.platforms);
 
     this.physics.add.overlap(this.player, this.collectibles, (_p, c) => {
       this.pickupPlayer(c as Collectible);
@@ -191,19 +192,14 @@ export class GameScene extends Phaser.Scene {
       this.spawnEel();
     }
 
-    // Update eels — manual position control, sinusoidal bob
+    // Update eels — gravity + leftward velocity, animate frames
     for (let i = this.eelList.length - 1; i >= 0; i--) {
       const e = this.eelList[i];
       if (!e.active) { this.eelList.splice(i, 1); continue; }
-      const st  = (e.getData('sineT')  as number) + delta * 0.004;
-      const at  = (e.getData('animT')  as number) + delta;
-      e.setData('sineT', st);
+      const at = (e.getData('animT') as number) + delta;
       e.setData('animT', at);
-      const newX = e.x - 60 * (delta / 1000);
-      const newY = (e.getData('baseY') as number) + Math.sin(st) * 28;
-      (e.body as Phaser.Physics.Arcade.Body).reset(newX, newY);
       e.setTexture(`enemy-eel-${(Math.floor(at / 150) % 3) + 1}`);
-      if (newX < -80) { e.destroy(); this.eelList.splice(i, 1); }
+      if (e.x < -80 || e.y > 520) { e.destroy(); this.eelList.splice(i, 1); }
     }
 
     // Cull coins that have left the screen
@@ -415,14 +411,14 @@ export class GameScene extends Phaser.Scene {
   // ── Eels ──────────────────────────────────────────────────────────────────
 
   private spawnEel(): void {
-    const baseY = Phaser.Math.Between(30, 210);
-    const eel = this.physics.add.sprite(840, baseY, 'enemy-eel-1');
+    const spawnY = Phaser.Math.Between(20, 180);
+    const eel = this.physics.add.sprite(840, spawnY, 'enemy-eel-1');
     eel.setDepth(7);
-    eel.setData('baseY', baseY);
-    eel.setData('sineT', Phaser.Math.FloatBetween(0, Math.PI * 2));
     eel.setData('animT', 0);
     this.eelsGroup.add(eel);
-    (eel.body as Phaser.Physics.Arcade.Body).allowGravity = false;
+    const body = eel.body as Phaser.Physics.Arcade.Body;
+    body.allowGravity = true;
+    body.setVelocityX(-60);
     this.eelList.push(eel);
   }
 
