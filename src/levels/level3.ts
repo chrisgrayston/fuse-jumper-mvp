@@ -56,8 +56,8 @@ export const level3: LevelData = {
     // Melonhead roams the arena with physics
     {
       type: 'melonhead',
-      x: 200,
-      y: 400,
+      x: 400,
+      y: 28,
       patrolLeft: 60,
       patrolRight: 740,
     },

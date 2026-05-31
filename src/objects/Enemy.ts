@@ -306,10 +306,10 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
         // Bounce at patrol edges
         if (this.x <= pLeft) {
           this.st.direction = 1;
-          body.setVelocityX(80);
+          body.setVelocityX(65);
         } else if (this.x >= pRight) {
           this.st.direction = -1;
-          body.setVelocityX(-80);
+          body.setVelocityX(-65);
         }
 
         // Periodic direction change — biased 70% toward player
@@ -318,7 +318,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
           this.st.nextAction = Phaser.Math.Between(700, 2200);
           const toPlayer     = playerX > this.x ? 1 : -1;
           this.st.direction  = Phaser.Math.Between(0, 9) < 7 ? toPlayer : -toPlayer;
-          body.setVelocityX(80 * this.st.direction);
+          body.setVelocityX(65 * this.st.direction);
         }
 
         // Random jump when grounded
@@ -330,7 +330,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
 
         // Keep moving if stalled on ground
         if (onGround && Math.abs(body.velocity.x) < 5) {
-          body.setVelocityX(80 * this.st.direction);
+          body.setVelocityX(65 * this.st.direction);
         }
 
         // Animation
