@@ -61,13 +61,13 @@ export const level3: LevelData = {
       patrolLeft: 60,
       patrolRight: 740,
     },
-    // Butter Fingers patrols high flanks
+    // Butter Fingers jumps between high flanks
     {
       type: 'butter-fingers',
-      x: 330,
-      y: 105,
-      posA: { x: 95,  y: 136 },
-      posB: { x: 650, y: 136 },
+      x: 115,
+      y: 124,
+      posA: { x: 115, y: 124 },
+      posB: { x: 685, y: 124 },
     },
     // Padel Punisher on centre-mid platform
     {

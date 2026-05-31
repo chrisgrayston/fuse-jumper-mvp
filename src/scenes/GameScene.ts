@@ -55,6 +55,7 @@ export class GameScene extends Phaser.Scene {
   private eelsGroup!: Phaser.Physics.Arcade.Group;
   private eelList:  Phaser.Physics.Arcade.Sprite[] = [];
   private eelTimer  = 0;
+  private spawnFn!: SpawnFn;
 
   private isPaused = false;
   private pauseOverlayRect!: Phaser.GameObjects.Rectangle;
@@ -115,6 +116,14 @@ export class GameScene extends Phaser.Scene {
     this.physics.add.collider(this.enemies, this.platforms);
     this.physics.add.collider(this.coinsGroup, this.platforms);
     this.physics.add.collider(this.eelsGroup, this.platforms);
+
+    // Crate smash: detect when a crate projectile overlaps a platform
+    this.physics.add.overlap(this.projectilesGroup, this.platforms, (a, _b) => {
+      const proj = a as unknown as Projectile;
+      if (!proj.active || proj.projType !== 'crate') return;
+      proj.destroy();
+      this.createCrateSmash(proj.x, proj.y);
+    });
 
     this.physics.add.overlap(this.player, this.collectibles, (_p, c) => {
       this.pickupPlayer(c as Collectible);
@@ -326,14 +335,14 @@ export class GameScene extends Phaser.Scene {
   }
 
   private buildEnemies(level: LevelData): void {
-    const spawnFn: SpawnFn = (x, y, type: ProjectileType, vx, vy) => {
+    this.spawnFn = (x, y, type: ProjectileType, vx, vy) => {
       const proj = new Projectile(this, x, y, type, vx, vy);
       this.projectilesGroup.add(proj);
       this.projectileList.push(proj);
     };
 
     for (const ed of level.enemies) {
-      const enemy = new Enemy(this, ed, spawnFn);
+      const enemy = new Enemy(this, ed, this.spawnFn);
       this.enemies.add(enemy as unknown as Phaser.GameObjects.GameObject);
       this.enemyControllers.push(enemy);
     }
@@ -390,6 +399,22 @@ export class GameScene extends Phaser.Scene {
           });
         }
       });
+    }
+  }
+
+  private createCrateSmash(x: number, y: number): void {
+    const img = this.add.image(x, y, 'proj-crate-smash-1').setDepth(12);
+    this.time.delayedCall(80, () => {
+      if (img.active) img.setTexture('proj-crate-smash-2');
+      this.time.delayedCall(80, () => {
+        if (img.active) img.setTexture('proj-crate-smash-3');
+        this.time.delayedCall(80, () => { if (img.active) img.destroy(); });
+      });
+    });
+    for (let i = 0; i < 5; i++) {
+      const angle = Phaser.Math.DegToRad(Phaser.Math.Between(210, 330));
+      const spd   = Phaser.Math.Between(80, 200);
+      this.spawnFn(x, y - 4, 'glass-shard', Math.cos(angle) * spd, Math.sin(angle) * spd);
     }
   }
 

@@ -703,12 +703,192 @@ export class BootScene extends Phaser.Scene {
     g.fillStyle(0xffcc88); g.fillRect(7, 0, 12, 9);
     g.generateTexture('enemy-clippy', 30, 30);
 
-    // ── Butter Fingers — tall, Birmingham blue, parkour ──────────────────
-    g.clear();
-    g.fillStyle(0x0033aa); g.fillRect(3, 6, 18, 30);
-    g.fillStyle(0xffcc88); g.fillRect(6, 0, 12, 8);
-    g.fillStyle(0xffaa00); g.fillRect(0, 18, 24, 3);   // corona crate band
-    g.generateTexture('enemy-butter-fingers', 24, 36);
+    // ── Butter Fingers — 14 frames, 40×56px, khaki jacket, red shirt, blond ──
+    {
+      const BW = 40, BH = 56;
+      const SK = 0xffcc88;  // skin
+      const HR = 0xffdd22;  // blond hair
+      const JK = 0xb8a060;  // khaki jacket
+      const JD = 0x9a8040;  // jacket dark seam
+      const RS = 0xcc2222;  // red shirt
+      const JN = 0x334466;  // jeans
+      const SH = 0xf0f0f0;  // white shoes
+      const EY = 0x1a2a1a;  // dark eyes
+
+      // head at (hx,hy): hair+face+neck = 18px tall
+      const bfHd = (hx: number, hy: number) => {
+        g.fillStyle(HR); g.fillRect(hx, hy, 14, 5); g.fillRect(hx - 1, hy + 1, 3, 6);
+        g.fillStyle(SK); g.fillRect(hx, hy + 4, 14, 11);
+        g.fillStyle(EY); g.fillRect(hx + 2, hy + 7, 3, 3); g.fillRect(hx + 9, hy + 7, 3, 3);
+        g.fillStyle(0xffffff); g.fillRect(hx + 2, hy + 7, 1, 1); g.fillRect(hx + 9, hy + 7, 1, 1);
+        g.fillStyle(SK); g.fillRect(hx + 4, hy + 15, 6, 3);
+      };
+      // torso at (tx,ty): jacket over red shirt = 15px tall
+      const bfTr = (tx: number, ty: number) => {
+        g.fillStyle(RS); g.fillRect(tx + 5, ty, 14, 15);
+        g.fillStyle(JK); g.fillRect(tx, ty, 24, 4);
+        g.fillStyle(JK); g.fillRect(tx, ty + 4, 6, 11); g.fillRect(tx + 18, ty + 4, 6, 11);
+        g.fillStyle(JD); g.fillRect(tx + 11, ty + 4, 2, 11);
+      };
+      // hips at (hx,hy): jeans waistband = 5px
+      const bfHip = (hx: number, hy: number) => {
+        g.fillStyle(JN); g.fillRect(hx, hy, 20, 5);
+      };
+      // standing legs+shoes at (lx,ly)
+      const bfLegs = (lx: number, ly: number) => {
+        g.fillStyle(JN);
+        g.fillRect(lx + 2, ly, 7, 11); g.fillRect(lx + 11, ly, 7, 11);
+        g.fillStyle(SH);
+        g.fillRect(lx, ly + 9, 10, 5); g.fillRect(lx + 9, ly + 9, 10, 5);
+      };
+
+      // ── 1: Idle-1 ─────────────────────────────────────────────────────────
+      g.clear();
+      bfHd(13, 0); bfTr(8, 18); bfHip(10, 33);
+      g.fillStyle(JK); g.fillRect(3, 20, 6, 9); g.fillRect(31, 20, 6, 9);
+      g.fillStyle(SK); g.fillRect(3, 28, 5, 4); g.fillRect(31, 28, 5, 4);
+      bfLegs(8, 38);
+      g.generateTexture('enemy-butter-fingers', BW, BH);
+
+      // ── 2: Idle-2 (slight arm sway) ───────────────────────────────────────
+      g.clear();
+      bfHd(13, 0); bfTr(8, 18); bfHip(10, 33);
+      g.fillStyle(JK); g.fillRect(2, 19, 6, 9); g.fillRect(32, 21, 6, 9);
+      g.fillStyle(SK); g.fillRect(2, 27, 5, 4); g.fillRect(32, 29, 5, 4);
+      bfLegs(8, 38);
+      g.generateTexture('enemy-butter-fingers-walk-2', BW, BH);
+
+      // ── 3: Throw-1 — winding up, arms bracing down ────────────────────────
+      g.clear();
+      bfHd(13, 1); bfTr(8, 19); bfHip(10, 34);
+      g.fillStyle(JK); g.fillRect(1, 22, 7, 8); g.fillRect(32, 22, 7, 8);
+      g.fillStyle(SK); g.fillRect(1, 29, 5, 4); g.fillRect(33, 29, 5, 4);
+      g.fillStyle(JN); g.fillRect(10, 38, 7, 10); g.fillRect(22, 38, 7, 10);
+      g.fillStyle(SH); g.fillRect(8, 48, 10, 5); g.fillRect(21, 48, 10, 5);
+      g.generateTexture('enemy-butter-fingers-throw-1', BW, BH);
+
+      // ── 4: Throw-2 — arms fully raised overhead (crate just spawned) ──────
+      g.clear();
+      bfHd(13, 4); bfTr(8, 22); bfHip(10, 37);
+      g.fillStyle(JK); g.fillRect(3, 4, 6, 20); g.fillRect(31, 4, 6, 20);
+      g.fillStyle(SK); g.fillRect(3, 1, 5, 5); g.fillRect(31, 1, 5, 5);
+      bfLegs(8, 42);
+      g.generateTexture('enemy-butter-fingers-throw-2', BW, BH);
+
+      // ── 5: Throw-3 — arms sweeping forward/outward ────────────────────────
+      g.clear();
+      bfHd(12, 2); bfTr(7, 20); bfHip(9, 35);
+      g.fillStyle(JK); g.fillRect(0, 21, 8, 6); g.fillRect(32, 21, 8, 6);
+      g.fillStyle(SK); g.fillRect(0, 20, 5, 4); g.fillRect(35, 20, 5, 4);
+      bfLegs(8, 40);
+      g.generateTexture('enemy-butter-fingers-throw-3', BW, BH);
+
+      // ── 6: Throw-4 — follow-through, torso bent forward ───────────────────
+      g.clear();
+      bfHd(11, 4); bfTr(6, 22); bfHip(8, 37);
+      g.fillStyle(JK); g.fillRect(0, 26, 7, 8); g.fillRect(33, 26, 7, 8);
+      g.fillStyle(SK); g.fillRect(0, 33, 5, 4); g.fillRect(34, 33, 5, 4);
+      bfLegs(8, 42);
+      g.generateTexture('enemy-butter-fingers-throw-4', BW, BH);
+
+      // ── 7: Jump — body spread in arc ──────────────────────────────────────
+      g.clear();
+      bfHd(13, 1); bfTr(8, 19); bfHip(10, 34);
+      g.fillStyle(JK); g.fillRect(0, 20, 7, 8); g.fillRect(33, 20, 7, 8);
+      g.fillStyle(SK); g.fillRect(0, 19, 5, 4); g.fillRect(35, 19, 5, 4);
+      g.fillStyle(JN); g.fillRect(12, 38, 7, 9); g.fillRect(21, 37, 7, 9);
+      g.fillStyle(SH); g.fillRect(10, 46, 10, 5); g.fillRect(20, 45, 10, 5);
+      g.generateTexture('enemy-butter-fingers-jump', BW, BH);
+
+      // ── 8–11: Roll frames (sideways barrel roll) ──────────────────────────
+      // Roll-1: entering tuck, head forward, arms drawing in
+      g.clear();
+      g.fillStyle(HR); g.fillRect(18, 8, 14, 5); g.fillRect(17, 9, 3, 5);
+      g.fillStyle(SK); g.fillRect(18, 12, 14, 10);
+      g.fillStyle(EY); g.fillRect(20, 15, 3, 3); g.fillRect(27, 15, 3, 3);
+      g.fillStyle(0xffffff); g.fillRect(20, 15, 1, 1); g.fillRect(27, 15, 1, 1);
+      g.fillStyle(RS); g.fillRect(10, 22, 18, 9);
+      g.fillStyle(JK); g.fillRect(8, 20, 22, 4); g.fillRect(8, 24, 7, 7); g.fillRect(23, 24, 7, 7);
+      g.fillStyle(JD); g.fillRect(18, 24, 2, 7);
+      g.fillStyle(JK); g.fillRect(2, 22, 7, 8); g.fillRect(31, 22, 7, 8);
+      g.fillStyle(SK); g.fillRect(2, 29, 5, 3); g.fillRect(32, 29, 5, 3);
+      g.fillStyle(JN); g.fillRect(8, 31, 18, 9);
+      g.fillStyle(SH); g.fillRect(5, 39, 10, 5); g.fillRect(25, 38, 10, 5);
+      g.generateTexture('enemy-butter-fingers-roll-1', BW, BH);
+
+      // Roll-2: fully tucked, body compact and horizontal
+      g.clear();
+      g.fillStyle(HR); g.fillRect(24, 14, 12, 5);
+      g.fillStyle(SK); g.fillRect(24, 18, 12, 8);
+      g.fillStyle(EY); g.fillRect(26, 21, 2, 2); g.fillRect(30, 21, 2, 2);
+      g.fillStyle(RS); g.fillRect(8, 18, 18, 11);
+      g.fillStyle(JK); g.fillRect(6, 16, 22, 4); g.fillRect(6, 20, 7, 9); g.fillRect(21, 20, 7, 9);
+      g.fillStyle(JD); g.fillRect(16, 20, 2, 9);
+      g.fillStyle(JK); g.fillRect(3, 18, 5, 9); g.fillRect(32, 18, 5, 9);
+      g.fillStyle(SK); g.fillRect(3, 26, 4, 3); g.fillRect(33, 26, 4, 3);
+      g.fillStyle(JN); g.fillRect(4, 29, 22, 8);
+      g.fillStyle(SH); g.fillRect(2, 36, 10, 5); g.fillRect(28, 35, 10, 5);
+      g.generateTexture('enemy-butter-fingers-roll-2', BW, BH);
+
+      // Roll-3: over the apex, starting to uncurl other side
+      g.clear();
+      g.fillStyle(HR); g.fillRect(4, 14, 12, 5);
+      g.fillStyle(SK); g.fillRect(4, 18, 12, 8);
+      g.fillStyle(EY); g.fillRect(6, 21, 2, 2); g.fillRect(10, 21, 2, 2);
+      g.fillStyle(RS); g.fillRect(14, 18, 18, 11);
+      g.fillStyle(JK); g.fillRect(12, 16, 22, 4); g.fillRect(12, 20, 7, 9); g.fillRect(27, 20, 7, 9);
+      g.fillStyle(JD); g.fillRect(22, 20, 2, 9);
+      g.fillStyle(JK); g.fillRect(3, 18, 5, 9); g.fillRect(32, 18, 5, 9);
+      g.fillStyle(SK); g.fillRect(3, 26, 4, 3); g.fillRect(33, 26, 4, 3);
+      g.fillStyle(JN); g.fillRect(14, 29, 22, 8);
+      g.fillStyle(SH); g.fillRect(10, 36, 10, 5); g.fillRect(30, 35, 10, 5);
+      g.generateTexture('enemy-butter-fingers-roll-3', BW, BH);
+
+      // Roll-4: coming upright, arms extending back out
+      g.clear();
+      g.fillStyle(HR); g.fillRect(8, 8, 14, 5); g.fillRect(7, 9, 3, 5);
+      g.fillStyle(SK); g.fillRect(8, 12, 14, 10);
+      g.fillStyle(EY); g.fillRect(10, 15, 3, 3); g.fillRect(17, 15, 3, 3);
+      g.fillStyle(0xffffff); g.fillRect(10, 15, 1, 1); g.fillRect(17, 15, 1, 1);
+      g.fillStyle(RS); g.fillRect(10, 22, 18, 9);
+      g.fillStyle(JK); g.fillRect(8, 20, 22, 4); g.fillRect(8, 24, 7, 7); g.fillRect(23, 24, 7, 7);
+      g.fillStyle(JD); g.fillRect(18, 24, 2, 7);
+      g.fillStyle(JK); g.fillRect(2, 22, 7, 8); g.fillRect(31, 22, 7, 8);
+      g.fillStyle(SK); g.fillRect(2, 29, 5, 3); g.fillRect(32, 29, 5, 3);
+      g.fillStyle(JN); g.fillRect(8, 31, 18, 9);
+      g.fillStyle(SH); g.fillRect(5, 39, 10, 5); g.fillRect(25, 38, 10, 5);
+      g.generateTexture('enemy-butter-fingers-roll-4', BW, BH);
+
+      // ── 12: Pie-1 — arm pulled back winding up ────────────────────────────
+      g.clear();
+      bfHd(13, 0); bfTr(8, 18); bfHip(10, 33);
+      g.fillStyle(JK); g.fillRect(3, 20, 6, 9);
+      g.fillStyle(SK); g.fillRect(3, 28, 5, 4);
+      g.fillStyle(JK); g.fillRect(31, 15, 7, 9);
+      g.fillStyle(SK); g.fillRect(33, 11, 5, 5);
+      bfLegs(8, 38);
+      g.generateTexture('enemy-butter-fingers-pie-1', BW, BH);
+
+      // ── 13: Pie-2 — arm fully extended forward, throwing ──────────────────
+      g.clear();
+      bfHd(13, 0); bfTr(8, 18); bfHip(10, 33);
+      g.fillStyle(JK); g.fillRect(31, 19, 8, 6);
+      g.fillStyle(SK); g.fillRect(37, 17, 5, 5);
+      g.fillStyle(JK); g.fillRect(2, 20, 7, 8);
+      g.fillStyle(SK); g.fillRect(1, 20, 4, 4);
+      bfLegs(8, 38);
+      g.generateTexture('enemy-butter-fingers-pie-2', BW, BH);
+
+      // ── 14: Pie-3 — follow-through, arm settling ──────────────────────────
+      g.clear();
+      bfHd(13, 0); bfTr(8, 18); bfHip(10, 33);
+      g.fillStyle(JK); g.fillRect(31, 19, 7, 9);
+      g.fillStyle(SK); g.fillRect(32, 27, 5, 4);
+      g.fillStyle(JK); g.fillRect(3, 20, 6, 9);
+      g.fillStyle(SK); g.fillRect(3, 28, 5, 4);
+      bfLegs(8, 38);
+      g.generateTexture('enemy-butter-fingers-pie-3', BW, BH);
+    }
 
     // ── Padel Punisher — red/black, racket shape ──────────────────────────
     g.clear();
@@ -961,12 +1141,77 @@ export class BootScene extends Phaser.Scene {
     g.fillStyle(0xaa7744); g.fillRect(12, 0, 6, 28);
     g.generateTexture('proj-mallet', 30, 28);
 
-    // Crate
+    // Beer crate — 26×20, three visible bottle necks, slow gravity
+    {
+      const CW = 0xb89220;  // crate wood (golden tan)
+      const CD = 0x8a6a10;  // dark slat
+      const BG = 0x447722;  // green bottle glass
+      const BC = 0xddaa00;  // bottle cap gold
+      const BL = 0xff7700;  // orange label band
+
+      g.clear();
+      // Crate body
+      g.fillStyle(CW); g.fillRect(0, 4, 26, 16);
+      // Horizontal slats
+      g.fillStyle(CD); g.fillRect(0, 4, 26, 2); g.fillRect(0, 18, 26, 2);
+      // Vertical slats + dividers
+      g.fillStyle(CD); g.fillRect(0, 4, 2, 16); g.fillRect(24, 4, 2, 16);
+      g.fillRect(8, 4, 2, 16); g.fillRect(16, 4, 2, 16);
+      // Three bottle necks above crate top
+      g.fillStyle(BG); g.fillRect(2, 0, 5, 5); g.fillRect(10, 0, 5, 5); g.fillRect(18, 0, 5, 5);
+      // Bottle caps
+      g.fillStyle(BC); g.fillRect(2, 0, 5, 2); g.fillRect(10, 0, 5, 2); g.fillRect(18, 0, 5, 2);
+      // Label bands
+      g.fillStyle(BL); g.fillRect(2, 3, 5, 2); g.fillRect(10, 3, 5, 2); g.fillRect(18, 3, 5, 2);
+      g.generateTexture('proj-crate', 26, 20);
+    }
+
+    // Pie — 22×14, golden crust with filling
     g.clear();
-    g.fillStyle(0xeecc88); g.fillRect(0, 0, 22, 18);
-    g.fillStyle(0xaa8844); g.fillRect(0, 0, 22, 3); g.fillRect(0, 15, 22, 3);
-    g.fillRect(10, 0, 3, 18);
-    g.generateTexture('proj-crate', 22, 18);
+    g.fillStyle(0xd4a030); g.fillRect(0, 6, 22, 8);   // pastry base
+    g.fillStyle(0xf0d860); g.fillRect(2, 3, 18, 7);   // cream filling
+    g.fillStyle(0xd4a030); g.fillRect(0, 3, 22, 3);   // crust rim top
+    g.fillStyle(0xd4a030); g.fillRect(0, 11, 22, 3);  // crust rim bottom
+    g.fillStyle(0xbb5520); g.fillRect(4, 4, 4, 4);    // jam detail L
+    g.fillStyle(0xbb5520); g.fillRect(14, 4, 4, 4);   // jam detail R
+    g.generateTexture('proj-pie', 22, 14);
+
+    // Glass shard — 8×12 triangle
+    g.clear();
+    g.fillStyle(0xaaddff, 0.9); g.fillTriangle(4, 0, 8, 12, 0, 12);
+    g.fillStyle(0xffffff, 0.7); g.fillRect(3, 1, 2, 4);
+    g.generateTexture('proj-glass-shard', 8, 12);
+
+    // Crate smash frames — 26×20 (same size as crate)
+    {
+      const CW = 0xb89220, CD = 0x8a6a10, BG = 0x447722;
+
+      // smash-1: fresh impact — crate cracking
+      g.clear();
+      g.fillStyle(CW); g.fillRect(0, 4, 26, 16);
+      g.fillStyle(CD); g.fillRect(0, 4, 26, 2); g.fillRect(0, 18, 26, 2);
+      g.fillStyle(CD); g.fillRect(0, 4, 2, 16); g.fillRect(24, 4, 2, 16);
+      g.fillRect(8, 4, 2, 16); g.fillRect(16, 4, 2, 16);
+      g.fillStyle(BG); g.fillRect(2, 0, 5, 5); g.fillRect(10, 0, 5, 5); g.fillRect(18, 0, 5, 5);
+      // Cracks
+      g.fillStyle(0x3a2800); g.fillRect(5, 4, 1, 12); g.fillRect(20, 8, 6, 1);
+      g.generateTexture('proj-crate-smash-1', 26, 20);
+
+      // smash-2: breaking apart — bottom half intact, bottles flying
+      g.clear();
+      g.fillStyle(CW); g.fillRect(0, 12, 26, 8); g.fillRect(0, 16, 26, 4);
+      g.fillStyle(CD); g.fillRect(0, 12, 2, 8); g.fillRect(24, 12, 2, 8);
+      g.fillStyle(BG); g.fillRect(1, 2, 5, 10); g.fillRect(11, 0, 5, 8); g.fillRect(19, 4, 5, 8);
+      g.fillStyle(0xee9900, 0.8); g.fillRect(2, 14, 22, 4); // beer splash
+      g.generateTexture('proj-crate-smash-2', 26, 20);
+
+      // smash-3: debris only
+      g.clear();
+      g.fillStyle(CW); g.fillRect(2, 14, 6, 4); g.fillRect(14, 12, 5, 4); g.fillRect(20, 10, 4, 3);
+      g.fillStyle(0xee9900, 0.7); g.fillRect(0, 16, 26, 4);
+      g.fillStyle(BG); g.fillRect(3, 8, 3, 6); g.fillRect(18, 6, 3, 6);
+      g.generateTexture('proj-crate-smash-3', 26, 20);
+    }
 
     // Padel ball
     g.clear();

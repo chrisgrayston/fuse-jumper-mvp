@@ -11,6 +11,8 @@ export class Projectile extends Phaser.Physics.Arcade.Sprite {
   private bubbleSineT = 0;
   private bubbleVY: number;   // tracked independently — never read back from physics body
   private footballVX = 0;     // football: stored so we can re-assert it every frame
+  private pieVX = 0;          // pie: same pattern as football — re-assert every frame
+  private glassLifespan = 0;  // glass-shard: ms remaining before self-destruct
 
   constructor(
     scene: Phaser.Scene,
@@ -35,7 +37,15 @@ export class Projectile extends Phaser.Physics.Arcade.Sprite {
       body.allowGravity = false;
       body.setGravityY(0);
     } else if (type === 'crate') {
+      body.allowGravity = true;
+      body.setGravityY(-480);   // world gravity 600 - 480 = ~120 effective → slow fall
+    } else if (type === 'pie') {
       body.allowGravity = false;
+      body.setGravityY(0);
+      this.pieVX = vx;
+    } else if (type === 'glass-shard') {
+      body.allowGravity = true;
+      this.glassLifespan = 1200;
     } else if (type === 'football') {
       body.allowGravity = false;
       body.setGravityY(0);
@@ -74,7 +84,7 @@ export class Projectile extends Phaser.Physics.Arcade.Sprite {
       body.setVelocity(vx, this.bubbleVY);
     }
 
-    // Football: re-assert both axes every frame — same pattern as bubbles.
+    // Football / pie: re-assert both axes every frame — same pattern as bubbles.
     // group.add() resets the body so allowGravity and velocity.x get wiped;
     // driving them from stored state each tick is the only reliable fix.
     if (this.projType === 'football' && this.active) {
@@ -83,6 +93,17 @@ export class Projectile extends Phaser.Physics.Arcade.Sprite {
       body.gravity.y    = 0;
       body.velocity.x   = this.footballVX;
       body.velocity.y   = 0;
+    }
+    if (this.projType === 'pie' && this.active) {
+      const body = this.body as Phaser.Physics.Arcade.Body;
+      body.allowGravity = false;
+      body.gravity.y    = 0;
+      body.velocity.x   = this.pieVX;
+      body.velocity.y   = 0;
+    }
+    if (this.projType === 'glass-shard' && this.active) {
+      this.glassLifespan -= delta;
+      if (this.glassLifespan <= 0) { this.destroy(); return; }
     }
 
     const { x, y } = this;

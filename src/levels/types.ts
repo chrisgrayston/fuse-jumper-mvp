@@ -18,6 +18,8 @@ export type ProjectileType =
   | 'bubble'
   | 'mallet'
   | 'crate'
+  | 'pie'
+  | 'glass-shard'
   | 'padel-ball'
   | 'golf-ball'
   | 'dark-magic'

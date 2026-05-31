@@ -86,6 +86,13 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       body.setSize(24, 44);
       body.setOffset(10, 16);
     }
+    if (this.eType === 'butter-fingers') {
+      body.allowGravity = false;
+      body.setSize(28, 48);
+      body.setOffset(6, 4);
+      this.st.nextKick = 0;  // PHASE_IDLE
+      this.st.chargeTimer = Phaser.Math.Between(1500, 2500);
+    }
 
     // Ground patrol — set initial velocity
     const speed = SPEEDS[this.eType];
@@ -357,27 +364,139 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       }
 
       case 'butter-fingers': {
-        if (!this.st.travelling) {
-          if (this.st.clock >= this.st.nextAction) {
-            this.st.clock = 0;
-            this.st.nextAction = Phaser.Math.Between(2500, 4000);
-            // Drop a crate straight down
-            this.spawn(this.x, this.y + 10, 'crate', Phaser.Math.Between(-30, 30), 30);
-            // Start moving to other platform
-            this.st.atPosA = !this.st.atPosA;
-            this.st.travelling = true;
-            this.st.travelTimer = 800;
+        // Phase IDs stored in st.nextKick
+        const PI  = 0;  // IDLE
+        const PLI = 1;  // THROW_LIFT
+        const PHO = 2;  // THROW_HOLD
+        const PRE = 3;  // THROW_RELEASE
+        const PFO = 4;  // THROW_FOLLOW
+        const PRL = 5;  // ROLLING
+        const PTR = 6;  // TRAVELLING
+        const PWN = 7;  // PIE_WIND
+        const PPT = 8;  // PIE_THROW
+        const PPF = 9;  // PIE_FOLLOW
+
+        this.st.chargeTimer -= delta;
+        this.st.sineT += delta;
+        const ph = this.st.nextKick;
+        const posA = this.eData.posA!;
+        const posB = this.eData.posB!;
+
+        if (ph === PI) {
+          this.setTexture(Math.floor(this.st.sineT / 700) % 2 === 0
+            ? 'enemy-butter-fingers' : 'enemy-butter-fingers-walk-2');
+          this.setFlipX(!this.st.atPosA);  // face center: right at posA, left at posB
+          if (this.st.chargeTimer <= 0) {
+            this.st.kickClock++;
+            const isPie = (this.st.kickClock % 4 === 0);
+            if (isPie) {
+              this.st.nextKick = PTR;
+              this.st.chargeTimer = 900;
+            } else {
+              this.st.nextKick = PLI;
+              this.st.chargeTimer = 300;
+            }
           }
-        } else {
-          this.st.travelTimer -= delta;
-          const target = this.st.atPosA ? this.eData.posA! : this.eData.posB!;
-          const startX = this.st.atPosA ? this.eData.posB!.x : this.eData.posA!.x;
-          const startY = this.st.atPosA ? this.eData.posB!.y : this.eData.posA!.y;
-          const lerp = 1 - Math.max(0, this.st.travelTimer) / 800;
-          this.x = Phaser.Math.Linear(startX, target.x, lerp);
-          this.y = Phaser.Math.Linear(startY, target.y, lerp) - Math.sin(lerp * Math.PI) * 50;
+
+        } else if (ph === PLI) {
+          this.setTexture('enemy-butter-fingers-throw-1');
+          this.setFlipX(!this.st.atPosA);
+          if (this.st.chargeTimer <= 0) {
+            this.spawn(this.x, this.y + 30, 'crate', Phaser.Math.Between(-25, 25), 50);
+            this.st.nextKick = PHO;
+            this.st.chargeTimer = 250;
+          }
+
+        } else if (ph === PHO) {
+          this.setTexture('enemy-butter-fingers-throw-2');
+          this.setFlipX(!this.st.atPosA);
+          if (this.st.chargeTimer <= 0) {
+            this.st.nextKick = PRE;
+            this.st.chargeTimer = 200;
+          }
+
+        } else if (ph === PRE) {
+          this.setTexture('enemy-butter-fingers-throw-3');
+          this.setFlipX(!this.st.atPosA);
+          if (this.st.chargeTimer <= 0) {
+            this.st.nextKick = PFO;
+            this.st.chargeTimer = 250;
+          }
+
+        } else if (ph === PFO) {
+          this.setTexture('enemy-butter-fingers-throw-4');
+          this.setFlipX(!this.st.atPosA);
+          if (this.st.chargeTimer <= 0) {
+            this.st.nextKick = PTR;
+            this.st.chargeTimer = 900;
+          }
+
+        } else if (ph === PTR) {
+          const from = this.st.atPosA ? posA : posB;
+          const to   = this.st.atPosA ? posB : posA;
+          const elapsed = 900 - this.st.chargeTimer;
+          const t = Phaser.Math.Clamp(elapsed / 900, 0, 1);
+          this.x = Phaser.Math.Linear(from.x, to.x, t);
+          this.y = Phaser.Math.Linear(from.y, to.y, t) - Math.sin(t * Math.PI) * 70;
           body.reset(this.x, this.y);
-          if (this.st.travelTimer <= 0) this.st.travelling = false;
+          this.setTexture('enemy-butter-fingers-jump');
+          this.setFlipX(to.x < from.x);
+          if (this.st.chargeTimer <= 0) {
+            this.st.atPosA = !this.st.atPosA;
+            this.x = to.x; this.y = to.y;
+            body.reset(to.x, to.y);
+            this.st.nextKick = PRL;
+            this.st.chargeTimer = 560;
+            this.st.sineT = 0;
+          }
+
+        } else if (ph === PRL) {
+          const rollDir = this.st.atPosA ? -1 : 1;  // arrived at left → roll left; right → roll right
+          this.x += rollDir * 60 * (delta / 1000);
+          body.reset(this.x, this.y);
+          this.setFlipX(rollDir < 0);
+          const rf = Math.floor(this.st.sineT / 140) % 4;
+          this.setTexture(`enemy-butter-fingers-roll-${rf + 1}`);
+          if (this.st.chargeTimer <= 0) {
+            this.st.sineT = 0;
+            const goToPie = (this.st.kickClock % 4 === 0);
+            if (goToPie) {
+              this.st.nextKick = PWN;
+              this.st.chargeTimer = 320;
+            } else {
+              this.st.nextKick = PI;
+              this.st.chargeTimer = Phaser.Math.Between(1500, 2500);
+            }
+          }
+
+        } else if (ph === PWN) {
+          this.setTexture('enemy-butter-fingers-pie-1');
+          this.setFlipX(!this.st.atPosA);
+          if (this.st.chargeTimer <= 0) {
+            const pDir = this.st.kickDir;
+            this.spawn(this.x + pDir * 16, this.y,      'pie', pDir * 200, 0);
+            this.spawn(this.x + pDir * 16, this.y - 10, 'pie', pDir * 200, 0);
+            this.st.kickDir = -pDir;
+            this.st.nextKick = PPT;
+            this.st.chargeTimer = 180;
+          }
+
+        } else if (ph === PPT) {
+          this.setTexture('enemy-butter-fingers-pie-2');
+          this.setFlipX(!this.st.atPosA);
+          if (this.st.chargeTimer <= 0) {
+            this.st.nextKick = PPF;
+            this.st.chargeTimer = 280;
+          }
+
+        } else if (ph === PPF) {
+          this.setTexture('enemy-butter-fingers-pie-3');
+          this.setFlipX(!this.st.atPosA);
+          if (this.st.chargeTimer <= 0) {
+            this.st.nextKick = PI;
+            this.st.chargeTimer = Phaser.Math.Between(1500, 2500);
+            this.st.sineT = 0;
+          }
         }
         break;
       }
@@ -509,10 +628,29 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
 
   resetEnemy(): void {
     const body = this.body as Phaser.Physics.Arcade.Body;
-    body.reset(this.eData.x, this.eData.y);
-    body.setVelocity(0, 0);
 
     if (this.coatSprite) { this.coatSprite.destroy(); this.coatSprite = null; }
+
+    if (this.eType === 'butter-fingers') {
+      const spawnX = this.eData.posA?.x ?? this.eData.x;
+      const spawnY = this.eData.posA?.y ?? this.eData.y;
+      body.setVelocity(0, 0);
+      body.allowGravity = false;
+      this.x = spawnX; this.y = spawnY;
+      body.reset(spawnX, spawnY);
+      this.st.nextKick    = 0;
+      this.st.chargeTimer = Phaser.Math.Between(1500, 2500);
+      this.st.kickClock   = 0;
+      this.st.kickDir     = 1;
+      this.st.atPosA      = true;
+      this.st.sineT       = 0;
+      this.setTexture('enemy-butter-fingers');
+      this.setFlipX(false);
+      return;
+    }
+
+    body.reset(this.eData.x, this.eData.y);
+    body.setVelocity(0, 0);
 
     this.st.clock        = 0;
     this.st.nextAction   = Phaser.Math.Between(1500, 3000);
