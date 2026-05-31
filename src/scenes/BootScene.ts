@@ -295,7 +295,6 @@ export class BootScene extends Phaser.Scene {
     g.fillStyle(0xffffff); g.fillRect(17, 8, 1, 1);     // L eye highlight
     g.fillStyle(0x222222); g.fillRect(23, 8, 3, 3);     // right eye
     g.fillStyle(0xffffff); g.fillRect(23, 8, 1, 1);     // R eye highlight
-    g.fillStyle(0xffcc88); g.fillRect(19, 17, 6, 3);    // neck
     g.fillStyle(0x0033aa); g.fillRect(4, 20, 36, 4);    // jersey hoop blue
     g.fillStyle(0xffffff); g.fillRect(4, 24, 36, 4);    // jersey hoop white
     g.fillStyle(0x0033aa); g.fillRect(4, 28, 36, 4);    // jersey hoop blue
@@ -324,7 +323,6 @@ export class BootScene extends Phaser.Scene {
     g.fillStyle(0xffffff); g.fillRect(17, 8, 1, 1);
     g.fillStyle(0x222222); g.fillRect(23, 8, 3, 3);
     g.fillStyle(0xffffff); g.fillRect(23, 8, 1, 1);
-    g.fillStyle(0xffcc88); g.fillRect(19, 17, 6, 3);
     g.fillStyle(0x0033aa); g.fillRect(4, 20, 36, 4);
     g.fillStyle(0xffffff); g.fillRect(4, 24, 36, 4);
     g.fillStyle(0x0033aa); g.fillRect(4, 28, 36, 4);
@@ -353,7 +351,6 @@ export class BootScene extends Phaser.Scene {
     g.fillStyle(0xffffff); g.fillRect(17, 8, 1, 1);
     g.fillStyle(0x222222); g.fillRect(23, 8, 3, 3);
     g.fillStyle(0xffffff); g.fillRect(23, 8, 1, 1);
-    g.fillStyle(0xffcc88); g.fillRect(19, 17, 6, 3);
     g.fillStyle(0x0033aa); g.fillRect(4, 20, 36, 4);
     g.fillStyle(0xffffff); g.fillRect(4, 24, 36, 4);
     g.fillStyle(0x0033aa); g.fillRect(4, 28, 36, 4);
@@ -382,7 +379,6 @@ export class BootScene extends Phaser.Scene {
     g.fillStyle(0xffffff); g.fillRect(17, 8, 1, 1);
     g.fillStyle(0x222222); g.fillRect(23, 8, 3, 3);
     g.fillStyle(0xffffff); g.fillRect(23, 8, 1, 1);
-    g.fillStyle(0xffcc88); g.fillRect(19, 17, 6, 3);
     g.fillStyle(0x0033aa); g.fillRect(4, 20, 36, 4);
     g.fillStyle(0xffffff); g.fillRect(4, 24, 36, 4);
     g.fillStyle(0x0033aa); g.fillRect(4, 28, 36, 4);
@@ -811,13 +807,13 @@ export class BootScene extends Phaser.Scene {
     ];
     for (const { key, base, dark, shine, label } of coinDefs) {
       g.clear();
-      g.fillStyle(dark);  g.fillCircle(12, 12, 11);  // 1px dark rim
-      g.fillStyle(base);  g.fillCircle(12, 12, 10);  // main coin
-      g.fillStyle(shine); g.fillCircle(9, 8, 3);     // specular highlight
+      g.fillStyle(dark);  g.fillCircle(16, 16, 15);  // 1px dark rim
+      g.fillStyle(base);  g.fillCircle(16, 16, 14);  // main coin
+      g.fillStyle(shine); g.fillCircle(12, 11,  4);  // specular highlight
       g.fillStyle(0x111111);
-      drawLetter(6,  7, label[0]);   // first letter, centred pair at x≈12
-      drawLetter(13, 7, label[1]);
-      g.generateTexture(key, 24, 24);
+      drawLetter(10, 11, label[0]);
+      drawLetter(17, 11, label[1]);
+      g.generateTexture(key, 32, 32);
     }
 
     // ── Projectiles ───────────────────────────────────────────────────────
