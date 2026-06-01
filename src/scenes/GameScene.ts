@@ -213,7 +213,7 @@ export class GameScene extends Phaser.Scene {
 
     // Eel spawner — every 5 s
     this.eelTimer += delta;
-    if (this.eelTimer >= 5000) {
+    if (this.eelTimer >= 5500) {
       this.eelTimer = 0;
       this.spawnEel();
     }

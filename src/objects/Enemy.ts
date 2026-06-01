@@ -112,7 +112,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       case 'bubble-blower': {
         this.st.sineT  += delta;
         this.st.kickClock += delta;
-        this.patrolBounce(body, this.eData.patrolLeft ?? 50, this.eData.patrolRight ?? 750, SPEEDS['bubble-blower']!);
+        body.setVelocityX(0);
 
         // Kick the football periodically (independent of bubble timer)
         if (this.st.kickClock >= this.st.nextKick) {
@@ -134,8 +134,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
           // Show whichever keepup frame matches kick direction
           this.setTexture(this.st.direction > 0 ? 'enemy-bubble-blower' : 'enemy-bubble-blower-2');
         } else {
-          const frame = Math.floor(this.st.sineT / 380) % 2;
-          this.setTexture(frame === 0 ? 'enemy-bubble-blower' : 'enemy-bubble-blower-2');
+          this.setTexture('enemy-bubble-blower');
         }
 
         if (this.st.clock >= this.st.nextAction) {
