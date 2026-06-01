@@ -115,7 +115,7 @@ export class GameScene extends Phaser.Scene {
     this.physics.add.collider(this.player, this.platforms);
     this.physics.add.collider(this.enemies, this.platforms);
     this.physics.add.collider(this.coinsGroup, this.platforms);
-    this.physics.add.collider(this.eelsGroup, this.platforms);
+    // No platform collider for eels — they fall through and exit at the bottom
 
     // Crate smash: crates physically stop on platforms and shatter
     this.physics.add.collider(
