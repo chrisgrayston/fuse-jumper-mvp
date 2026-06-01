@@ -208,7 +208,7 @@ export class GameScene extends Phaser.Scene {
     this.coinTimer += delta;
     if (this.coinTimer >= COIN_INTERVAL) {
       this.coinTimer = 0;
-      if (this.coinsDropped < 3 && this.coinList.length === 0 && Math.random() < 0.5) this.spawnCoin();
+      if (this.coinsDropped < 1 && this.coinList.length === 0 && Math.random() < 0.5) this.spawnCoin();
     }
 
     // Eel spawner — every 5 s
