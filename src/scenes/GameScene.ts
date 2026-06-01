@@ -564,9 +564,10 @@ export class GameScene extends Phaser.Scene {
   }
 
   private applyWildcard(): void {
+    // Stop any existing pulse before restoring
+    this.collectibleMap.get(this.nextExpected)?.stopPulse();
+
     for (const [num, pos] of this.allPlayerPositions) {
-      // Don't restore shirts already collected in-sequence — they'd re-appear as out-of-order pickups and break the bonus chain
-      if (this.sequenceActive && num < this.nextExpected) continue;
       if (!this.collectibleMap.has(num)) {
         const c = new Collectible(this, pos.x, pos.y, num);
         this.collectibleMap.set(num, c);
@@ -574,6 +575,12 @@ export class GameScene extends Phaser.Scene {
         this.pickupsLeft++;
       }
     }
+
+    // Reset sequence to start from 1
+    this.nextExpected  = 1;
+    this.sequenceActive = true;
+    this.collectibleMap.get(1)?.startPulse();
+
     this.updateHUD();
   }
 
