@@ -48,8 +48,8 @@ export class GameScene extends Phaser.Scene {
 
   private coinsGroup!: Phaser.Physics.Arcade.Group;
   private coinList: Phaser.Physics.Arcade.Sprite[] = [];
-  private coinTimer    = 0;
-  private coinsDropped = 0;
+  private coinTimer        = 0;
+  private droppedCoinTypes = new Set<CoinType>();
   private scoreMult    = 1;
 
   private eelsGroup!: Phaser.Physics.Arcade.Group;
@@ -84,7 +84,7 @@ export class GameScene extends Phaser.Scene {
     this.allPlayerPositions  = new Map();
     this.sequenceActive      = true;
     this.coinTimer           = 0;
-    this.coinsDropped        = 0;
+    this.droppedCoinTypes    = new Set();
     this.scoreMult           = 1;
     this.coinList            = [];
 
@@ -208,7 +208,8 @@ export class GameScene extends Phaser.Scene {
     this.coinTimer += delta;
     if (this.coinTimer >= COIN_INTERVAL) {
       this.coinTimer = 0;
-      if (this.coinsDropped < 1 && this.coinList.length === 0 && Math.random() < 0.5) this.spawnCoin();
+      const available = (['tc', 'bb', 'ww', 'fh'] as CoinType[]).filter(t => !this.droppedCoinTypes.has(t));
+      if (available.length > 0 && this.coinList.length === 0 && Math.random() < 0.5) this.spawnCoin(available);
     }
 
     // Eel spawner — every 5 s
@@ -494,10 +495,9 @@ export class GameScene extends Phaser.Scene {
 
   // ── Coins ─────────────────────────────────────────────────────────────────
 
-  private spawnCoin(): void {
-    this.coinsDropped++;
-    const types: CoinType[] = ['tc', 'bb', 'ww', 'fh'];
-    const type = types[Phaser.Math.Between(0, 3)];
+  private spawnCoin(available: CoinType[]): void {
+    const type = available[Phaser.Math.Between(0, available.length - 1)];
+    this.droppedCoinTypes.add(type);
     const x    = Phaser.Math.Between(60, 640);
     const coin = this.physics.add.sprite(x, -30, `coin-${type}`);
     coin.setDepth(15);
