@@ -7,7 +7,7 @@ export class Projectile extends Phaser.Physics.Arcade.Sprite {
   // Bubble-specific stochastic state
   private readonly bubbleSineFreq: number;
   private readonly bubbleSineAmp: number;
-  private readonly bubbleSinePhase: number;
+  private bubbleSinePhase: number;
   private bubbleSineT = 0;
   private bubbleVY: number;   // tracked independently — never read back from physics body
   private footballVX = 0;     // football: stored so we can re-assert it every frame
@@ -73,7 +73,11 @@ export class Projectile extends Phaser.Physics.Arcade.Sprite {
       const body = this.body as Phaser.Physics.Arcade.Body;
       this.bubbleSineT += delta * 0.001;
 
-      // Horizontal sine drift — unique per bubble
+      // Boundary bounces — flip phase before computing vx so the reversal takes effect this frame
+      if (this.x <= 0)   { this.bubbleSinePhase += Math.PI; this.setX(1); }
+      else if (this.x >= 800) { this.bubbleSinePhase += Math.PI; this.setX(799); }
+      if (this.y >= 450) { this.bubbleVY = -Math.abs(this.bubbleVY); this.setY(449); }
+
       const vx = this.bubbleSineAmp * Math.sin(
         this.bubbleSineT * this.bubbleSineFreq * Math.PI * 2 + this.bubbleSinePhase,
       );
@@ -106,9 +110,20 @@ export class Projectile extends Phaser.Physics.Arcade.Sprite {
       if (this.glassLifespan <= 0) { this.destroy(); return; }
     }
 
+    // Per-type boundary rules
     const { x, y } = this;
-    if (x < -60 || x > 860 || y < -60 || y > 520) {
-      this.destroy();
+    if (this.projType === 'bubble') {
+      // Exits through top only; left/right/bottom handled above
+      if (y < -60) this.destroy();
+    } else if (this.projType === 'football' || this.projType === 'mallet') {
+      // Exits left/right; bounces top/bottom
+      if (x < -60 || x > 860) { this.destroy(); return; }
+      const body = this.body as Phaser.Physics.Arcade.Body;
+      if (y <= 0)   { body.velocity.y = Math.abs(body.velocity.y);  this.setY(1); }
+      if (y >= 450) { body.velocity.y = -Math.abs(body.velocity.y); this.setY(449); }
+    } else {
+      // crate, pie, glass-shard, padel-ball, golf-ball, dark-magic: exit all boundaries
+      if (x < -60 || x > 860 || y < -60 || y > 520) this.destroy();
     }
   }
 }

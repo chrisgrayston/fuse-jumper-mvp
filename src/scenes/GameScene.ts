@@ -228,11 +228,15 @@ export class GameScene extends Phaser.Scene {
       if (e.x < -80 || e.y > 520) { e.destroy(); this.eelList.splice(i, 1); }
     }
 
-    // Cull coins that have left the screen
+    // Bounce coins off world boundaries
     for (let i = this.coinList.length - 1; i >= 0; i--) {
       const c = this.coinList[i];
       if (!c.active) { this.coinList.splice(i, 1); continue; }
-      if (c.y > 520 || c.x < -60 || c.x > 860) { c.destroy(); this.coinList.splice(i, 1); }
+      const cb = c.body as Phaser.Physics.Arcade.Body;
+      if (c.x <= 0)   { cb.velocity.x =  Math.abs(cb.velocity.x); c.setX(1); }
+      if (c.x >= 800) { cb.velocity.x = -Math.abs(cb.velocity.x); c.setX(799); }
+      if (c.y <= 0)   { cb.velocity.y =  Math.abs(cb.velocity.y); c.setY(1); }
+      if (c.y >= 450) { cb.velocity.y = -Math.abs(cb.velocity.y); c.setY(449); }
     }
 
     const px = this.player.x;
@@ -501,7 +505,6 @@ export class GameScene extends Phaser.Scene {
     const body = coin.body as Phaser.Physics.Arcade.Body;
     body.allowGravity = true;
     body.setBounce(0.5);
-    body.setCollideWorldBounds(false);
     body.setVelocity(Phaser.Math.Between(30, 70), 80);
     this.coinList.push(coin);
 

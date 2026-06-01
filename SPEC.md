@@ -2,9 +2,11 @@
 
 ## Concept
 
-A 2D arcade platformer set inside a series of London nightclubs. You play a bouncer working your way up the club hierarchy — Club 1800 → 2000 → 2100 → 2200. Each level is a single arena packed with enemy clubbers. Your goal: collect all 11 player shirts scattered across the platforms before the enemies (and hazards) kill you. Beat the level, carry your score and lives forward to the next club.
+A 2D arcade platformer set inside a series of London nightclubs. You play a **Fantasy Premier League newbie** trying to climb from the bottom of the mini-league table to the very top. Every club you enter is run by a crew of seasoned FPL veterans who don't want you there — smug stat-heads, differential merchants, and armchair tacticians who've been top of the league for years and intend to stay there.
 
-**Tone:** Chaotic, funny, British. Enemy names like Butter Fingers, Padel Punisher, Melonhead. Power-ups are Fantasy Football chips (Triple Captain, Wildcard, etc.).
+Your goal: collect all 11 player shirts scattered across each club's platforms — building your FPL squad one signing at a time — before the regulars kill you. Beat the club, carry your score and lives forward to the next one. Four clubs stand between you and the top of the league: Club 1800 → 2000 → 2100 → 2200.
+
+**Tone:** Chaotic, funny, British. The enemies aren't random thugs — they're FPL archetypes: the guy who always plays the Triple Captain on a blank gameweek, the one who's been on the same wildcard since August. Enemy names like Butter Fingers, Padel Punisher, Melonhead. Power-ups are the actual FPL chips — Triple Captain, Wildcard, Bench Boost, Free Hit — each with a direct in-game effect that mirrors their real fantasy value.
 
 ---
 
@@ -48,7 +50,7 @@ MenuScene
 
 ## Collectibles (Shirts)
 
-Each level has 11 numbered shirts placed on platforms. Collecting all 11 ends the level.
+Each level has 11 numbered shirts placed on platforms — each one a player signing for your FPL squad. Collecting all 11 completes your team and ends the level, earning you the right to move up to the next club.
 
 **Scoring:**
 - `SCORE_PER_PICK = 100` per shirt
@@ -58,16 +60,16 @@ Each level has 11 numbered shirts placed on platforms. Collecting all 11 ends th
 
 ---
 
-## Coins (Fantasy Football power-ups)
+## Coins (FPL Chips)
 
-Drop randomly every `COIN_INTERVAL = 10000ms` (max 3 per level). 50% spawn chance per tick.
+The real FPL chips drop into the arena every `COIN_INTERVAL = 10000ms` (max 3 per level). 50% spawn chance per tick. Just like in real FPL, using the right chip at the right moment can flip the game.
 
 | Code | Name | Effect |
 |------|------|--------|
-| `tc` | Triple Captain | `scoreMult = 3` for rest of level |
-| `bb` | Bench Boost | Spawns 4 extra shirts (numbers 12–15) on random platforms |
-| `ww` | Wildcard | Restores all missing shirts to their original positions |
-| `fh` | Free Hit | +1 life |
+| `tc` | Triple Captain | `scoreMult = 3` for rest of level — your captain hauls, everyone notices |
+| `bb` | Bench Boost | Spawns 4 extra shirts (numbers 12–15) on random platforms — your bench players actually contribute for once |
+| `ww` | Wildcard | Restores all missing shirts to their original positions — full squad reset, fresh start |
+| `fh` | Free Hit | +1 life — a get-out-of-jail card, just like the real thing |
 
 ---
 
@@ -82,21 +84,25 @@ Spawn every 5000ms from the right edge, fall with gravity, drift left. Animate 3
 All levels: 800 × 450 canvas, `playerStart: { x: 80, y: 390 }`. Platforms are static physics bodies.
 
 ### Level 1 — Club 1800 "No Rules. No Light. No Tomorrow."
+- **Narrative:** The bottom rung. A grimy dive bar where FPL rookies go to die. The locals have been 18th in their league since 2019 and couldn't be prouder of it. They see a new face with a squad sheet and immediately get territorial.
 - **Theme:** Gritty dive bar. Dark red neon (`0xcc1122`). Wet concrete.
 - **Platforms:** Bar floor (full width), bar stools ×2, bar counter (right), high shelf (left), back shelf (right), top shelf (centre)
 - **Enemies:** `bubble-blower` (ground patrol)
 
 ### Level 2 — Club 2000 "VIP Only. Hard Techno. Harder You."
+- **Narrative:** Mid-table. These lot actually watch the football and think that makes them experts. They've got a spreadsheet. They've named their team something ironic. They do NOT want a newbie climbing past them.
 - **Theme:** Neon nightclub. Purple/pink (`0xff1a44`).
 - **Platforms:** Dance floor, speaker boxes ×2, stage, mid left/right, VIP balconies ×2, VIP centre, top booth
 - **Enemies:** `flanker` (ground patrol), `rushy` (figure-8 float, top third), `smaller-bear` (jumps VIP left ↔ VIP right)
 
 ### Level 3 — Club 2100 "Mid-tier prestige. Earned, not given."
+- **Narrative:** The serious end. These are the regulars who've been top 10k overall. They talk about "ownership", "differentials", and "price rises" at the bar. Butter Fingers has played his Wildcard four times this season alone. Nobody questions it.
 - **Theme:** Industrial neon orange (`0xff7700`). Multi-platform chaos.
 - **Platforms:** Ground, low flanks ×2, mid ×3, upper flanks ×2, high flanks ×2 (y=152, h=12), top (y=58)
 - **Enemies:** `clippy` (ground patrol), `melonhead` (physics-driven arena roam), `butter-fingers` (high-flank jumping with crate/pie throws), `padel-punisher` (centre-mid, static)
 
 ### Level 4 — Club 2200 "Only the gods qualify."
+- **Narrative:** The summit. These are the top-of-the-league legends — the ones with trophies on their profile and a chip saved since Gameweek 1. Skeletor has been number one in the mini-league for so long nobody remembers when it wasn't his. Beat them and the league is yours.
 - **Theme:** Greek marble temple. Gold and white (`0xf0c040`). Skeletor reigns.
 - **Platforms:** Many tiers — marble ground up to Skeletor's throne at y=28
 - **Enemies:** `giant-bear` (ground patrol + charge), `condor` (figure-8 float, mid), `actuary-man` (vertical shuttle, throne ↔ mid), `puffin` (static, aims golf balls at player), `vascular-man` (glides between mid positions), `skeletor` (static throne, aims dark magic)
@@ -223,6 +229,35 @@ When a `crate` hits a platform:
 3. `createCrateSmash(x, y)` plays 3-frame animation (`proj-crate-smash-1/2/3`) at 240ms per frame
 4. 3 glass shards spawned at (x, y-20) with random `vx ∈ [-340, 340]` and `vy = -[260, 460]` (always upward)
 5. Glass shards hurt player on contact; despawn after 1600ms
+
+---
+
+## Screen Boundaries
+
+Canvas is 800 × 450px. World bounds are set to match. Behaviour at each edge:
+
+| Entity | Top | Right | Bottom | Left |
+|--------|-----|-------|--------|------|
+| Player | block | block | block | block |
+| All enemies | block | block | block | block |
+| Coins | bounce | bounce | bounce | bounce |
+| Bubble | EXIT | bounce | bounce | bounce |
+| Football | bounce | EXIT | bounce | EXIT |
+| Mallet | bounce | EXIT | bounce | EXIT |
+| Crate | EXIT | EXIT | EXIT | EXIT |
+| Pie | EXIT | EXIT | EXIT | EXIT |
+| Glass shard | EXIT | EXIT | EXIT | EXIT |
+| Padel-ball | EXIT | EXIT | EXIT | EXIT |
+| Golf-ball | EXIT | EXIT | EXIT | EXIT |
+| Dark-magic | EXIT | EXIT | EXIT | EXIT |
+| Eels | — | — | EXIT | EXIT |
+
+**Implementation notes:**
+- Player/enemies: `setCollideWorldBounds(true)` (already set)
+- Coins: manual bounce in update loop (coins spawn above canvas at y=-30, so `setCollideWorldBounds` can't be used — manual check in GameScene update loop instead)
+- Bubble: left/right bounce flips `bubbleSinePhase` by π (reverses sine direction) before vx is computed that frame; bottom bounce forces `bubbleVY` negative; exits through top (y < -60 → destroy)
+- Football/mallet: exit left/right via existing out-of-bounds destroy; top/bottom bounce flips `body.velocity.y` and clamps position
+- All other projectiles: existing destroy-on-exit logic unchanged
 
 ---
 
