@@ -134,12 +134,13 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
           // Show whichever keepup frame matches kick direction
           this.setTexture(this.st.direction > 0 ? 'enemy-bubble-blower' : 'enemy-bubble-blower-2');
         } else {
-          this.setTexture('enemy-bubble-blower');
+          const frame = Math.floor(this.st.sineT / 380) % 2;
+          this.setTexture(frame === 0 ? 'enemy-bubble-blower' : 'enemy-bubble-blower-2');
         }
 
         if (this.st.clock >= this.st.nextAction) {
           this.st.clock = 0;
-          this.st.nextAction = Phaser.Math.Between(8000, 12000);
+          this.st.nextAction = Phaser.Math.Between(14000, 20000);
           this.st.chargeTimer = 900;
           const baseAngles = [-170, -90, -10];
           for (let i = 0; i < 3; i++) {
