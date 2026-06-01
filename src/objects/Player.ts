@@ -93,7 +93,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       this.tapOn     = false;
       this.tapTimer  = 0;
       this.runTimer += delta;
-      if (this.runTimer >= 120) { this.runTimer = 0; this.runFrame = this.runFrame === 1 ? 2 : 1; }
+      if (this.runTimer >= 100) { this.runTimer = 0; this.runFrame = this.runFrame >= 4 ? 1 : this.runFrame + 1; }
       key = `player-run-${this.runFrame}`;
     } else {
       this.runTimer = 0;
