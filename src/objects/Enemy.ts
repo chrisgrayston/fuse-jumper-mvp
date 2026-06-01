@@ -19,7 +19,7 @@ interface State {
 }
 
 const SPEEDS: Partial<Record<EnemyType, number>> = {
-  'bubble-blower':  55,
+  'bubble-blower':  0,
   'flanker':        110,
   'clippy':         60,
   'giant-bear':     50,
