@@ -565,6 +565,8 @@ export class GameScene extends Phaser.Scene {
 
   private applyWildcard(): void {
     for (const [num, pos] of this.allPlayerPositions) {
+      // Don't restore shirts already collected in-sequence — they'd re-appear as out-of-order pickups and break the bonus chain
+      if (this.sequenceActive && num < this.nextExpected) continue;
       if (!this.collectibleMap.has(num)) {
         const c = new Collectible(this, pos.x, pos.y, num);
         this.collectibleMap.set(num, c);
