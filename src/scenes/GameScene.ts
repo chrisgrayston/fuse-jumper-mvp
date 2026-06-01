@@ -115,7 +115,7 @@ export class GameScene extends Phaser.Scene {
     this.physics.add.collider(this.player, this.platforms);
     this.physics.add.collider(this.enemies, this.platforms);
     this.physics.add.collider(this.coinsGroup, this.platforms);
-    // No platform collider for eels — they fall through and exit at the bottom
+    this.physics.add.collider(this.eelsGroup, this.platforms);
 
     // Crate smash: crates physically stop on platforms and shatter
     this.physics.add.collider(
@@ -225,6 +225,7 @@ export class GameScene extends Phaser.Scene {
       const at = (e.getData('animT') as number) + delta;
       e.setData('animT', at);
       e.setTexture(`enemy-eel-${(Math.floor(at / 150) % 3) + 1}`);
+      (e.body as Phaser.Physics.Arcade.Body).setVelocityX(-60);
       if (e.x < -80 || e.y > 520) { e.destroy(); this.eelList.splice(i, 1); }
     }
 
