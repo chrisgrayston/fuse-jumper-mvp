@@ -21,7 +21,7 @@ interface State {
 const SPEEDS: Partial<Record<EnemyType, number>> = {
   'bubble-blower':  0,
   'flanker':        110,
-  'clippy':         28,
+  'clippy':         22,
   'giant-bear':     50,
 };
 
@@ -89,9 +89,14 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       body.setOffset(9, 4);
     }
     if (this.eType === 'melonhead') {
-      body.setCollideWorldBounds(true);
+      body.allowGravity = false;
+      body.setCollideWorldBounds(false);
       body.setSize(24, 44);
       body.setOffset(10, 16);
+      this.st.nextKick    = 0;  // SETTLE
+      this.st.kickDir     = 5;  // start at top platform (index 5 in circuit)
+      this.st.kickClock   = 0;
+      this.st.chargeTimer = 800;
     }
     if (this.eType === 'butter-fingers') {
       body.allowGravity = false;

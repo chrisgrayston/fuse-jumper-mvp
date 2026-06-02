@@ -27,7 +27,7 @@ export const level3: LevelData = {
     { x: 55,  y: 152, width: 120, height: 12 },
     { x: 625, y: 152, width: 120, height: 12 },
     // Top
-    { x: 320, y: 58,  width: 160, height: 12 },
+    { x: 260, y: 80,  width: 280, height: 12 },
   ],
 
   players: [
@@ -40,8 +40,8 @@ export const level3: LevelData = {
     { number: 7,  x: 620, y: 286 },
     { number: 8,  x: 185, y: 216 },
     { number: 9,  x: 560, y: 216 },   // upper-right
-    { number: 10, x: 400, y: 42  },   // top platform
-    { number: 11, x: 460, y: 42  },
+    { number: 10, x: 390, y: 64  },   // top platform
+    { number: 11, x: 450, y: 64  },
   ],
 
   enemies: [
@@ -50,16 +50,14 @@ export const level3: LevelData = {
       type: 'clippy',
       x: 300,
       y: 407,
-      patrolLeft: 80,
-      patrolRight: 620,
+      patrolLeft: 155,
+      patrolRight: 645,
     },
-    // Melonhead roams the arena with physics
+    // Melonhead hops platform to platform
     {
       type: 'melonhead',
       x: 400,
-      y: 28,
-      patrolLeft: 60,
-      patrolRight: 740,
+      y: 50,
     },
     // Butter Fingers jumps between high flanks
     {
