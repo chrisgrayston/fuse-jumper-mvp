@@ -16,14 +16,6 @@ export const level4: LevelData = {
     // Column bases
     { x: 30,  y: 383, width: 80,  height: 12 },
     { x: 690, y: 383, width: 80,  height: 12 },
-    // Lower
-    { x: 145, y: 345, width: 130, height: 12 },
-    { x: 525, y: 345, width: 130, height: 12 },
-    { x: 325, y: 322, width: 150, height: 12 },
-    // Mid
-    { x: 55,  y: 272, width: 145, height: 12 },
-    { x: 600, y: 272, width: 145, height: 12 },
-    { x: 278, y: 252, width: 244, height: 12 },  // Puffin platform
     // Upper
     { x: 100, y: 202, width: 130, height: 12 },
     { x: 570, y: 202, width: 130, height: 12 },
@@ -43,10 +35,10 @@ export const level4: LevelData = {
     { number: 1,  x: 200, y: 415 },
     { number: 2,  x: 560, y: 415 },
     { number: 3,  x: 55,  y: 367 },
-    { number: 4,  x: 555, y: 329 },
-    { number: 5,  x: 108, y: 256 },
-    { number: 6,  x: 380, y: 236 },
-    { number: 7,  x: 630, y: 256 },
+    { number: 4,  x: 730, y: 367 },  // moved from lower-right → column base right
+    { number: 5,  x: 635, y: 186 },  // moved from mid-left → upper right
+    { number: 6,  x: 218, y: 126 },  // moved from puffin → high left
+    { number: 7,  x: 582, y: 126 },  // moved from mid-right → high right
     { number: 8,  x: 130, y: 186 },
     { number: 9,  x: 360, y: 165 },
     { number: 10, x: 360, y: 95  },
@@ -76,11 +68,11 @@ export const level4: LevelData = {
       posA: { x: 360, y: 22  },
       posB: { x: 360, y: 236 },
     },
-    // Puffin stands on mid-centre platform, fires golf balls
+    // Puffin stands on upper-centre platform, fires golf balls
     {
       type: 'puffin',
       x: 400,
-      y: 237,
+      y: 167,
     },
     // Vascular Man hangs beneath mid platforms
     {
