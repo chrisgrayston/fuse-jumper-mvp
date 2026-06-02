@@ -2,8 +2,16 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "fuse-jumper-mvp",
   "compatibility_date": "2026-05-30",
+  "main": "worker.ts",
   "assets": {
     "directory": "./dist",
-    "not_found_handling": "single-page-application"
-  }
+    "not_found_handling": "single-page-application",
+    "binding": "ASSETS"
+  },
+  "kv_namespaces": [
+    {
+      "binding": "SCORES",
+      "id": "ca040267dc0045a8a27d1412a28ffbf6"
+    }
+  ]
 }
