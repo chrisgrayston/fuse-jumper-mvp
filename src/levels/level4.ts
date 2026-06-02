@@ -65,11 +65,11 @@ export const level4: LevelData = {
       posA: { x: 360, y: 49  },
       posB: { x: 360, y: 236 },
     },
-    // Puffin stands on centre platform, fires golf balls
+    // Puffin Golfer stands on bottom-right column base, drives golf balls left
     {
       type: 'puffin',
-      x: 400,
-      y: 245,
+      x: 730,
+      y: 307,
     },
     // Vascular Man glides between sides
     {

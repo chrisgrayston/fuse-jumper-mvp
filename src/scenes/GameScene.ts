@@ -121,7 +121,7 @@ export class GameScene extends Phaser.Scene {
       undefined,
       (projObj) => {
         const p = projObj as unknown as Projectile;
-        return 'projType' in p && p.projType === 'padel-ball';
+        return 'projType' in p && (p.projType === 'padel-ball' || p.projType === 'golf-ball');
       },
     );
     this.physics.add.collider(this.coinsGroup, this.platforms);
@@ -371,7 +371,7 @@ export class GameScene extends Phaser.Scene {
       // group.add() resets the entire physics body — re-apply all settings immediately
       const body = proj.body as Phaser.Physics.Arcade.Body;
       body.setVelocity(vx, vy);
-      if (type === 'padel-ball') {
+      if (type === 'padel-ball' || type === 'golf-ball') {
         body.allowGravity = false;
         body.setBounce(1.0, 1.0);
         body.setCollideWorldBounds(true);

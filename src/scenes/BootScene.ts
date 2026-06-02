@@ -1650,13 +1650,219 @@ export class BootScene extends Phaser.Scene {
     g.fillStyle(0xffffff); g.fillRect(9, 14, 8, 10);   // calculator/shirt
     g.generateTexture('enemy-actuary-man', 26, 30);
 
-    // ── Puffin — black/white/orange, tuxedo, golf club ───────────────────
-    g.clear();
-    g.fillStyle(0x111111); g.fillRect(2, 4, 22, 26);   // body
-    g.fillStyle(0xffffff); g.fillRect(6, 8, 14, 14);   // white belly
-    g.fillStyle(0xff7700); g.fillTriangle(13, 0, 20, 6, 6, 6); // beak
-    g.fillStyle(0x888888); g.fillRect(24, 14, 4, 20);  // golf club shaft
-    g.generateTexture('enemy-puffin', 28, 30);
+    // ── Puffin Golfer — 40×50px, faces LEFT, 12-frame swing ─────────────────
+    {
+      const W = 40, H = 50;
+      // Puffin colours
+      const BLK = 0x111111; const WHT = 0xffffff;
+      const BO  = 0xff4400; // beak orange-red (upper)
+      const BY  = 0xff9922; // beak yellow-orange (lower)
+      const BG  = 0xbbbbbb; // beak grey mid-section
+      const ER  = 0xff7700; // eye ring orange
+      const FT  = 0xff9900; // wing-tip orange (puffin feet colour)
+      // Golfer colours
+      const GRN = 0x1a8a3a; // argyle sweater green
+      const AY  = 0xddcc00; // argyle yellow diamond
+      const AR  = 0xbb1100; // argyle red diamond
+      const PF  = 0xcc9933; // plus-fours khaki
+      const PD  = 0x997722; // plus-fours shadow
+      const SC  = 0xeeeeee; // sock white
+      const SR  = 0xcc2200; // sock red stripe
+      const SH  = 0x442211; // shoe brown
+      const SW  = 0xddbbaa; // shoe white cap
+      // Club colours
+      const SA  = 0xbbbbbb; // shaft silver
+      const CH  = 0x666666; // club head grey
+      const GP  = 0x333333; // grip
+
+      const TY = 14;  // sweater top
+      const PY = 27;  // plus-fours top
+      const KY = 38;  // socks top
+      const SY2 = 44; // shoes top
+
+      const head = () => {
+        // Black rounded head
+        g.fillStyle(BLK); g.fillCircle(20, 6, 10);
+        g.fillRect(11, 6, 18, 8);
+        // White cheek patch (front = LEFT side of sprite)
+        g.fillStyle(WHT); g.fillRect(9, 4, 10, 10);
+        // Large colourful beak pointing LEFT (puffin's icon feature)
+        g.fillStyle(BO);  g.fillRect(1, 6, 10, 3);   // upper beak
+        g.fillStyle(BY);  g.fillRect(2, 8, 9, 3);    // lower beak
+        g.fillRect(2, 10, 5, 1);                      // tip narrows
+        g.fillStyle(BG);  g.fillRect(5, 7, 3, 3);    // grey mid-section
+        // Orange eye-ring + black pupil
+        g.fillStyle(ER);  g.fillRect(14, 2, 6, 6);
+        g.fillRect(13, 4, 1, 3);                      // triangle extension
+        g.fillStyle(BLK); g.fillRect(15, 3, 3, 4);
+        g.fillStyle(WHT); g.fillRect(15, 3, 1, 1);   // highlight
+      };
+
+      const torso = () => {
+        // Argyle sweater
+        g.fillStyle(GRN); g.fillRect(11, TY, 18, 13);
+        g.fillStyle(AY);
+        g.fillRect(12, TY+2, 4, 4); g.fillRect(23, TY+2, 4, 4);
+        g.fillStyle(AR);
+        g.fillRect(17, TY+6, 5, 5);
+        g.fillStyle(BLK); g.fillRect(15, TY, 9, 2);   // collar
+        // Plus fours (baggy knickers)
+        g.fillStyle(PF);
+        g.fillRect(9, PY, 22, 5);                      // waist/hip
+        g.fillRect(8, PY+5, 10, 6); g.fillRect(22, PY+5, 10, 6); // baggy thighs
+        g.fillStyle(PD);
+        g.fillRect(9, PY+10, 8, 1); g.fillRect(23, PY+10, 8, 1); // knee gather
+        // Socks
+        g.fillStyle(SC);
+        g.fillRect(9, KY, 8, 6);  g.fillRect(23, KY, 8, 6);
+        g.fillStyle(SR);
+        g.fillRect(9, KY+1, 8, 1); g.fillRect(23, KY+1, 8, 1);
+        g.fillRect(9, KY+4, 8, 1); g.fillRect(23, KY+4, 8, 1);
+        // Golf shoes
+        g.fillStyle(SH);
+        g.fillRect(7, SY2, 10, 5); g.fillRect(23, SY2, 10, 5);
+        g.fillStyle(SW);
+        g.fillRect(7, SY2, 4, 2);  g.fillRect(23, SY2, 4, 2);
+      };
+
+      // ── ARM helpers ─────────────────────────────────────────
+      // Wings = black; orange tip = puffin feet colour
+      const armsA = () => {   // Address — both arms down
+        g.fillStyle(BLK); g.fillRect(4, TY+2, 8, 9); g.fillRect(27, TY+2, 8, 9);
+        g.fillStyle(FT);  g.fillRect(4, TY+9, 6, 3); g.fillRect(29, TY+9, 5, 3);
+      };
+      const armsW1 = () => {  // Takeaway — arms start going back (rightward)
+        g.fillStyle(BLK); g.fillRect(13, TY+2, 7, 8); g.fillRect(27, TY+2, 9, 9);
+        g.fillStyle(FT);  g.fillRect(15, TY+8, 5, 3); g.fillRect(30, TY+9, 5, 3);
+      };
+      const armsW2 = () => {  // Backswing — arms rising up-right
+        g.fillStyle(BLK); g.fillRect(18, TY-1, 10, 9);
+        g.fillStyle(FT);  g.fillRect(25, TY-1, 5, 3);
+      };
+      const armsW3 = () => {  // Top — arms fully back and high
+        g.fillStyle(BLK); g.fillRect(20, TY-4, 12, 9);
+        g.fillStyle(FT);  g.fillRect(28, TY-4, 5, 4);
+      };
+      const armsW4 = () => {  // Transition — arms dropping toward impact
+        g.fillStyle(BLK); g.fillRect(14, TY-1, 13, 9);
+        g.fillStyle(FT);  g.fillRect(24, TY+5, 5, 3);
+      };
+      const armsImp = () => { // IMPACT — arms fully extended LEFT
+        g.fillStyle(BLK); g.fillRect(0, TY+3, 16, 7);
+        g.fillStyle(FT);  g.fillRect(0, TY+3, 5, 5);
+      };
+      const armsF1 = () => {  // Follow 1 — arms swinging up-left
+        g.fillStyle(BLK); g.fillRect(2, TY-1, 11, 9);
+        g.fillStyle(FT);  g.fillRect(2, TY-1, 5, 4);
+      };
+      const armsF2 = () => {  // Follow 2 — arms high left
+        g.fillStyle(BLK); g.fillRect(0, TY-3, 10, 9);
+        g.fillStyle(FT);  g.fillRect(0, TY-3, 5, 4);
+      };
+      const armsF3 = () => {  // Follow 3 — wrapping over
+        g.fillStyle(BLK);
+        g.fillRect(1, TY-4, 9, 8); g.fillRect(3, TY+3, 9, 5);
+        g.fillStyle(FT);  g.fillRect(1, TY-4, 5, 4);
+      };
+      const armsF4 = () => {  // High finish — arms wrapped over left
+        g.fillStyle(BLK);
+        g.fillRect(2, TY-5, 10, 9); g.fillRect(3, TY+3, 14, 5);
+        g.fillStyle(FT);  g.fillRect(2, TY-5, 5, 4);
+      };
+      const armsF5 = () => {  // Pose/hold — relaxed finish
+        g.fillStyle(BLK);
+        g.fillRect(3, TY-4, 9, 8); g.fillRect(4, TY+3, 13, 5);
+        g.fillStyle(FT);  g.fillRect(3, TY-4, 5, 3);
+      };
+
+      // ── CLUB helpers ─────────────────────────────────────────
+      // Diagonal shaft drawn as stepping 2-wide pixels
+      const shaftDiag = (sx: number, sy: number, steps: number, dx: number, dy: number) => {
+        for (let i = 0; i < steps; i++) g.fillRect(sx + dx*i, sy + dy*i, 2, 2);
+      };
+
+      const clubA = () => {   // Address — shaft near-vertical
+        g.fillStyle(SA); shaftDiag(9, 22, 7, -1, 4);
+        g.fillStyle(GP); g.fillRect(8, 20, 3, 4);
+        g.fillStyle(CH); g.fillRect(1, 44, 10, 4);
+        g.fillStyle(SA); g.fillRect(1, 44, 10, 1);
+      };
+      const clubW1 = () => {  // Takeaway — shaft going back to hip, pointing RIGHT
+        g.fillStyle(SA); g.fillRect(14, 26, 18, 2);
+        g.fillStyle(GP); g.fillRect(14, 24, 3, 5);
+        g.fillStyle(CH); g.fillRect(30, 23, 8, 5);
+        g.fillStyle(SA); g.fillRect(30, 23, 8, 1);
+      };
+      const clubW2 = () => {  // Backswing — shaft vertical, head top-right
+        g.fillStyle(SA); g.fillRect(26, 2, 2, 22);
+        g.fillStyle(GP); g.fillRect(24, 20, 4, 5);
+        g.fillStyle(CH); g.fillRect(23, 0, 7, 4);
+        g.fillStyle(SA); g.fillRect(23, 0, 7, 1);
+      };
+      const clubW3 = () => {  // Top — shaft diagonal upper-right
+        g.fillStyle(SA); shaftDiag(23, 14, 6, 2, -3);
+        g.fillStyle(GP); g.fillRect(21, 14, 5, 5);
+        g.fillStyle(CH); g.fillRect(32, 0, 7, 4);
+        g.fillStyle(SA); g.fillRect(32, 0, 7, 1);
+      };
+      const clubW4 = () => {  // Transition — dropping, still upper-right
+        g.fillStyle(SA); shaftDiag(22, 6, 6, 1, 3);
+        g.fillStyle(GP); g.fillRect(20, 20, 5, 5);
+        g.fillStyle(CH); g.fillRect(29, 0, 7, 4);
+        g.fillStyle(SA); g.fillRect(29, 0, 7, 1);
+      };
+      const clubImp = () => { // Impact — shaft horizontal pointing LEFT, head far-left
+        g.fillStyle(SA); g.fillRect(5, 22, 18, 2);
+        g.fillStyle(GP); g.fillRect(20, 20, 4, 5);
+        g.fillStyle(CH); g.fillRect(0, 19, 7, 6);
+        g.fillStyle(SA); g.fillRect(6, 19, 1, 6);  // inner face line
+        g.fillStyle(WHT); g.fillRect(0, 21, 1, 2); // glint
+      };
+      const clubF1 = () => {  // Follow 1 — going up-left past horizontal
+        g.fillStyle(SA); shaftDiag(7, 8, 7, -1, 3);
+        g.fillStyle(GP); g.fillRect(5, 26, 4, 4);
+        g.fillStyle(CH); g.fillRect(0, 0, 6, 5);
+        g.fillStyle(SA); g.fillRect(0, 0, 6, 1);
+      };
+      const clubF2 = () => {  // Follow 2 — shaft near-vertical rising left
+        g.fillStyle(SA); g.fillRect(5, 2, 2, 22);
+        g.fillStyle(GP); g.fillRect(3, 20, 4, 5);
+        g.fillStyle(CH); g.fillRect(2, 0, 6, 4);
+        g.fillStyle(SA); g.fillRect(2, 0, 6, 1);
+      };
+      const clubF3 = () => {  // Follow 3 — wrapping, pointing upper-left
+        g.fillStyle(SA); shaftDiag(5, 2, 6, -1, 3);
+        g.fillStyle(GP); g.fillRect(2, 16, 4, 5);
+        g.fillStyle(CH); g.fillRect(0, 0, 6, 4);
+      };
+      const clubF4 = () => {  // High finish — club behind/above, pointing right
+        g.fillStyle(SA); g.fillRect(8, 0, 26, 2);
+        g.fillStyle(GP); g.fillRect(8, 0, 4, 4);
+        g.fillStyle(CH); g.fillRect(32, 0, 7, 4);
+      };
+      const clubF5 = () => {  // Pose — club relaxed across shoulders
+        g.fillStyle(SA); g.fillRect(10, 3, 22, 2);
+        g.fillStyle(GP); g.fillRect(10, 1, 4, 5);
+        g.fillStyle(CH); g.fillRect(30, 1, 7, 4);
+      };
+
+      // ── Generate all 12 textures ─────────────────────────────
+      g.clear(); head(); torso(); armsA();  clubA();  g.generateTexture('enemy-puffin-golfer',          W, H);
+      g.clear(); head(); torso(); armsA();  clubA();
+      // waggle: tiny hip shift — overdraw plus-fours 1px right
+      g.fillStyle(PF); g.fillRect(10, PY, 22, 5);
+      g.generateTexture('enemy-puffin-golfer-wait-2', W, H);
+      g.clear(); head(); torso(); armsW1(); clubW1(); g.generateTexture('enemy-puffin-golfer-windup-1', W, H);
+      g.clear(); head(); torso(); armsW2(); clubW2(); g.generateTexture('enemy-puffin-golfer-windup-2', W, H);
+      g.clear(); head(); torso(); armsW3(); clubW3(); g.generateTexture('enemy-puffin-golfer-windup-3', W, H);
+      g.clear(); head(); torso(); armsW4(); clubW4(); g.generateTexture('enemy-puffin-golfer-windup-4', W, H);
+      g.clear(); head(); torso(); armsImp(); clubImp(); g.generateTexture('enemy-puffin-golfer-impact', W, H);
+      g.clear(); head(); torso(); armsF1(); clubF1();  g.generateTexture('enemy-puffin-golfer-follow-1', W, H);
+      g.clear(); head(); torso(); armsF2(); clubF2();  g.generateTexture('enemy-puffin-golfer-follow-2', W, H);
+      g.clear(); head(); torso(); armsF3(); clubF3();  g.generateTexture('enemy-puffin-golfer-follow-3', W, H);
+      g.clear(); head(); torso(); armsF4(); clubF4();  g.generateTexture('enemy-puffin-golfer-follow-4', W, H);
+      g.clear(); head(); torso(); armsF5(); clubF5();  g.generateTexture('enemy-puffin-golfer-follow-5', W, H);
+    }
 
     // ── Vascular Man — muscular, West Ham claret/blue ─────────────────────
     g.clear();

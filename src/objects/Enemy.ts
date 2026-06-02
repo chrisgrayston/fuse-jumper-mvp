@@ -111,6 +111,14 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       this.st.nextKick = 1;  // start in WINDUP immediately
       this.st.kickClock = 0;
     }
+    if (this.eType === 'puffin') {
+      this.setTexture('enemy-puffin-golfer');  // override default 'enemy-puffin' key
+      body.setSize(22, 44);
+      body.setOffset(9, 4);
+      this.st.nextKick  = 1;  // PG_WINDUP — start swinging immediately
+      this.st.kickClock = 0;
+      this.st.kickDir   = 0;
+    }
 
     // Ground patrol — set initial velocity
     const speed = SPEEDS[this.eType];
@@ -653,16 +661,70 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       }
 
       case 'puffin': {
+        // 4-phase drive: IDLE→WINDUP(4 frames)→IMPACT→FOLLOW(5 frames)→IDLE
+        const PG_IDLE   = 0;
+        const PG_WINDUP = 1;
+        const PG_IMPACT = 2;
+        const PG_FOLLOW = 3;
+
         body.reset(this.eData.x, this.eData.y);
-        if (this.st.clock >= this.st.nextAction) {
-          this.st.clock = 0;
-          this.st.nextAction = Phaser.Math.Between(2000, 3500);
-          // Aim toward player
-          const dx = playerX - this.x;
-          const dy = playerY - this.y;
-          const len = Math.sqrt(dx * dx + dy * dy) || 1;
-          const spd = 280;
-          this.spawn(this.x, this.y - 8, 'golf-ball', (dx / len) * spd, (dy / len) * spd);
+        this.st.kickClock += delta;
+
+        if (this.st.nextKick === PG_IDLE) {
+          // Waggle waiting for ball to expire
+          const wf = Math.floor(this.st.kickClock / 550) % 2;
+          this.setTexture(wf === 0 ? 'enemy-puffin-golfer' : 'enemy-puffin-golfer-wait-2');
+          if (!this.padelBall || !this.padelBall.active) {
+            this.padelBall   = null;
+            this.st.nextKick = PG_WINDUP;
+            this.st.kickClock = 0;
+          }
+
+        } else if (this.st.nextKick === PG_WINDUP) {
+          // 4-frame windup over 800ms (200ms each)
+          const wPhase = Math.min(3, Math.floor(this.st.kickClock / 200));
+          const wKeys = ['windup-1', 'windup-2', 'windup-3', 'windup-4'];
+          this.setTexture(`enemy-puffin-golfer-${wKeys[wPhase]}`);
+          if (this.st.kickClock >= 800) {
+            this.st.nextKick  = PG_IMPACT;
+            this.st.kickClock = 0;
+          }
+
+        } else if (this.st.nextKick === PG_IMPACT) {
+          this.setTexture('enemy-puffin-golfer-impact');
+          if (this.st.kickClock < 30) {
+            // Sweep left: elevation 10–80° in 8 steps of 10°
+            const elevDeg = 10 + this.st.kickDir * 10;
+            const angle   = Phaser.Math.DegToRad(elevDeg);
+            const speed   = Phaser.Math.Between(580, 720);
+            this.padelBall = this.spawn(
+              this.x - 16, this.y - 22, 'golf-ball',
+              -Math.cos(angle) * speed, -Math.sin(angle) * speed,
+            );
+            this.st.kickDir = (this.st.kickDir + 1) % 8;
+            // "RIP!!!!!" shout
+            const rip = this.scene.add.text(this.x - 20, this.y - 40, 'RIP!!!!!', {
+              fontSize: '13px', fontFamily: 'monospace',
+              color: '#ffffff', stroke: '#000000', strokeThickness: 3,
+            }).setOrigin(0.5).setDepth(25);
+            this.scene.tweens.add({
+              targets: rip, y: rip.y - 35, alpha: 0, duration: 900,
+              onComplete: () => rip.destroy(),
+            });
+          }
+          if (this.st.kickClock >= 120) {
+            this.st.nextKick  = PG_FOLLOW;
+            this.st.kickClock = 0;
+          }
+
+        } else {
+          // PG_FOLLOW — 5 frames over 600ms (120ms each)
+          const fPhase = Math.min(4, Math.floor(this.st.kickClock / 120));
+          this.setTexture(`enemy-puffin-golfer-follow-${fPhase + 1}`);
+          if (this.st.kickClock >= 600) {
+            this.st.nextKick  = PG_IDLE;
+            this.st.kickClock = 0;
+          }
         }
         break;
       }
@@ -731,6 +793,16 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       this.st.sineT       = 0;
       this.setTexture('enemy-butter-fingers');
       this.setFlipX(false);
+      return;
+    }
+    if (this.eType === 'puffin') {
+      body.reset(this.eData.x, this.eData.y);
+      body.setVelocity(0, 0);
+      this.st.nextKick  = 1;  // PG_WINDUP
+      this.st.kickClock = 0;
+      this.st.kickDir   = 0;
+      this.padelBall    = null;
+      this.setTexture('enemy-puffin-golfer');
       return;
     }
     if (this.eType === 'melonhead') {

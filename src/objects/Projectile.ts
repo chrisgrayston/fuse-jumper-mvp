@@ -50,17 +50,17 @@ export class Projectile extends Phaser.Physics.Arcade.Sprite {
       body.allowGravity = false;
       body.setGravityY(0);
       this.footballVX = vx;     // store so update() can re-assert it every frame
-    } else if (type === 'padel-ball') {
+    } else if (type === 'padel-ball' || type === 'golf-ball') {
       body.allowGravity = false;
       body.setBounce(1.0, 1.0);
       body.setCollideWorldBounds(true);
-      this.glassLifespan = 2000; // reuse lifespan field — ball expires after 2 s
+      this.glassLifespan = 2000; // expires after 2 s, destroys on next impact
     } else {
       body.allowGravity = true;
     }
 
     body.setVelocity(vx, vy);
-    if (type !== 'padel-ball') body.setCollideWorldBounds(false);
+    if (type !== 'padel-ball' && type !== 'golf-ball') body.setCollideWorldBounds(false);
 
     if (type === 'bubble') {
       this.bubbleSineFreq  = Phaser.Math.FloatBetween(0.3, 0.7);
@@ -114,7 +114,7 @@ export class Projectile extends Phaser.Physics.Arcade.Sprite {
       this.glassLifespan -= delta;
       if (this.glassLifespan <= 0) { this.destroy(); return; }
     }
-    if (this.projType === 'padel-ball' && this.active) {
+    if ((this.projType === 'padel-ball' || this.projType === 'golf-ball') && this.active) {
       if (this.glassLifespan > 0) {
         this.glassLifespan -= delta;
       } else {
@@ -137,11 +137,11 @@ export class Projectile extends Phaser.Physics.Arcade.Sprite {
       const body = this.body as Phaser.Physics.Arcade.Body;
       if (y <= 0)   { body.velocity.y = Math.abs(body.velocity.y);  this.setY(1); }
       if (y >= 450) { body.velocity.y = -Math.abs(body.velocity.y); this.setY(449); }
-    } else if (this.projType === 'padel-ball') {
-      // Bounces off world bounds + platforms — only destroy if somehow way out of range
+    } else if (this.projType === 'padel-ball' || this.projType === 'golf-ball') {
+      // Bounces off world bounds + platforms — only destroy if way out of range
       if (x < -30 || x > 830 || y < -30 || y > 490) this.destroy();
     } else {
-      // crate, pie, glass-shard, golf-ball, dark-magic: exit all boundaries
+      // crate, pie, glass-shard, dark-magic: exit all boundaries
       if (x < -60 || x > 860 || y < -60 || y > 520) this.destroy();
     }
   }
