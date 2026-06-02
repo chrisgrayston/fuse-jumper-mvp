@@ -72,7 +72,7 @@ export const level3: LevelData = {
     // Padel Punisher stands on bottom-right flank platform (y=372), serves left
     {
       type: 'padel-punisher',
-      x: 700,
+      x: 740,
       y: 349,
     },
   ],

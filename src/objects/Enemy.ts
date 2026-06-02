@@ -553,9 +553,9 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
           const wKeys  = ['windup-1', 'windup-2', 'windup-3', 'strike'];
           this.setTexture(`enemy-padel-punisher-${wKeys[wPhase]}`);
           if (this.st.kickClock >= 600) {
-            // Serve — angle 100°–145° from +X (upward left)
-            const angle = Phaser.Math.DegToRad(Phaser.Math.Between(100, 145));
-            const speed = Phaser.Math.Between(260, 340);
+            // Serve — angle 95°–150° from +X (upward left, mix of high/low arcs)
+            const angle = Phaser.Math.DegToRad(Phaser.Math.Between(95, 150));
+            const speed = Phaser.Math.Between(1040, 1360);
             this.padelBall = this.spawn(
               this.x - 14, this.y - 22, 'padel-ball',
               Math.cos(angle) * speed, -Math.sin(angle) * speed,

@@ -55,7 +55,7 @@ export class Projectile extends Phaser.Physics.Arcade.Sprite {
       body.setBounce(0.62, 0.62);
       body.setCollideWorldBounds(true);
       body.setDragX(14);
-      body.setMaxVelocityY(600);
+      body.setMaxVelocityY(1500);
     } else {
       body.allowGravity = true;
     }
