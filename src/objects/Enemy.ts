@@ -306,6 +306,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       case 'melonhead': {
         const SETTLE   = 0;
         const INFLIGHT = 1;
+        const SWING    = 2;
         // Sprite y = platform_top_y - 30 (body bottom offset)
         const PLATFORMS = [
           { x: 200, y: 400 },  // ground-left
@@ -340,6 +341,22 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
             this.st.kickClock   = 0;
             this.setFlipX(target.x < this.x);
           }
+        } else if (this.st.nextKick === SWING) {
+          body.reset(this.x, this.y);
+          const swDir = playerX < this.x ? -1 : 1;
+          this.setFlipX(swDir < 0);
+          this.setTexture(this.st.kickClock < 200 ? 'enemy-melonhead-swing-1' : 'enemy-melonhead-swing-2');
+          if (!this.st.isCharging && this.st.kickClock >= 100) {
+            this.spawn(this.x + swDir * 18, this.y, 'mallet', swDir * 260, -60);
+            this.st.isCharging = true;
+          }
+          if (this.st.kickClock >= 400) {
+            this.st.nextKick    = SETTLE;
+            this.st.chargeTimer = Phaser.Math.Between(700, 1300);
+            this.st.kickClock   = 0;
+            this.st.sineT       = 0;
+            this.st.isCharging  = false;
+          }
         } else {
           const t      = Math.min(1, this.st.kickClock / FLIGHT_MS);
           const target = PLATFORMS[this.st.kickDir];
@@ -354,10 +371,10 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
           if (t >= 1) {
             this.x = target.x; this.y = target.y;
             body.reset(target.x, target.y);
-            this.st.nextKick    = SETTLE;
-            this.st.chargeTimer = Phaser.Math.Between(700, 1300);
+            this.st.nextKick    = SWING;
             this.st.kickClock   = 0;
             this.st.sineT       = 0;
+            this.st.isCharging  = false;
           }
         }
         break;
