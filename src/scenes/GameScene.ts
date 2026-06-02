@@ -8,7 +8,7 @@ import { level1 } from '../levels/level1';
 import { level2 } from '../levels/level2';
 import { level3 } from '../levels/level3';
 import { level4 } from '../levels/level4';
-import { getTouchState, consumeJumpPressed } from '../input/touchInput';
+import { getTouchState, consumeJumpPressed, consumeRequestedLevel } from '../input/touchInput';
 
 type CoinType = 'tc' | 'bb' | 'ww' | 'fh';
 
@@ -187,6 +187,12 @@ export class GameScene extends Phaser.Scene {
   }
 
   update(_time: number, delta: number): void {
+    const devLevel = consumeRequestedLevel();
+    if (devLevel !== null) {
+      this.scene.start('GameScene', { levelIndex: devLevel, score: 0, lives: MAX_LIVES });
+      return;
+    }
+
     if (this.isRespawning || this.isPaused) return;
 
     const touch = getTouchState();

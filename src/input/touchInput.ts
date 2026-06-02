@@ -12,6 +12,8 @@ const state: TouchState = {
   jumpHeld: false,
 };
 
+let requestedLevel: number | null = null;
+
 function wire(id: string, onDown: () => void, onUp: () => void): void {
   const el = document.getElementById(id);
   if (!el) return;
@@ -36,6 +38,14 @@ export function initTouchInput(): void {
     () => { state.jumpPressed = true; state.jumpHeld = true; },
     () => { state.jumpHeld = false; },
   );
+
+  for (let i = 1; i <= 4; i++) {
+    const idx = i - 1;
+    const el = document.getElementById(`btn-level-${i}`);
+    if (!el) continue;
+    el.addEventListener('touchstart', (e) => { e.preventDefault(); requestedLevel = idx; }, { passive: false });
+    el.addEventListener('mousedown',  (e) => { e.preventDefault(); requestedLevel = idx; });
+  }
 }
 
 export function getTouchState(): Readonly<TouchState> {
@@ -44,4 +54,10 @@ export function getTouchState(): Readonly<TouchState> {
 
 export function consumeJumpPressed(): void {
   state.jumpPressed = false;
+}
+
+export function consumeRequestedLevel(): number | null {
+  const l = requestedLevel;
+  requestedLevel = null;
+  return l;
 }

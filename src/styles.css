@@ -30,14 +30,15 @@ body {
   background: #1a0a2e;
 }
 
-/* PORTRAIT — game on top, controls split below */
+/* PORTRAIT — game on top, controls split below, dev row at bottom */
 @media (orientation: portrait) {
   #game-wrapper {
     grid-template-columns: 1fr 1fr;
-    grid-template-rows: auto 1fr;
+    grid-template-rows: auto 1fr auto;
     grid-template-areas:
       "game    game"
-      "ctrl-l  ctrl-r";
+      "ctrl-l  ctrl-r"
+      "dev     dev";
     align-content: start;
   }
 
@@ -70,6 +71,15 @@ body {
     grid-template-columns: 150px 1fr 90px;
     grid-template-rows: 1fr;
     grid-template-areas: "ctrl-l game ctrl-r";
+  }
+
+  #ctrl-dev {
+    position: fixed;
+    bottom: 10px;
+    left: 10px;
+    flex-direction: row;
+    gap: 6px;
+    padding: 0;
   }
 
   #game-container {
@@ -130,6 +140,46 @@ body {
 .ctrl-btn.pressed {
   background: rgba(60, 120, 220, 0.85);
   border-color: rgba(120, 200, 255, 0.7);
+}
+
+/* ── Dev level-jump buttons ──────────────────────────────────────────────── */
+
+#ctrl-dev {
+  grid-area: dev;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 16px;
+}
+
+.dev-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  border: 2px solid rgba(240, 192, 64, 0.5);
+  background: rgba(60, 40, 0, 0.75);
+  color: #f0c040;
+  font-size: 18px;
+  font-weight: bold;
+  line-height: 1;
+  cursor: pointer;
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  -webkit-user-select: none;
+  user-select: none;
+  transition: background 80ms, border-color 80ms;
+}
+
+.dev-btn:active {
+  background: rgba(120, 80, 0, 0.9);
+  border-color: rgba(240, 192, 64, 0.9);
 }
 
 /* ── Canvas ──────────────────────────────────────────────────────────────── */
