@@ -50,12 +50,18 @@ export class Projectile extends Phaser.Physics.Arcade.Sprite {
       body.allowGravity = false;
       body.setGravityY(0);
       this.footballVX = vx;     // store so update() can re-assert it every frame
+    } else if (type === 'padel-ball') {
+      body.allowGravity = true;
+      body.setBounce(0.62, 0.62);
+      body.setCollideWorldBounds(true);
+      body.setDragX(14);
+      body.setMaxVelocityY(600);
     } else {
       body.allowGravity = true;
     }
 
     body.setVelocity(vx, vy);
-    body.setCollideWorldBounds(false);
+    if (type !== 'padel-ball') body.setCollideWorldBounds(false);
 
     if (type === 'bubble') {
       this.bubbleSineFreq  = Phaser.Math.FloatBetween(0.3, 0.7);
@@ -121,8 +127,11 @@ export class Projectile extends Phaser.Physics.Arcade.Sprite {
       const body = this.body as Phaser.Physics.Arcade.Body;
       if (y <= 0)   { body.velocity.y = Math.abs(body.velocity.y);  this.setY(1); }
       if (y >= 450) { body.velocity.y = -Math.abs(body.velocity.y); this.setY(449); }
+    } else if (this.projType === 'padel-ball') {
+      // Bounces off world bounds + platforms — only destroy if somehow way out of range
+      if (x < -30 || x > 830 || y < -30 || y > 490) this.destroy();
     } else {
-      // crate, pie, glass-shard, padel-ball, golf-ball, dark-magic: exit all boundaries
+      // crate, pie, glass-shard, golf-ball, dark-magic: exit all boundaries
       if (x < -60 || x > 860 || y < -60 || y > 520) this.destroy();
     }
   }

@@ -1312,13 +1312,294 @@ export class BootScene extends Phaser.Scene {
       g.generateTexture('enemy-butter-fingers-pie-3', BW, BH);
     }
 
-    // ── Padel Punisher — red/black, racket shape ──────────────────────────
-    g.clear();
-    g.fillStyle(0xcc1100); g.fillRect(2, 6, 22, 24);
-    g.fillStyle(0x111111); g.fillRect(22, 0, 10, 20);  // racket handle/head
-    g.fillStyle(0xcccccc); g.fillRect(24, 2, 6, 14);   // racket face
-    g.fillStyle(0xffcc88); g.fillRect(7, 0, 12, 8);
-    g.generateTexture('enemy-padel-punisher', 32, 30);
+    // ── Padel Punisher — evil purple padel villain, 8 frames, 40×50px ────────
+    {
+      const PU  = 0x6600cc;  // main purple
+      const PU2 = 0x440088;  // purple shadow
+      const PU3 = 0x220044;  // deep shadow
+      const PU4 = 0x9944ff;  // highlight
+      const MK  = 0x0e000e;  // mask near-black
+      const ME  = 0xff3300;  // eye red glow
+      const ME2 = 0xff8833;  // eye outer halo
+      const SK  = 0xffcc88;  // skin
+      const SK2 = 0xcc9955;  // skin shadow
+      const BT  = 0x080008;  // boot black
+      const BT2 = 0x281848;  // boot highlight
+      const GL  = 0xeecc00;  // gold belt/trim
+      const GL2 = 0xcc9900;  // gold shadow
+      const WB  = 0xffffff;  // wristband white
+      const WB2 = 0xcccccc;  // wristband grey
+      const RC  = 0x4400aa;  // racket frame
+      const RG  = 0x9955ee;  // racket face
+      const RH  = 0x1a0044;  // racket holes
+      const GRP = 0x110022;  // grip dark
+      const GRP2= 0x441166;  // grip wrap light
+
+      // Evil mask: crown fin + face plate + glowing eye slits + chin
+      const ppMask = (mx: number, my: number) => {
+        g.fillStyle(PU4); g.fillRect(mx + 5, my,     6, 2);   // crown fin tip
+        g.fillStyle(PU);  g.fillRect(mx + 4, my + 1, 8, 2);   // crown base
+        g.fillStyle(MK);  g.fillRect(mx, my + 2, 20, 13);     // face plate
+        g.fillStyle(PU2); g.fillRect(mx - 2, my + 4, 3, 7);   // L flange
+                          g.fillRect(mx + 19,my + 4, 3, 7);   // R flange
+        g.fillStyle(ME2); g.fillRect(mx + 1, my + 6, 7, 3);   // L glow
+                          g.fillRect(mx + 12,my + 6, 7, 3);   // R glow
+        g.fillStyle(ME);  g.fillRect(mx + 2, my + 7, 5, 1);   // L eye slit
+                          g.fillRect(mx + 13,my + 7, 5, 1);   // R eye slit
+        g.fillStyle(PU3); g.fillRect(mx + 3, my + 14, 14, 2); // chin plate
+        g.fillStyle(SK);  g.fillRect(mx + 6, my + 15,  8, 3); // neck skin
+        g.fillStyle(SK2); g.fillRect(mx + 6, my + 16,  4, 2); // neck shadow
+      };
+
+      // Suit torso: wide shoulders + chest block + gold belt
+      const ppBody = (ty: number) => {
+        g.fillStyle(PU4); g.fillRect(3,  ty - 2, 34, 2);   // shoulder highlight
+        g.fillStyle(PU);  g.fillRect(5,  ty,     30, 2);   // shoulder body
+        g.fillStyle(PU);  g.fillRect(7,  ty + 2, 26, 13);  // chest
+        g.fillStyle(PU2); g.fillRect(7,  ty + 3,  5, 12);  // L shadow
+                          g.fillRect(28, ty + 3,  5, 12);  // R shadow
+        g.fillStyle(PU3); g.fillRect(19, ty + 4,  2, 11);  // centre seam
+        g.fillStyle(GL);  g.fillRect(6,  ty + 15, 28, 3);  // gold belt
+        g.fillStyle(GL2); g.fillRect(6,  ty + 17, 28, 1);  // belt lower edge
+        g.fillStyle(GL);  g.fillRect(16, ty + 15,  8, 3);  // buckle
+        g.fillStyle(0xffee88); g.fillRect(17, ty + 16, 6, 1); // buckle shine
+      };
+
+      // Hips + leg columns
+      const ppLegs = (lx: number, rx: number, hipY: number) => {
+        g.fillStyle(PU);  g.fillRect(8, hipY, 24, 5);
+        g.fillStyle(PU2); g.fillRect(8, hipY + 1, 4, 4);
+                          g.fillRect(28,hipY + 1, 4, 4);
+                          g.fillRect(20,hipY,     1, 5);
+        const lT = hipY + 5;
+        const lH = 44 - lT;
+        if (lH > 0) {
+          g.fillStyle(PU);  g.fillRect(lx,     lT, 7, lH);
+          g.fillStyle(PU2); g.fillRect(lx + 1, lT + 1, 3, lH - 1);
+        }
+        const rH = 44 - lT;
+        if (rH > 0) {
+          g.fillStyle(PU);  g.fillRect(rx,     lT, 7, rH);
+          g.fillStyle(PU2); g.fillRect(rx + 1, lT + 1, 3, rH - 1);
+        }
+      };
+
+      // Black boots with gold ankle trim
+      const ppShoes = (lx: number, rx: number) => {
+        g.fillStyle(BT);  g.fillRect(lx, 44, 12, 5);
+        g.fillStyle(BT2); g.fillRect(lx + 1, 44, 5, 2);
+        g.fillStyle(GL);  g.fillRect(lx + 9, 44, 3, 5);
+        g.fillStyle(0x000000); g.fillRect(lx - 1, 48, 14, 2);
+        g.fillStyle(PU3); g.fillRect(lx, 48, 12, 1);
+        g.fillStyle(BT);  g.fillRect(rx, 44, 12, 5);
+        g.fillStyle(BT2); g.fillRect(rx + 1, 44, 5, 2);
+        g.fillStyle(GL);  g.fillRect(rx + 9, 44, 3, 5);
+        g.fillStyle(0x000000); g.fillRect(rx - 1, 48, 14, 2);
+        g.fillStyle(PU3); g.fillRect(rx, 48, 12, 1);
+      };
+
+      // White wristband
+      const ppWB = (wx: number, wy: number, w: number) => {
+        g.fillStyle(WB);  g.fillRect(wx, wy, w, 3);
+        g.fillStyle(WB2); g.fillRect(wx, wy + 2, w, 1);
+      };
+
+      // Gripping hand
+      const ppHand = (hx: number, hy: number, w: number = 6) => {
+        g.fillStyle(SK);  g.fillRect(hx, hy, w, 4);
+        g.fillStyle(SK2); g.fillRect(hx, hy + 2, 2, 2);
+      };
+
+      // Right (trailing) arm: sleeve + wristband + hand, hanging at right side
+      const ppRArm = (ay: number, dx: number = 0) => {
+        const ax = 28 + dx;
+        g.fillStyle(PU);  g.fillRect(ax, ay, 6, 9);
+        g.fillStyle(PU2); g.fillRect(ax + 4, ay + 2, 2, 7);
+        ppWB(ax - 1, ay + 9, 7);
+        ppHand(ax, ay + 11, 6);
+      };
+
+      // Racket: VERTICAL (idle carry) — head at (rx, ry), 9×24 total
+      const ppRacketV = (rx: number, ry: number) => {
+        g.fillStyle(RC);  g.fillRect(rx, ry, 9, 11);
+        g.fillStyle(RG);  g.fillRect(rx + 1, ry + 1, 7, 9);
+        g.fillStyle(RH);
+        g.fillRect(rx + 2, ry + 2, 2, 3); g.fillRect(rx + 5, ry + 2, 2, 3);
+        g.fillRect(rx + 2, ry + 6, 2, 3); g.fillRect(rx + 5, ry + 6, 2, 3);
+        g.fillStyle(RC);  g.fillRect(rx + 2, ry + 11, 5, 3);   // throat
+        g.fillStyle(GRP); g.fillRect(rx + 2, ry + 14, 5, 8);   // grip
+        g.fillStyle(GRP2);g.fillRect(rx + 3, ry + 15, 2, 6);
+        g.fillStyle(RC);  g.fillRect(rx + 1, ry + 22, 7, 2);   // butt cap
+      };
+
+      // Racket: DIAGONAL UP-RIGHT (wind-up, racket pulled back high-right)
+      // hx/hy = top-left of head area
+      const ppRacketWU = (hx: number, hy: number) => {
+        g.fillStyle(RC);  g.fillRect(hx, hy, 10, 9);
+        g.fillStyle(RG);  g.fillRect(hx + 1, hy + 1, 8, 7);
+        g.fillStyle(RH);
+        g.fillRect(hx + 2, hy + 2, 2, 2); g.fillRect(hx + 6, hy + 2, 2, 2);
+        g.fillRect(hx + 2, hy + 5, 2, 2); g.fillRect(hx + 6, hy + 5, 2, 2);
+        g.fillStyle(RC);  g.fillRect(hx - 1, hy + 8, 4, 3);    // throat step 1
+                          g.fillRect(hx - 3, hy + 10, 4, 4);   // throat step 2
+        g.fillStyle(GRP); g.fillRect(hx - 6, hy + 13, 4, 8);   // grip
+        g.fillStyle(GRP2);g.fillRect(hx - 5, hy + 14, 2, 6);
+        g.fillStyle(RC);  g.fillRect(hx - 7, hy + 20, 6, 2);   // butt cap
+      };
+
+      // Racket: STRIKE (tilted up-left at contact, head upper-left)
+      const ppRacketStrike = (hx: number, hy: number) => {
+        g.fillStyle(RC);  g.fillRect(hx, hy, 10, 10);
+        g.fillStyle(RG);  g.fillRect(hx + 1, hy + 1, 8, 8);
+        g.fillStyle(RH);
+        g.fillRect(hx + 2, hy + 2, 2, 3); g.fillRect(hx + 5, hy + 2, 2, 3);
+        g.fillRect(hx + 2, hy + 6, 2, 2); g.fillRect(hx + 5, hy + 6, 2, 2);
+        g.fillStyle(RC);  g.fillRect(hx + 8, hy + 7, 4, 4);    // throat
+                          g.fillRect(hx + 10,hy + 10, 4, 4);
+        g.fillStyle(GRP); g.fillRect(hx + 13,hy + 13, 5, 8);   // grip
+        g.fillStyle(GRP2);g.fillRect(hx + 14,hy + 14, 3, 6);
+        g.fillStyle(RC);  g.fillRect(hx + 12,hy + 21, 7, 2);   // butt cap
+      };
+
+      // Racket: FOLLOW-THROUGH (sweep diagonal, head going left-down)
+      const ppRacketFT = (hx: number, hy: number) => {
+        g.fillStyle(RC);  g.fillRect(hx, hy, 11, 9);
+        g.fillStyle(RG);  g.fillRect(hx + 1, hy + 1, 9, 7);
+        g.fillStyle(RH);
+        g.fillRect(hx + 2, hy + 2, 2, 2); g.fillRect(hx + 7, hy + 2, 2, 2);
+        g.fillRect(hx + 2, hy + 5, 2, 2); g.fillRect(hx + 7, hy + 5, 2, 2);
+        g.fillStyle(RC);  g.fillRect(hx + 10, hy + 4, 4, 4);   // throat
+                          g.fillRect(hx + 13, hy + 7, 4, 4);
+        g.fillStyle(GRP); g.fillRect(hx + 16, hy + 10, 8, 4);  // horizontal grip
+        g.fillStyle(GRP2);g.fillRect(hx + 17, hy + 11, 6, 2);
+        g.fillStyle(RC);  g.fillRect(hx + 23, hy + 9, 3, 6);   // butt cap
+      };
+
+      // ── Frame 1: WAIT-1 — ready stance, racket vertical at left, watching ──
+      g.clear();
+      ppRacketV(1, 10);
+      g.fillStyle(PU);  g.fillRect(3, 17, 8, 8);    // L arm upper sleeve
+      g.fillStyle(PU2); g.fillRect(3, 19, 3, 6);
+      ppWB(2, 25, 8);
+      ppHand(3, 27, 5);
+      ppMask(10, 0);
+      ppBody(17);
+      ppRArm(17);
+      ppLegs(8, 21, 33);
+      ppShoes(6, 18);
+      g.generateTexture('enemy-padel-punisher', 40, 50);
+
+      // ── Frame 2: WAIT-2 — slight head lean left tracking ball ──
+      g.clear();
+      ppRacketV(1, 9);
+      g.fillStyle(PU);  g.fillRect(3, 16, 8, 9);
+      g.fillStyle(PU2); g.fillRect(3, 18, 3, 7);
+      ppWB(2, 25, 8);
+      ppHand(3, 27, 5);
+      ppMask(9, 0);                                  // head shifted 1px left (tracking)
+      ppBody(17);
+      ppRArm(17, 1);
+      ppLegs(8, 21, 33);
+      ppShoes(6, 18);
+      g.generateTexture('enemy-padel-punisher-wait-2', 40, 50);
+
+      // ── Frame 3: WINDUP-1 — body starts coiling right, racket moves back ──
+      g.clear();
+      // Racket still at left but moving centre
+      ppRacketV(5, 9);
+      g.fillStyle(PU);  g.fillRect(5, 17, 7, 8);    // L arm reaching for racket
+      g.fillStyle(PU2); g.fillRect(5, 19, 3, 6);
+      ppWB(4, 25, 7);
+      ppHand(5, 27, 5);
+      ppMask(11, 0);
+      ppBody(17);
+      ppRArm(17, 0);
+      ppLegs(7, 22, 33);                             // feet slightly widening
+      ppShoes(5, 19);
+      g.generateTexture('enemy-padel-punisher-windup-1', 40, 50);
+
+      // ── Frame 4: WINDUP-2 — full coil, racket pulled high-right behind body ──
+      g.clear();
+      // Racket on right side high-up (head at x=22,y=0)
+      ppRacketWU(22, 1);
+      // L arm reaching across body to grab racket on right side
+      g.fillStyle(PU);  g.fillRect(8,  17, 16, 5);  // arm crossing body
+      g.fillStyle(PU2); g.fillRect(8,  19, 5, 3);
+      g.fillStyle(PU);  g.fillRect(16, 11, 7, 8);   // forearm going up-right
+      g.fillStyle(PU2); g.fillRect(20, 12, 3, 6);
+      ppWB(15, 10, 7);
+      ppHand(16, 8, 6);
+      ppMask(11, 1);                                 // slight head lean into coil
+      ppBody(18);                                    // body raised (weight loading)
+      ppRArm(18, 2);                                 // right arm pulled back with coil
+      ppLegs(6, 23, 34);                             // wide athletic stance
+      ppShoes(5, 20);
+      g.generateTexture('enemy-padel-punisher-windup-2', 40, 50);
+
+      // ── Frame 5: WINDUP-3 — peak tension, racket highest, maximum coil ──
+      g.clear();
+      ppRacketWU(24, 0);                             // racket even further right/higher
+      g.fillStyle(PU);  g.fillRect(9,  16, 17, 5);  // arm spanning body
+      g.fillStyle(PU2); g.fillRect(9,  18, 5, 3);
+      g.fillStyle(PU);  g.fillRect(18, 9, 8, 8);    // forearm up
+      g.fillStyle(PU2); g.fillRect(22, 10, 3, 6);
+      ppWB(17, 8, 8);
+      ppHand(18, 6, 6);
+      ppMask(12, 0);                                 // head turned slightly right
+      ppBody(17);
+      ppRArm(17, 3);                                 // right arm pulled furthest back
+      ppLegs(6, 23, 33);
+      ppShoes(5, 20);
+      g.generateTexture('enemy-padel-punisher-windup-3', 40, 50);
+
+      // ── Frame 6: STRIKE — arm fully extended up-left at contact ──
+      g.clear();
+      // Racket at upper-left (strike position)
+      ppRacketStrike(0, 2);
+      // Left arm fully extended up-left: shoulder→elbow→wrist
+      g.fillStyle(PU);  g.fillRect(6, 18, 8, 4);    // upper arm from shoulder
+      g.fillStyle(PU2); g.fillRect(6, 20, 3, 2);
+      g.fillStyle(PU);  g.fillRect(5, 13, 5, 6);    // forearm up-left
+      g.fillStyle(PU2); g.fillRect(8, 14, 2, 5);
+      ppWB(4, 12, 6);
+      ppHand(5, 14, 5);
+      ppMask(11, 1);                                 // head leaning into strike
+      ppBody(18);                                    // body leaning forward
+      ppRArm(18, 0);
+      ppLegs(7, 22, 34);
+      ppShoes(6, 20);
+      g.generateTexture('enemy-padel-punisher-strike', 40, 50);
+
+      // ── Frame 7: FOLLOW-1 — racket sweeping through, body releasing ──
+      g.clear();
+      ppRacketFT(0, 6);                              // racket head left, sweeping down-right
+      g.fillStyle(PU);  g.fillRect(3, 17, 9, 8);    // L arm following through
+      g.fillStyle(PU2); g.fillRect(3, 19, 4, 6);
+      g.fillStyle(PU);  g.fillRect(4, 14, 6, 4);    // forearm still extended
+      g.fillStyle(PU2); g.fillRect(8, 15, 2, 3);
+      ppWB(3, 13, 6);
+      ppHand(4, 14, 5);
+      ppMask(11, 0);
+      ppBody(17);
+      ppRArm(17, -1);
+      ppLegs(8, 21, 33);
+      ppShoes(6, 18);
+      g.generateTexture('enemy-padel-punisher-follow-1', 40, 50);
+
+      // ── Frame 8: FOLLOW-2 — recovery, racket settling, ready again ──
+      g.clear();
+      ppRacketV(3, 11);                              // racket returning to front-vertical
+      g.fillStyle(PU);  g.fillRect(4, 17, 8, 9);    // arm returning
+      g.fillStyle(PU2); g.fillRect(4, 19, 3, 7);
+      ppWB(3, 26, 8);
+      ppHand(4, 28, 5);
+      ppMask(10, 0);
+      ppBody(17);
+      ppRArm(17, 0);
+      ppLegs(8, 21, 33);
+      ppShoes(6, 18);
+      g.generateTexture('enemy-padel-punisher-follow-2', 40, 50);
+    }
 
     // ── Condor — Crystal Palace red/blue angular ──────────────────────────
     g.clear();

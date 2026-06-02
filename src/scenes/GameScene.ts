@@ -114,6 +114,16 @@ export class GameScene extends Phaser.Scene {
     // Colliders
     this.physics.add.collider(this.player, this.platforms);
     this.physics.add.collider(this.enemies, this.platforms);
+    // Padel balls bounce off platforms (process callback limits to padel-ball type)
+    this.physics.add.collider(
+      this.projectilesGroup,
+      this.platforms,
+      undefined,
+      (projObj) => {
+        const p = projObj as unknown as Projectile;
+        return 'projType' in p && p.projType === 'padel-ball';
+      },
+    );
     this.physics.add.collider(this.coinsGroup, this.platforms);
     this.physics.add.collider(this.eelsGroup, this.platforms);
 
@@ -361,6 +371,7 @@ export class GameScene extends Phaser.Scene {
       // group.add() resets the physics body, wiping velocity; re-apply immediately
       (proj.body as Phaser.Physics.Arcade.Body).setVelocity(vx, vy);
       this.projectileList.push(proj);
+      return proj;
     };
 
     for (const ed of level.enemies) {

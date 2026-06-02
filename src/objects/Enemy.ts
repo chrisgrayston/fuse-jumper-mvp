@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { EnemyType, EnemyData, ProjectileType } from '../levels/types';
 
-export type SpawnFn = (x: number, y: number, type: ProjectileType, vx: number, vy: number) => void;
+export type SpawnFn = (x: number, y: number, type: ProjectileType, vx: number, vy: number) => Phaser.Physics.Arcade.Sprite;
 
 interface State {
   clock: number;
@@ -30,6 +30,9 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
   private readonly eData: EnemyData;
   private readonly spawn: SpawnFn;
   private st: State;
+
+  // Padel Punisher: active ball reference for at-rest detection
+  private padelBall: Phaser.Physics.Arcade.Sprite | null = null;
 
   // Smaller-bear coat animation
   private coatSprite: Phaser.GameObjects.Image | null = null;
@@ -96,6 +99,12 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       body.setOffset(6, 4);
       this.st.nextKick = 0;  // PHASE_IDLE
       this.st.chargeTimer = Phaser.Math.Between(1500, 2500);
+    }
+    if (this.eType === 'padel-punisher') {
+      body.setSize(22, 44);
+      body.setOffset(9, 4);
+      this.st.nextKick = 1;  // start in WINDUP immediately
+      this.st.kickClock = 0;
     }
 
     // Ground patrol — set initial velocity
@@ -532,14 +541,51 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       }
 
       case 'padel-punisher': {
-        // Static — fires padel balls in random upward angles
-        body.reset(this.eData.x, this.eData.y);
-        if (this.st.clock >= this.st.nextAction) {
-          this.st.clock = 0;
-          this.st.nextAction = Phaser.Math.Between(1800, 3200);
-          const angle = Phaser.Math.DegToRad(Phaser.Math.Between(200, 340));
-          const speed = Phaser.Math.Between(220, 320);
-          this.spawn(this.x, this.y - 10, 'padel-ball', Math.cos(angle) * speed, Math.sin(angle) * speed);
+        const PP_WAIT   = 0;
+        const PP_WINDUP = 1;
+        const PP_FOLLOW = 2;
+
+        this.st.sineT    += delta;
+        this.st.kickClock += delta;
+
+        if (this.st.nextKick === PP_WINDUP) {
+          const wPhase = Math.min(3, Math.floor(this.st.kickClock / 150));
+          const wKeys  = ['windup-1', 'windup-2', 'windup-3', 'strike'];
+          this.setTexture(`enemy-padel-punisher-${wKeys[wPhase]}`);
+          if (this.st.kickClock >= 600) {
+            // Serve — angle 100°–145° from +X (upward left)
+            const angle = Phaser.Math.DegToRad(Phaser.Math.Between(100, 145));
+            const speed = Phaser.Math.Between(260, 340);
+            this.padelBall = this.spawn(
+              this.x - 14, this.y - 22, 'padel-ball',
+              Math.cos(angle) * speed, -Math.sin(angle) * speed,
+            );
+            this.st.nextKick  = PP_FOLLOW;
+            this.st.kickClock = 0;
+          }
+        } else if (this.st.nextKick === PP_FOLLOW) {
+          this.setTexture(this.st.kickClock < 200
+            ? 'enemy-padel-punisher-follow-1'
+            : 'enemy-padel-punisher-follow-2');
+          if (this.st.kickClock >= 400) {
+            this.st.nextKick  = PP_WAIT;
+            this.st.kickClock = 0;
+            this.st.sineT     = 0;
+          }
+        } else {
+          // PP_WAIT — watch ball; cycle idle frames
+          const wf = Math.floor(this.st.sineT / 550) % 2;
+          this.setTexture(wf === 0 ? 'enemy-padel-punisher' : 'enemy-padel-punisher-wait-2');
+          // Detect ball at rest or gone
+          const ballGone    = !this.padelBall || !this.padelBall.active;
+          const ballAtRest  = !ballGone &&
+            (this.padelBall!.body as Phaser.Physics.Arcade.Body).speed < 28;
+          if (ballGone || ballAtRest) {
+            this.padelBall    = null;
+            this.st.nextKick  = PP_WINDUP;
+            this.st.kickClock = 0;
+            this.st.sineT     = 0;
+          }
         }
         break;
       }
@@ -676,6 +722,16 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       this.st.sineT       = 0;
       this.setTexture('enemy-butter-fingers');
       this.setFlipX(false);
+      return;
+    }
+    if (this.eType === 'padel-punisher') {
+      body.reset(this.eData.x, this.eData.y);
+      body.setVelocity(0, 0);
+      this.st.nextKick  = 1;  // PP_WINDUP
+      this.st.kickClock = 0;
+      this.st.sineT     = 0;
+      this.padelBall    = null;
+      this.setTexture('enemy-padel-punisher');
       return;
     }
 
