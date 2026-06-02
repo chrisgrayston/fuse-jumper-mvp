@@ -24,9 +24,6 @@ export const level4: LevelData = {
     { x: 148, y: 142, width: 140, height: 12 },
     { x: 512, y: 142, width: 140, height: 12 },
     { x: 308, y: 112, width: 184, height: 12 },
-    // Very high
-    { x: 200, y: 72,  width: 120, height: 12 },
-    { x: 480, y: 72,  width: 120, height: 12 },
     // Skeletor's throne (lowered from y=28)
     { x: 318, y: 55,  width: 164, height: 12 },
   ],
