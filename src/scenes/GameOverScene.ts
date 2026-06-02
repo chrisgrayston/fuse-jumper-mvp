@@ -12,23 +12,20 @@ export class GameOverScene extends Phaser.Scene {
   private newEntryIndex = -1;
   private charTexts: Phaser.GameObjects.Text[] = [];
   private cursorBar!: Phaser.GameObjects.Text;
-  private initialsObjs: Phaser.GameObjects.Text[] = [];
-  private touchLeft:  () => void = () => {};
-  private touchRight: () => void = () => {};
-  private touchJump:  () => void = () => {};
+  private initialsObjs: Phaser.GameObjects.GameObject[] = [];
 
   constructor() { super({ key: 'GameOverScene' }); }
 
   create(data: { score: number }): void {
-    this.score      = data?.score ?? 0;
-    this.phase      = 'loading';
-    this.chars      = ['A', 'A', 'A'];
-    this.cursor     = 0;
+    this.score         = data?.score ?? 0;
+    this.phase         = 'loading';
+    this.chars         = ['A', 'A', 'A'];
+    this.cursor        = 0;
     this.newEntryIndex = -1;
     this.initialsObjs  = [];
 
-    const W = this.scale.width;
-    const H = this.scale.height;
+    const W = this.scale.width;   // 800
+    const H = this.scale.height;  // 450
 
     this.add.rectangle(W / 2, H / 2, W, H, 0x08000f, 1);
 
@@ -69,45 +66,72 @@ export class GameOverScene extends Phaser.Scene {
     this.phase = 'initials';
     const W = this.scale.width;
 
-    const prompt = this.add.text(W / 2, 136, 'ENTER YOUR INITIALS', {
-      fontSize: '16px', fontFamily: 'monospace', color: '#9999cc',
-    }).setOrigin(0.5);
-    this.initialsObjs.push(prompt);
+    const push = <T extends Phaser.GameObjects.GameObject>(o: T): T => {
+      this.initialsObjs.push(o); return o;
+    };
 
-    const xs = [W / 2 - 66, W / 2, W / 2 + 66];
+    push(this.add.text(W / 2, 133, 'ENTER YOUR INITIALS', {
+      fontSize: '16px', fontFamily: 'monospace', color: '#9999cc',
+    }).setOrigin(0.5));
+
+    // ── Big ◀ / ▶ arrow buttons on the canvas ──────────────────────────────
+    const prevBtn = push(this.add.text(W * 0.12, 210, '◀', {
+      fontSize: '52px', fontFamily: 'monospace', color: '#cccccc',
+      padding: { x: 18, y: 8 },
+    }).setOrigin(0.5).setInteractive({ useHandCursor: true }));
+    (prevBtn as Phaser.GameObjects.Text).on('pointerdown', () => this.cycleChar(-1));
+    (prevBtn as Phaser.GameObjects.Text).on('pointerover', () => (prevBtn as Phaser.GameObjects.Text).setColor('#ffee00'));
+    (prevBtn as Phaser.GameObjects.Text).on('pointerout',  () => (prevBtn as Phaser.GameObjects.Text).setColor('#cccccc'));
+
+    const nextBtn = push(this.add.text(W * 0.88, 210, '▶', {
+      fontSize: '52px', fontFamily: 'monospace', color: '#cccccc',
+      padding: { x: 18, y: 8 },
+    }).setOrigin(0.5).setInteractive({ useHandCursor: true }));
+    (nextBtn as Phaser.GameObjects.Text).on('pointerdown', () => this.cycleChar(1));
+    (nextBtn as Phaser.GameObjects.Text).on('pointerover', () => (nextBtn as Phaser.GameObjects.Text).setColor('#ffee00'));
+    (nextBtn as Phaser.GameObjects.Text).on('pointerout',  () => (nextBtn as Phaser.GameObjects.Text).setColor('#cccccc'));
+
+    // ── 3 letter boxes — tap to move cursor there ──────────────────────────
+    const xs = [W / 2 - 70, W / 2, W / 2 + 70];
     this.charTexts = xs.map((x, i) => {
-      const t = this.add.text(x, 208, this.chars[i], {
+      const t = push(this.add.text(x, 208, this.chars[i], {
         fontSize: '54px', fontFamily: 'monospace', color: '#aaaaaa',
-      }).setOrigin(0.5);
-      this.initialsObjs.push(t);
-      return t;
+        padding: { x: 10, y: 4 },
+      }).setOrigin(0.5).setInteractive({ useHandCursor: true }));
+      (t as Phaser.GameObjects.Text).on('pointerdown', () => {
+        this.cursor = i;
+        this.updateInitialsDisplay();
+      });
+      return t as Phaser.GameObjects.Text;
     });
 
-    this.cursorBar = this.add.text(xs[0], 248, '▔▔', {
+    // Cursor underline
+    this.cursorBar = push(this.add.text(xs[0], 249, '▔▔', {
       fontSize: '18px', fontFamily: 'monospace', color: '#ffee00',
-    }).setOrigin(0.5);
-    this.initialsObjs.push(this.cursorBar);
+    }).setOrigin(0.5)) as Phaser.GameObjects.Text;
 
-    const hint = this.add.text(W / 2, 288, '◀  ▶  CHANGE LETTER     JUMP / ENTER  CONFIRM', {
-      fontSize: '12px', fontFamily: 'monospace', color: '#555555',
-    }).setOrigin(0.5);
-    this.initialsObjs.push(hint);
+    // ── CONFIRM button ─────────────────────────────────────────────────────
+    const confirmBtn = push(this.add.text(W / 2, 308, '[ CONFIRM ]', {
+      fontSize: '22px', fontFamily: 'monospace', color: '#ffffff',
+      padding: { x: 16, y: 8 },
+    }).setOrigin(0.5).setInteractive({ useHandCursor: true }));
+    (confirmBtn as Phaser.GameObjects.Text).on('pointerdown', () => this.advanceCursor());
+    (confirmBtn as Phaser.GameObjects.Text).on('pointerover', () => (confirmBtn as Phaser.GameObjects.Text).setColor('#ffee00'));
+    (confirmBtn as Phaser.GameObjects.Text).on('pointerout',  () => (confirmBtn as Phaser.GameObjects.Text).setColor('#ffffff'));
+
+    push(this.add.text(W / 2, 358, '◀ ▶  CHANGE LETTER     ENTER / SPACE  CONFIRM', {
+      fontSize: '11px', fontFamily: 'monospace', color: '#444444',
+    }).setOrigin(0.5));
 
     this.updateInitialsDisplay();
 
+    // Keyboard
     this.input.keyboard?.on('keydown-LEFT',  () => this.cycleChar(-1));
     this.input.keyboard?.on('keydown-RIGHT', () => this.cycleChar(1));
     this.input.keyboard?.on('keydown-DOWN',  () => this.cycleChar(-1));
     this.input.keyboard?.on('keydown-UP',    () => this.cycleChar(1));
     this.input.keyboard?.on('keydown-SPACE', () => this.advanceCursor());
     this.input.keyboard?.on('keydown-ENTER', () => this.advanceCursor());
-
-    this.touchLeft  = () => this.cycleChar(-1);
-    this.touchRight = () => this.cycleChar(1);
-    this.touchJump  = () => this.advanceCursor();
-    document.getElementById('btn-left') ?.addEventListener('touchstart', this.touchLeft,  { passive: true });
-    document.getElementById('btn-right')?.addEventListener('touchstart', this.touchRight, { passive: true });
-    document.getElementById('btn-jump') ?.addEventListener('touchstart', this.touchJump,  { passive: true });
   }
 
   private cycleChar(dir: number): void {
@@ -128,7 +152,7 @@ export class GameOverScene extends Phaser.Scene {
   }
 
   private updateInitialsDisplay(): void {
-    const xs = [this.scale.width / 2 - 66, this.scale.width / 2, this.scale.width / 2 + 66];
+    const xs = [this.scale.width / 2 - 70, this.scale.width / 2, this.scale.width / 2 + 70];
     this.charTexts.forEach((t, i) => {
       t.setText(this.chars[i]);
       t.setColor(i === this.cursor ? '#ffee00' : '#aaaaaa');
@@ -136,17 +160,10 @@ export class GameOverScene extends Phaser.Scene {
     this.cursorBar.setX(xs[this.cursor]);
   }
 
-  private removeInitialsHandlers(): void {
-    this.input.keyboard?.removeAllListeners();
-    document.getElementById('btn-left') ?.removeEventListener('touchstart', this.touchLeft);
-    document.getElementById('btn-right')?.removeEventListener('touchstart', this.touchRight);
-    document.getElementById('btn-jump') ?.removeEventListener('touchstart', this.touchJump);
-  }
-
   private async submitScore(): Promise<void> {
     this.phase = 'submitting';
-    this.removeInitialsHandlers();
-    this.initialsObjs.forEach(o => o.destroy());
+    this.input.keyboard?.removeAllListeners();
+    this.initialsObjs.forEach(o => (o as Phaser.GameObjects.Text).destroy());
 
     const initials = this.chars.join('');
     try {
@@ -174,7 +191,7 @@ export class GameOverScene extends Phaser.Scene {
     }).setOrigin(0.5);
 
     if (this.scores.length === 0) {
-      this.add.text(W / 2, 260, 'NO SCORES YET', {
+      this.add.text(W / 2, 270, 'NO SCORES YET', {
         fontSize: '16px', fontFamily: 'monospace', color: '#444444',
       }).setOrigin(0.5);
     }
@@ -183,8 +200,8 @@ export class GameOverScene extends Phaser.Scene {
     const rowH   = 26;
 
     this.scores.forEach((entry, i) => {
-      const y   = startY + i * rowH;
-      const hi  = i === highlightIndex;
+      const y  = startY + i * rowH;
+      const hi = i === highlightIndex;
       const col = hi ? '#ffee00' : (i < 3 ? '#f0c040' : '#bbbbbb');
 
       this.add.text(W * 0.13, y, `${hi ? '▶' : ' '}${i + 1}.`, {
@@ -210,9 +227,6 @@ export class GameOverScene extends Phaser.Scene {
       const go = () => this.scene.start('MenuScene');
       this.input.keyboard?.once('keydown', go);
       this.input.once('pointerdown', go);
-      ['btn-left', 'btn-right', 'btn-jump'].forEach(id =>
-        document.getElementById(id)?.addEventListener('touchstart', go, { once: true, passive: true }),
-      );
     });
   }
 }
