@@ -47,7 +47,7 @@ export const level4: LevelData = {
     {
       type: 'giant-bear',
       x: 250,
-      y: 415,
+      y: 398,
       patrolLeft: 90,
       patrolRight: 540,
     },

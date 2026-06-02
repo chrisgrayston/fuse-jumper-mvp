@@ -12,6 +12,7 @@ export class Projectile extends Phaser.Physics.Arcade.Sprite {
   private bubbleVY: number;   // tracked independently — never read back from physics body
   private footballVX = 0;     // football: stored so we can re-assert it every frame
   private pieVX = 0;          // pie: same pattern as football — re-assert every frame
+  private beerVX = 0;         // beer: same pattern
   private glassLifespan = 0;  // glass-shard: ms remaining before self-destruct
 
   constructor(
@@ -50,6 +51,10 @@ export class Projectile extends Phaser.Physics.Arcade.Sprite {
       body.allowGravity = false;
       body.setGravityY(0);
       this.footballVX = vx;     // store so update() can re-assert it every frame
+    } else if (type === 'beer') {
+      body.allowGravity = false;
+      body.setGravityY(0);
+      this.beerVX = vx;
     } else if (type === 'padel-ball' || type === 'golf-ball') {
       body.allowGravity = false;
       body.setBounce(1.0, 1.0);
@@ -108,6 +113,13 @@ export class Projectile extends Phaser.Physics.Arcade.Sprite {
       body.allowGravity = false;
       body.gravity.y    = 0;
       body.velocity.x   = this.pieVX;
+      body.velocity.y   = 0;
+    }
+    if (this.projType === 'beer' && this.active) {
+      const body = this.body as Phaser.Physics.Arcade.Body;
+      body.allowGravity = false;
+      body.gravity.y    = 0;
+      body.velocity.x   = this.beerVX;
       body.velocity.y   = 0;
     }
     if (this.projType === 'glass-shard' && this.active) {

@@ -22,7 +22,7 @@ const SPEEDS: Partial<Record<EnemyType, number>> = {
   'bubble-blower':  0,
   'flanker':        110,
   'clippy':         22,
-  'giant-bear':     50,
+  'giant-bear':     22,
 };
 
 export class Enemy extends Phaser.Physics.Arcade.Sprite {
@@ -118,6 +118,11 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       this.st.nextKick  = 1;  // PG_WINDUP — start swinging immediately
       this.st.kickClock = 0;
       this.st.kickDir   = 0;
+    }
+    if (this.eType === 'giant-bear') {
+      body.setSize(40, 60);
+      body.setOffset(4, 10);
+      this.st.nextKick = Phaser.Math.Between(15000, 20000);  // long delay before first charge
     }
 
     // Ground patrol — set initial velocity
@@ -610,20 +615,90 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       // ── Club 2200 ───────────────────────────────────────────────────────
 
       case 'giant-bear': {
+        const GB  = SPEEDS['giant-bear']!;   // 22 px/s
+        const pL  = this.eData.patrolLeft  ?? 90;
+        const pR  = this.eData.patrolRight ?? 540;
+
         if (this.st.isCharging) {
+          // ── CHARGE ──────────────────────────────────────────────────
           this.st.chargeTimer -= delta;
+          this.st.sineT       += delta;
+          body.setVelocityX(260 * this.st.direction);
+          this.setFlipX(this.st.direction < 0);
+          const cf = Math.floor(this.st.sineT / 110) % 4;
+          this.setTexture(`enemy-giant-bear-charge-${cf + 1}`);
           if (this.st.chargeTimer <= 0) {
             this.st.isCharging = false;
-            body.setVelocityX(SPEEDS['giant-bear']! * this.st.direction);
+            this.st.sineT      = 0;
+            this.st.clock      = 0;
+            this.st.nextAction = Phaser.Math.Between(1500, 3000);
+          }
+        } else if (this.st.atPosA) {
+          // ── THROW ───────────────────────────────────────────────────
+          this.st.kickClock -= delta;
+          body.setVelocityX(0);
+          this.setFlipX(this.st.kickDir < 0);
+          const elapsed = 1200 - this.st.kickClock;
+          const tf = Math.min(3, Math.floor(elapsed / 300));
+          this.setTexture(`enemy-giant-bear-throw-${tf + 1}`);
+          // Spawn beer on release window (600-900 ms after start)
+          if (this.st.kickClock <= 600 && this.st.sineT === 0) {
+            this.st.sineT = 1;
+            const spawnX = this.x + (this.st.kickDir > 0 ? 30 : -30);
+            this.spawn(spawnX, this.y - 6, 'beer', 250 * this.st.kickDir, 0);
+          }
+          if (this.st.kickClock <= 0) {
+            this.st.atPosA  = false;
+            this.st.kickDir *= -1;
+            this.st.clock   = 0;
+            this.st.nextAction = Phaser.Math.Between(2500, 5000);
+          }
+        } else if (this.st.travelling) {
+          // ── GROWL ───────────────────────────────────────────────────
+          this.st.travelTimer -= delta;
+          body.setVelocityX(0);
+          const elapsed = 1400 - this.st.travelTimer;
+          const gf = Math.min(3, Math.floor(elapsed / 350));
+          this.setTexture(`enemy-giant-bear-growl-${gf + 1}`);
+          if (this.st.travelTimer <= 0) {
+            this.st.travelling = false;
+            this.st.atPosA     = true;
+            this.st.kickClock  = 1200;
+            this.st.direction  = this.st.kickDir;
+            this.st.sineT      = 0;  // beer-spawned flag reset
+            this.setFlipX(this.st.kickDir < 0);
           }
         } else {
-          this.patrolBounce(body, this.eData.patrolLeft ?? 50, this.eData.patrolRight ?? 750, SPEEDS['giant-bear']!);
+          // ── PATROL ──────────────────────────────────────────────────
+          this.st.clock     += delta;
+          this.st.nextKick  -= delta;
+          // Re-assert patrol velocity every frame (reliable vs patrolBounce)
+          if (this.x <= pL) {
+            this.st.direction = 1;
+          } else if (this.x >= pR) {
+            this.st.direction = -1;
+          }
+          body.setVelocityX(GB * this.st.direction);
+          this.setFlipX(this.st.direction < 0);
+          // Walk cycle: 4 frames at 160 ms each
+          const wf = Math.floor(this.st.clock / 160) % 4;
+          const walkKeys = ['enemy-giant-bear','enemy-giant-bear-2','enemy-giant-bear-3','enemy-giant-bear-4'];
+          this.setTexture(walkKeys[wf]);
+          // Trigger growl
           if (this.st.clock >= this.st.nextAction) {
-            this.st.clock = 0;
-            this.st.nextAction = Phaser.Math.Between(4000, 7000);
-            this.st.isCharging = true;
-            this.st.chargeTimer = 1400;
-            body.setVelocityX(260 * this.st.direction);
+            this.st.travelling  = true;
+            this.st.travelTimer = 1400;
+            this.st.clock       = 0;
+            this.st.nextAction  = Phaser.Math.Between(2500, 5000);
+          }
+          // Trigger charge (only if not entering growl this same frame)
+          if (!this.st.travelling && this.st.nextKick <= 0) {
+            this.st.isCharging  = true;
+            this.st.chargeTimer = 700;
+            this.st.sineT       = 0;
+            this.st.nextKick    = Phaser.Math.Between(12000, 18000);
+            this.st.clock       = 0;
+            this.st.nextAction  = Phaser.Math.Between(1500, 3000);
           }
         }
         break;
@@ -828,6 +903,26 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       this.st.sineT     = 0;
       this.padelBall    = null;
       this.setTexture('enemy-padel-punisher');
+      return;
+    }
+    if (this.eType === 'giant-bear') {
+      body.reset(this.eData.x, this.eData.y);
+      body.setVelocity(SPEEDS['giant-bear']!, 0);
+      body.allowGravity = true;
+      this.st.clock       = 0;
+      this.st.nextAction  = Phaser.Math.Between(2000, 4000);
+      this.st.direction   = 1;
+      this.st.isCharging  = false;
+      this.st.chargeTimer = 0;
+      this.st.atPosA      = false;
+      this.st.travelling  = false;
+      this.st.travelTimer = 0;
+      this.st.sineT       = 0;
+      this.st.kickClock   = 0;
+      this.st.nextKick    = Phaser.Math.Between(15000, 20000);
+      this.st.kickDir     = 1;
+      this.setTexture('enemy-giant-bear');
+      this.setFlipX(false);
       return;
     }
 

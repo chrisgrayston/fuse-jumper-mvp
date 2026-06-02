@@ -24,7 +24,8 @@ export type ProjectileType =
   | 'golf-ball'
   | 'dark-magic'
   | 'coat'
-  | 'football';
+  | 'football'
+  | 'beer';
 
 export interface PlatformData {
   x: number;

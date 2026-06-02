@@ -1608,38 +1608,150 @@ export class BootScene extends Phaser.Scene {
     g.fillStyle(0xffcc88); g.fillRect(8, 8, 12, 8);
     g.generateTexture('enemy-condor', 28, 28);
 
-    // ── Giant Bear — brown bear, white shirt, 40×36 ──────────────────────
+    // ── Giant Bear — fierce 48×72, white football top, 16 animation frames ─
     {
-      const FUR = 0x7a4520;   // mid fur
-      const SNT = 0xaa6640;   // snout / inner ear / paws
-      const EY  = 0x0a0500;   // near-black eyes
-      const WSH = 0xffffff;   // white shirt
-      const SHD = 0xcccccc;   // shirt shadow
+      const FUR  = 0x5a2d0c;
+      const SNT  = 0xb06030;
+      const NOZ  = 0x060200;
+      const EYR  = 0xff1100;   // always-red menacing eyes
+      const EYG  = 0xff6600;   // blazing orange for peak growl
+      const WSH  = 0xffffff;
+      const SHD  = 0xcccccc;
+      const PNK  = 0xcc0033;   // mouth interior
+      const TTH  = 0xf0e8d0;   // ivory teeth
+      const BROW = 0x2c0e02;
 
+      // mth: 0=closed 1=snarl 2=open 3=ROAR
+      const gbHead = (mth: number, eyGlow: boolean) => {
+        g.fillStyle(FUR);  g.fillRect( 3, 0, 8, 8);
+        g.fillStyle(SNT);  g.fillRect( 5, 1, 5, 5);
+        g.fillStyle(FUR);  g.fillRect(37, 0, 8, 8);
+        g.fillStyle(SNT);  g.fillRect(39, 1, 5, 5);
+        g.fillStyle(FUR);  g.fillRect(5, 4, 38, 30);
+        g.fillStyle(BROW); g.fillRect(5, 10, 38, 4);
+        g.fillStyle(0x000000);
+        g.fillRect(11,13, 9, 7); g.fillRect(28,13, 9, 7);
+        if (eyGlow) {
+          g.fillStyle(0xff4400); g.fillRect(10,12,11,9); g.fillRect(27,12,11,9);
+          g.fillStyle(EYG);      g.fillRect(12,14, 7,5); g.fillRect(29,14, 7,5);
+        } else {
+          g.fillStyle(EYR);      g.fillRect(12,14, 6,5); g.fillRect(29,14, 6,5);
+        }
+        g.fillStyle(0xffffff); g.fillRect(12,14,2,2); g.fillRect(29,14,2,2);
+        g.fillStyle(SNT);  g.fillRect(12,22,24,12);
+        g.fillStyle(NOZ);  g.fillRect(16,22,16, 7);
+        g.fillStyle(SNT);  g.fillRect(18,24, 4, 3); g.fillRect(26,24, 4, 3);
+        if (mth === 0) {
+          g.fillStyle(NOZ); g.fillRect(15,31,18, 2);
+        } else if (mth === 1) {
+          g.fillStyle(NOZ); g.fillRect(13,30,22, 3);
+          g.fillStyle(TTH);
+          g.fillRect(15,31,4,4); g.fillRect(21,31,4,4); g.fillRect(27,31,4,4);
+          g.fillStyle(NOZ); g.fillRect(19,31,2,4); g.fillRect(25,31,2,4);
+        } else if (mth === 2) {
+          g.fillStyle(NOZ); g.fillRect(11,28,26, 4);
+          g.fillStyle(PNK); g.fillRect(12,31,24, 8);
+          g.fillStyle(TTH);
+          g.fillRect(12,28,4,5); g.fillRect(18,28,4,5); g.fillRect(24,28,4,5); g.fillRect(30,28,4,5);
+          g.fillRect(13,36,4,4); g.fillRect(19,36,4,4); g.fillRect(25,36,4,4);
+        } else { // ROAR — massive gaping maw
+          g.fillStyle(NOZ); g.fillRect( 9,26,30, 4);
+          g.fillStyle(PNK); g.fillRect(10,29,28,12);
+          g.fillStyle(0xff0022); g.fillRect(15,33,18, 6); // blazing throat
+          g.fillStyle(TTH);
+          g.fillRect( 9,26,5,7); g.fillRect(16,26,5,7); g.fillRect(23,26,5,7); g.fillRect(30,26,5,7);
+          g.fillRect(10,38,5,5); g.fillRect(17,38,5,5); g.fillRect(24,38,5,5); g.fillRect(30,38,4,5);
+        }
+        if (mth < 3) { g.fillStyle(FUR); g.fillRect(16,34,16, 8); } // neck (ROAR fills it)
+      };
+
+      const gbShirt = () => {
+        g.fillStyle(WSH); g.fillRect(6,42,36,22);
+        g.fillStyle(SHD); g.fillRect(6,62,36, 2);
+        g.fillStyle(FUR); g.fillRect(18,42,12, 5); // collar
+      };
+
+      const gbArm = (lx: number, ly: number, rx: number, ry: number) => {
+        g.fillStyle(FUR); g.fillRect(lx,ly,6,22); g.fillStyle(SNT); g.fillRect(lx,ly+19,6,4);
+        g.fillStyle(FUR); g.fillRect(rx,ry,6,22); g.fillStyle(SNT); g.fillRect(rx,ry+19,6,4);
+      };
+
+      const gbLegs = (lo = 0, ro = 0) => {
+        g.fillStyle(FUR);
+        g.fillRect(11,64+lo,11,7); g.fillRect(26,64+ro,11,7);
+        g.fillStyle(NOZ);
+        g.fillRect(11,69+lo,11,2); g.fillRect(26,69+ro,11,2);
+      };
+
+      // Walk frames 0-3
+      g.clear(); gbHead(0,false); gbShirt(); gbArm(0,42,42,42); gbLegs();
+      g.generateTexture('enemy-giant-bear', 48, 72);
+
+      g.clear(); gbHead(0,false); gbShirt(); gbArm(0,40,42,44); gbLegs(-2,2);
+      g.generateTexture('enemy-giant-bear-2', 48, 72);
+
+      g.clear(); gbHead(1,false); gbShirt(); gbArm(0,42,42,42); gbLegs();
+      g.generateTexture('enemy-giant-bear-3', 48, 72);
+
+      g.clear(); gbHead(0,false); gbShirt(); gbArm(0,44,42,40); gbLegs(2,-2);
+      g.generateTexture('enemy-giant-bear-4', 48, 72);
+
+      // Growl frames 4-7
+      g.clear(); gbHead(1,false); gbShirt(); gbArm(0,38,42,38); gbLegs();
+      g.generateTexture('enemy-giant-bear-growl-1', 48, 72);
+
+      g.clear(); gbHead(2,false); gbShirt(); gbArm(0,32,42,32); gbLegs();
+      g.generateTexture('enemy-giant-bear-growl-2', 48, 72);
+
+      g.clear(); gbHead(3,false); gbShirt(); gbArm(0,24,42,24); gbLegs();
+      g.generateTexture('enemy-giant-bear-growl-3', 48, 72);
+
+      // Growl-4 peak: arms above head — draw arms first so head sits on top
       g.clear();
-      // Ears
-      g.fillStyle(FUR); g.fillRect(2,  0, 8, 7);  g.fillStyle(SNT); g.fillRect(3,  1, 5, 4);  // L
-      g.fillStyle(FUR); g.fillRect(30, 0, 8, 7);  g.fillStyle(SNT); g.fillRect(31, 1, 5, 4);  // R
-      // Head
-      g.fillStyle(FUR); g.fillRect(5, 3, 30, 18);
-      // Eyes (larger — it's a bigger bear)
-      g.fillStyle(EY);       g.fillRect(12, 8, 5, 5);  g.fillStyle(0xffffff); g.fillRect(12, 8, 2, 2);
-      g.fillStyle(EY);       g.fillRect(23, 8, 5, 5);  g.fillStyle(0xffffff); g.fillRect(23, 8, 2, 2);
-      // Snout + nose + nostrils
-      g.fillStyle(SNT); g.fillRect(13, 15, 14, 8);
-      g.fillStyle(EY);  g.fillRect(17, 16, 6, 3);   // nose bridge
-      g.fillStyle(EY);  g.fillRect(18, 19, 4, 2);   // mouth line
-      g.fillStyle(SNT); g.fillRect(18, 17, 2, 2);   // L nostril
-      g.fillStyle(SNT); g.fillRect(22, 17, 2, 2);   // R nostril
-      // Neck
-      g.fillStyle(FUR); g.fillRect(16, 21, 8, 4);
-      // White shirt
-      g.fillStyle(WSH); g.fillRect(5, 25, 30, 11);
-      g.fillStyle(SHD); g.fillRect(5, 34, 30, 2);   // hem shadow
-      // Arms + paw pads
-      g.fillStyle(FUR); g.fillRect(0,  25, 6, 11);  g.fillStyle(SNT); g.fillRect(0,  33, 6, 3);  // L
-      g.fillStyle(FUR); g.fillRect(34, 25, 6, 11);  g.fillStyle(SNT); g.fillRect(34, 33, 6, 3);  // R
-      g.generateTexture('enemy-giant-bear', 40, 36);
+      g.fillStyle(FUR); g.fillRect( 0,16,6,30); g.fillStyle(SNT); g.fillRect( 0,42,6,4);
+      g.fillStyle(FUR); g.fillRect(42,16,6,30); g.fillStyle(SNT); g.fillRect(42,42,6,4);
+      gbHead(3,true); gbShirt(); gbLegs();
+      g.generateTexture('enemy-giant-bear-growl-4', 48, 72);
+
+      // Throw frames 8-11
+      g.clear(); gbHead(1,false); gbShirt();
+      g.fillStyle(FUR); g.fillRect( 0,42,6,22); g.fillStyle(SNT); g.fillRect( 0,61,6,4); // L arm
+      g.fillStyle(FUR); g.fillRect(42,16,6,30); g.fillStyle(SNT); g.fillRect(42,37,6,4); // R arm raised
+      g.fillStyle(0xcc8800); g.fillRect(43, 6,4,12); g.fillStyle(0xeeeedd); g.fillRect(43, 6,4,4); // beer
+      gbLegs();
+      g.generateTexture('enemy-giant-bear-throw-1', 48, 72);
+
+      g.clear(); gbHead(2,false); gbShirt();
+      g.fillStyle(FUR); g.fillRect( 0,42,6,22); g.fillStyle(SNT); g.fillRect( 0,61,6,4);
+      g.fillStyle(FUR); g.fillRect(42,24,6,30); g.fillStyle(SNT); g.fillRect(42,45,6,4);
+      g.fillStyle(0xcc8800); g.fillRect(43,14,4,12); g.fillStyle(0xeeeedd); g.fillRect(43,14,4,4);
+      gbLegs();
+      g.generateTexture('enemy-giant-bear-throw-2', 48, 72);
+
+      g.clear(); gbHead(3,false); gbShirt(); // release — arm extended stub at edge
+      g.fillStyle(FUR); g.fillRect( 0,42,6,22); g.fillStyle(SNT); g.fillRect( 0,61,6,4);
+      g.fillStyle(FUR); g.fillRect(42,42,6, 6); // short horizontal stub
+      gbLegs();
+      g.generateTexture('enemy-giant-bear-throw-3', 48, 72);
+
+      g.clear(); gbHead(1,false); gbShirt();
+      g.fillStyle(FUR); g.fillRect( 0,42,6,22); g.fillStyle(SNT); g.fillRect( 0,61,6,4);
+      g.fillStyle(FUR); g.fillRect(42,36,6,28); g.fillStyle(SNT); g.fillRect(42,55,6,4); // follow-through
+      gbLegs();
+      g.generateTexture('enemy-giant-bear-throw-4', 48, 72);
+
+      // Charge frames 12-15
+      g.clear(); gbHead(1,false); gbShirt(); gbArm(0,43,42,41); gbLegs(-1,1);
+      g.generateTexture('enemy-giant-bear-charge-1', 48, 72);
+
+      g.clear(); gbHead(2,false); gbShirt(); gbArm(0,45,42,39); gbLegs(2,-2);
+      g.generateTexture('enemy-giant-bear-charge-2', 48, 72);
+
+      g.clear(); gbHead(3,false); gbShirt(); gbArm(0,46,42,38); gbLegs(3,-3);
+      g.generateTexture('enemy-giant-bear-charge-3', 48, 72);
+
+      g.clear(); gbHead(3,true);  gbShirt(); gbArm(0,44,42,40); gbLegs(-2,2);
+      g.generateTexture('enemy-giant-bear-charge-4', 48, 72);
     }
 
     // ── Actuary Man — Liverpool red suit, glasses ─────────────────────────
@@ -1661,9 +1773,9 @@ export class BootScene extends Phaser.Scene {
       const ER  = 0xff7700; // eye ring orange
       const FT  = 0xff9900; // wing-tip orange (puffin feet colour)
       // Golfer colours
-      const GRN = 0x1a8a3a; // argyle sweater green
-      const AY  = 0xddcc00; // argyle yellow diamond
-      const AR  = 0xbb1100; // argyle red diamond
+      const GRN = 0x6633cc; // argyle sweater purple
+      const AY  = 0xffdd00; // argyle yellow diamond
+      const AR  = 0xffffff; // argyle white diamond
       const PF  = 0xcc9933; // plus-fours khaki
       const PD  = 0x997722; // plus-fours shadow
       const SC  = 0xeeeeee; // sock white
@@ -2162,6 +2274,16 @@ export class BootScene extends Phaser.Scene {
     g.fillStyle(0xdddddd);       // specular highlight
     g.fillRect(3,  3,  3,  2);
     g.generateTexture('proj-football', 16, 16);
+
+    // Beer — amber pint glass flying sideways, 18×22
+    g.clear();
+    g.fillStyle(0x220011); g.fillRect(0, 0, 14, 20);  // glass outline
+    g.fillStyle(0xcc8800); g.fillRect(1, 4, 12, 15);  // amber beer
+    g.fillStyle(0xeeeedd); g.fillRect(1, 1, 12,  4);  // foam
+    g.fillStyle(0xffcc44); g.fillRect(2, 5,  3, 12);  // beer highlight
+    g.fillStyle(0x220011); g.fillRect(14, 5, 4, 10);  // handle outer
+    g.fillStyle(0xcc8800); g.fillRect(15, 7, 2,  6);  // handle inner
+    g.generateTexture('proj-beer', 18, 22);
 
     // Dark magic
     g.clear();
