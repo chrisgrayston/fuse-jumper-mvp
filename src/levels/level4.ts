@@ -13,13 +13,13 @@ export const level4: LevelData = {
   platforms: [
     // Marble ground
     { x: 0,   y: 430, width: 800, height: 20 },
-    // Column bases
-    { x: 30,  y: 383, width: 80,  height: 12 },
-    { x: 690, y: 383, width: 80,  height: 12 },
+    // Column bases (raised from y=383)
+    { x: 30,  y: 330, width: 80,  height: 12 },
+    { x: 690, y: 330, width: 80,  height: 12 },
     // Upper
     { x: 100, y: 202, width: 130, height: 12 },
     { x: 570, y: 202, width: 130, height: 12 },
-    { x: 300, y: 182, width: 200, height: 12 },
+    { x: 300, y: 260, width: 200, height: 12 },  // Puffin platform (lowered from y=182)
     // High
     { x: 148, y: 142, width: 140, height: 12 },
     { x: 512, y: 142, width: 140, height: 12 },
@@ -27,22 +27,22 @@ export const level4: LevelData = {
     // Very high
     { x: 200, y: 72,  width: 120, height: 12 },
     { x: 480, y: 72,  width: 120, height: 12 },
-    // Skeletor's throne
-    { x: 318, y: 28,  width: 164, height: 12 },
+    // Skeletor's throne (lowered from y=28)
+    { x: 318, y: 55,  width: 164, height: 12 },
   ],
 
   players: [
     { number: 1,  x: 200, y: 415 },
     { number: 2,  x: 560, y: 415 },
-    { number: 3,  x: 55,  y: 367 },
-    { number: 4,  x: 730, y: 367 },  // moved from lower-right → column base right
-    { number: 5,  x: 635, y: 186 },  // moved from mid-left → upper right
-    { number: 6,  x: 218, y: 126 },  // moved from puffin → high left
-    { number: 7,  x: 582, y: 126 },  // moved from mid-right → high right
-    { number: 8,  x: 130, y: 186 },
-    { number: 9,  x: 360, y: 165 },
-    { number: 10, x: 360, y: 95  },
-    { number: 11, x: 400, y: 12  },
+    { number: 3,  x: 55,  y: 314 },  // column base left (330-16)
+    { number: 4,  x: 730, y: 314 },  // column base right (330-16)
+    { number: 5,  x: 635, y: 186 },  // upper right
+    { number: 6,  x: 218, y: 126 },  // high left
+    { number: 7,  x: 582, y: 126 },  // high right
+    { number: 8,  x: 130, y: 186 },  // upper left
+    { number: 9,  x: 360, y: 244 },  // puffin platform (260-16)
+    { number: 10, x: 360, y: 95  },  // high centre
+    { number: 11, x: 400, y: 39  },  // throne (55-16)
   ],
 
   enemies: [
@@ -60,21 +60,21 @@ export const level4: LevelData = {
       x: 400,
       y: 240,
     },
-    // Actuary Man flies between high platforms
+    // Actuary Man flies between throne and mid area
     {
       type: 'actuary-man',
       x: 360,
-      y: 22,
-      posA: { x: 360, y: 22  },
+      y: 49,
+      posA: { x: 360, y: 49  },
       posB: { x: 360, y: 236 },
     },
-    // Puffin stands on upper-centre platform, fires golf balls
+    // Puffin stands on centre platform, fires golf balls
     {
       type: 'puffin',
       x: 400,
-      y: 167,
+      y: 245,
     },
-    // Vascular Man hangs beneath mid platforms
+    // Vascular Man glides between sides
     {
       type: 'vascular-man',
       x: 120,
@@ -86,7 +86,7 @@ export const level4: LevelData = {
     {
       type: 'skeletor',
       x: 400,
-      y: 14,
+      y: 41,
     },
   ],
 };
