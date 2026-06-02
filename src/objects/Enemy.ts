@@ -358,11 +358,38 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
 
       case 'clippy': {
         this.st.sineT += delta;
-        this.patrolBounce(body, this.eData.patrolLeft ?? 50, this.eData.patrolRight ?? 750, SPEEDS['clippy']!);
-        this.setFlipX(this.st.direction < 0);
-        // 8-frame shuffle at 200ms per frame
-        const cf = Math.floor(this.st.sineT / 200) % 8;
-        this.setTexture(cf === 0 ? 'enemy-clippy' : `enemy-clippy-${cf + 1}`);
+        const pLeft  = this.eData.patrolLeft  ?? 50;
+        const pRight = this.eData.patrolRight ?? 750;
+
+        if (this.st.isCharging) {
+          this.st.chargeTimer -= delta;
+          body.setVelocityX(0);
+          const sf = Math.floor(this.st.sineT / 200) % 4;
+          this.setTexture(`enemy-clippy-scratch-${sf + 1}`);
+          if (this.st.chargeTimer <= 0) {
+            this.st.isCharging = false;
+            body.setVelocityX(SPEEDS['clippy']! * this.st.direction);
+          }
+        } else if (this.x <= pLeft && this.st.direction < 0) {
+          this.st.direction   = 1;
+          this.setFlipX(false);
+          this.st.isCharging  = true;
+          this.st.chargeTimer = 1400;
+          this.st.sineT       = 0;
+          body.setVelocityX(0);
+        } else if (this.x >= pRight && this.st.direction > 0) {
+          this.st.direction   = -1;
+          this.setFlipX(true);
+          this.st.isCharging  = true;
+          this.st.chargeTimer = 1400;
+          this.st.sineT       = 0;
+          body.setVelocityX(0);
+        } else {
+          body.setVelocityX(SPEEDS['clippy']! * this.st.direction);
+          this.setFlipX(this.st.direction < 0);
+          const cf = Math.floor(this.st.sineT / 200) % 8;
+          this.setTexture(cf === 0 ? 'enemy-clippy' : `enemy-clippy-${cf + 1}`);
+        }
         break;
       }
 

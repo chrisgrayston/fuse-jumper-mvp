@@ -1093,6 +1093,36 @@ export class BootScene extends Phaser.Scene {
         const key = i === 0 ? 'enemy-clippy' : `enemy-clippy-${i + 1}`;
         g.generateTexture(key, 40, 50);
       });
+
+      // 4 scratch frames: right arm raised to temple, hand rubs back and forth
+      const drawScratchArm = (ty: number, hy: number, dy: number) => {
+        // Upper arm going up from shoulder
+        g.fillStyle(SJ);  g.fillRect(29, ty - 9, 4, 9);
+        g.fillStyle(SJ2); g.fillRect(31, ty - 7, 2, 7);
+        // Elbow connecting joint
+        g.fillStyle(SJ);  g.fillRect(26, ty - 10, 7, 3);
+        // Forearm angling up-left toward head
+        g.fillStyle(SJ);  g.fillRect(26, ty - 15 + dy, 4, 7);
+        g.fillStyle(SJ2); g.fillRect(28, ty - 14 + dy, 2, 6);
+        // Cuff at wrist
+        g.fillStyle(WS);  g.fillRect(25, ty - 16 + dy, 5, 2);
+        // Hand at temple
+        g.fillStyle(SK);  g.fillRect(24, hy + 3 + dy, 5, 4);
+        g.fillStyle(SK2); g.fillRect(25, hy + 4 + dy, 2, 3);
+      };
+
+      // Alternate dy=0 / dy=-1 for the rubbing motion
+      [0, -1, 0, -1].forEach((dy, i) => {
+        g.clear();
+        const jy = 18, hy = 0;
+        drawClipboard(jy + 6);
+        drawHead(hy);
+        drawJacket(jy);
+        drawLeftHand(jy);
+        drawScratchArm(jy, hy, dy);
+        drawLower(9, 22, hy);
+        g.generateTexture(`enemy-clippy-scratch-${i + 1}`, 40, 50);
+      });
     }
 
     // ── Butter Fingers — 14 frames, 40×56px, khaki jacket, red shirt, blond ──
