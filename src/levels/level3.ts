@@ -49,7 +49,7 @@ export const level3: LevelData = {
     {
       type: 'clippy',
       x: 300,
-      y: 415,
+      y: 407,
       patrolLeft: 80,
       patrolRight: 620,
     },
