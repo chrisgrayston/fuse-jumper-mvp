@@ -368,8 +368,14 @@ export class GameScene extends Phaser.Scene {
     this.spawnFn = (x, y, type: ProjectileType, vx, vy) => {
       const proj = new Projectile(this, x, y, type, vx, vy);
       this.projectilesGroup.add(proj);
-      // group.add() resets the physics body, wiping velocity; re-apply immediately
-      (proj.body as Phaser.Physics.Arcade.Body).setVelocity(vx, vy);
+      // group.add() resets the entire physics body — re-apply all settings immediately
+      const body = proj.body as Phaser.Physics.Arcade.Body;
+      body.setVelocity(vx, vy);
+      if (type === 'padel-ball') {
+        body.allowGravity = false;
+        body.setBounce(1.0, 1.0);
+        body.setCollideWorldBounds(true);
+      }
       this.projectileList.push(proj);
       return proj;
     };
