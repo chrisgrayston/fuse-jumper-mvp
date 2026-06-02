@@ -678,6 +678,13 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     if (speed !== undefined) body.setVelocityX(speed);
   }
 
+  kickStart(): void {
+    const speed = SPEEDS[this.eType];
+    if (speed !== undefined) {
+      (this.body as Phaser.Physics.Arcade.Body).setVelocityX(speed);
+    }
+  }
+
   // ── Helpers ───────────────────────────────────────────────────────────────
 
   private patrolBounce(

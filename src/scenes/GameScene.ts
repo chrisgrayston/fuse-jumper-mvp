@@ -366,6 +366,7 @@ export class GameScene extends Phaser.Scene {
     for (const ed of level.enemies) {
       const enemy = new Enemy(this, ed, this.spawnFn);
       this.enemies.add(enemy as unknown as Phaser.GameObjects.GameObject);
+      enemy.kickStart(); // group.add() wipes velocity; re-apply
       this.enemyControllers.push(enemy);
     }
   }
