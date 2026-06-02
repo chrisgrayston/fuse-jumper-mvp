@@ -51,11 +51,10 @@ export class Projectile extends Phaser.Physics.Arcade.Sprite {
       body.setGravityY(0);
       this.footballVX = vx;     // store so update() can re-assert it every frame
     } else if (type === 'padel-ball') {
-      body.allowGravity = true;
-      body.setBounce(0.62, 0.62);
+      body.allowGravity = false;
+      body.setBounce(1.0, 1.0);
       body.setCollideWorldBounds(true);
-      body.setDragX(14);
-      body.setMaxVelocityY(1500);
+      this.glassLifespan = 8000; // reuse lifespan field — ball expires after 8 s
     } else {
       body.allowGravity = true;
     }
@@ -111,7 +110,7 @@ export class Projectile extends Phaser.Physics.Arcade.Sprite {
       body.velocity.x   = this.pieVX;
       body.velocity.y   = 0;
     }
-    if (this.projType === 'glass-shard' && this.active) {
+    if ((this.projType === 'glass-shard' || this.projType === 'padel-ball') && this.active) {
       this.glassLifespan -= delta;
       if (this.glassLifespan <= 0) { this.destroy(); return; }
     }

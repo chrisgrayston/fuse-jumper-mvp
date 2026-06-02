@@ -576,11 +576,8 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
           // PP_WAIT — watch ball; cycle idle frames
           const wf = Math.floor(this.st.sineT / 550) % 2;
           this.setTexture(wf === 0 ? 'enemy-padel-punisher' : 'enemy-padel-punisher-wait-2');
-          // Detect ball at rest or gone
-          const ballGone    = !this.padelBall || !this.padelBall.active;
-          const ballAtRest  = !ballGone &&
-            (this.padelBall!.body as Phaser.Physics.Arcade.Body).speed < 28;
-          if (ballGone || ballAtRest) {
+          // Serve again once ball expires (8-second lifespan) or is otherwise gone
+          if (!this.padelBall || !this.padelBall.active) {
             this.padelBall    = null;
             this.st.nextKick  = PP_WINDUP;
             this.st.kickClock = 0;
