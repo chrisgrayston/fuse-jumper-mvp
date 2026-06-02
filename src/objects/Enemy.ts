@@ -304,68 +304,61 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       // ── Club 2100 ───────────────────────────────────────────────────────
 
       case 'melonhead': {
-        const onGround = body.blocked.down;
-        const distX    = Math.abs(playerX - this.x);
-        const pLeft    = this.eData.patrolLeft  ?? 60;
-        const pRight   = this.eData.patrolRight ?? 740;
+        const SETTLE   = 0;
+        const INFLIGHT = 1;
+        // Sprite y = platform_top_y - 30 (body bottom offset)
+        const PLATFORMS = [
+          { x: 200, y: 400 },  // ground-left
+          { x: 95,  y: 342 },  // low-left flank
+          { x: 145, y: 272 },  // mid-left
+          { x: 220, y: 202 },  // upper-left
+          { x: 115, y: 122 },  // high-left
+          { x: 400, y:  50 },  // top
+          { x: 685, y: 122 },  // high-right
+          { x: 575, y: 202 },  // upper-right
+          { x: 645, y: 272 },  // mid-right
+          { x: 405, y: 262 },  // mid-center
+          { x: 705, y: 342 },  // low-right flank
+          { x: 600, y: 400 },  // ground-right
+        ];
+        const FLIGHT_MS = 750;
 
-        // Swing attack when player is within mallet range
-        if (distX < 65 && !this.st.isCharging && onGround) {
-          this.st.isCharging  = true;
-          this.st.chargeTimer = 800;
-          body.setVelocityX(0);
-        }
+        this.st.sineT     += delta;
+        this.st.kickClock += delta;
 
-        if (this.st.isCharging) {
-          this.st.chargeTimer -= delta;
-          this.setTexture(this.st.chargeTimer > 400 ? 'enemy-melonhead-swing-1' : 'enemy-melonhead-swing-2');
-          this.setFlipX(playerX < this.x);
-          if (this.st.chargeTimer <= 0) {
-            this.st.isCharging = false;
-            this.st.clock      = 0;
-            this.st.nextAction = Phaser.Math.Between(600, 1800);
-          }
-          break;
-        }
-
-        // Bounce at patrol edges
-        if (this.x <= pLeft) {
-          this.st.direction = 1;
-          body.setVelocityX(65);
-        } else if (this.x >= pRight) {
-          this.st.direction = -1;
-          body.setVelocityX(-65);
-        }
-
-        // Periodic direction change — biased 70% toward player
-        if (this.st.clock >= this.st.nextAction) {
-          this.st.clock      = 0;
-          this.st.nextAction = Phaser.Math.Between(700, 2200);
-          const toPlayer     = playerX > this.x ? 1 : -1;
-          this.st.direction  = Phaser.Math.Between(0, 9) < 7 ? toPlayer : -toPlayer;
-          body.setVelocityX(65 * this.st.direction);
-        }
-
-        // Random jump when grounded
-        if (onGround && this.st.travelTimer <= 0 && Phaser.Math.Between(0, 240) === 0) {
-          body.setVelocityY(-400);
-          this.st.travelTimer = 1400;
-        }
-        if (this.st.travelTimer > 0) this.st.travelTimer -= delta;
-
-        // Keep moving if stalled on ground
-        if (onGround && Math.abs(body.velocity.x) < 5) {
-          body.setVelocityX(65 * this.st.direction);
-        }
-
-        // Animation
-        this.st.sineT += delta;
-        this.setFlipX(this.st.direction < 0);
-        if (!onGround) {
-          this.setTexture(body.velocity.y < 0 ? 'enemy-melonhead-jump' : 'enemy-melonhead-float');
-        } else {
-          const wf = Math.floor(this.st.sineT / 280) % 2;
+        if (this.st.nextKick === SETTLE) {
+          body.reset(this.x, this.y);
+          const wf = Math.floor(this.st.sineT / 380) % 2;
           this.setTexture(wf === 0 ? 'enemy-melonhead' : 'enemy-melonhead-walk-2');
+          if (this.st.kickClock >= this.st.chargeTimer) {
+            const nextIdx = (this.st.kickDir + 1) % PLATFORMS.length;
+            const target = PLATFORMS[nextIdx];
+            this.st.direction   = this.x;   // store startX
+            this.st.travelTimer = this.y;   // store startY
+            this.st.kickDir     = nextIdx;
+            this.st.nextKick    = INFLIGHT;
+            this.st.kickClock   = 0;
+            this.setFlipX(target.x < this.x);
+          }
+        } else {
+          const t      = Math.min(1, this.st.kickClock / FLIGHT_MS);
+          const target = PLATFORMS[this.st.kickDir];
+          const fromX  = this.st.direction;
+          const fromY  = this.st.travelTimer;
+          const dy     = target.y - fromY;
+          const arcH   = Math.max(55, Math.abs(dy) * 0.4 + 40);
+          this.x = Phaser.Math.Linear(fromX, target.x, t);
+          this.y = Phaser.Math.Linear(fromY, target.y, t) - Math.sin(t * Math.PI) * arcH;
+          body.reset(this.x, this.y);
+          this.setTexture(t < 0.5 ? 'enemy-melonhead-jump' : 'enemy-melonhead-float');
+          if (t >= 1) {
+            this.x = target.x; this.y = target.y;
+            body.reset(target.x, target.y);
+            this.st.nextKick    = SETTLE;
+            this.st.chargeTimer = Phaser.Math.Between(700, 1300);
+            this.st.kickClock   = 0;
+            this.st.sineT       = 0;
+          }
         }
         break;
       }
@@ -726,6 +719,20 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       this.st.atPosA      = true;
       this.st.sineT       = 0;
       this.setTexture('enemy-butter-fingers');
+      this.setFlipX(false);
+      return;
+    }
+    if (this.eType === 'melonhead') {
+      this.x = this.eData.x; this.y = this.eData.y;
+      body.reset(this.eData.x, this.eData.y);
+      body.allowGravity = false;
+      body.setVelocity(0, 0);
+      this.st.nextKick    = 0;  // SETTLE
+      this.st.kickDir     = 5;  // top platform
+      this.st.kickClock   = 0;
+      this.st.chargeTimer = 800;
+      this.st.sineT       = 0;
+      this.setTexture('enemy-melonhead');
       this.setFlipX(false);
       return;
     }

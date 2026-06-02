@@ -766,22 +766,21 @@ export class BootScene extends Phaser.Scene {
       const W = 44, H = 60, CX = 18;
 
       const helmet = () => {
-        g.fillStyle(MG);  g.fillCircle(CX, 7, 9);
+        // Big round watermelon head
+        g.fillStyle(MG);  g.fillCircle(CX, 11, 12);
+        // Dark vertical stripes
         g.fillStyle(MD);
-        g.fillRect(CX-8, 0, 2, 13);  g.fillRect(CX-3, 0, 2, 14);
-        g.fillRect(CX+2, 0, 2, 14);  g.fillRect(CX+6, 0, 2, 13);
-        g.fillStyle(MR);  g.fillRect(CX-9, 13, 18, 4);
-        g.fillStyle(QRW); g.fillRect(CX-10, 12, 20, 2);
-        g.fillStyle(0x111111);
-        g.fillRect(CX-4, 14, 2, 2);  g.fillRect(CX+1, 14, 2, 2);  g.fillRect(CX+5, 14, 2, 2);
+        g.fillRect(CX-8, 0, 2, 21);  g.fillRect(CX-3, 0, 2, 23);
+        g.fillRect(CX+2, 0, 2, 23);  g.fillRect(CX+7, 0, 2, 21);
+        // Highlight
+        g.fillStyle(0x55dd55); g.fillRect(CX-3, 1, 6, 2);
       };
 
       const face = () => {
-        g.fillStyle(SK);       g.fillRect(CX-7, 15, 14, 9);
+        g.fillStyle(SK);       g.fillRect(CX-7, 15, 14, 8);
         g.fillStyle(EY);       g.fillRect(CX-5, 17, 3, 3);  g.fillRect(CX+2, 17, 3, 3);
         g.fillStyle(QRW);      g.fillRect(CX-5, 17, 1, 1);  g.fillRect(CX+2, 17, 1, 1);
         g.fillStyle(0xcc7744); g.fillRect(CX-2, 21, 4, 2);
-        g.fillStyle(SK);       g.fillRect(CX-3, 24, 6, 3);
       };
 
       const stripes = (ty: number) => {
