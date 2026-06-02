@@ -7,13 +7,16 @@ const NORMAL_GRAVITY = 600;
 const FLOAT_MAX_FALL = 80;
 
 export class Player extends Phaser.Physics.Arcade.Sprite {
-  private isFloating = false;
-  private canJump    = false;
-  private idleTime   = 0;
-  private tapOn      = false;
-  private tapTimer   = 0;
-  private runTimer   = 0;
-  private runFrame   = 1;
+  private isFloating   = false;
+  private canJump      = false;
+  private idleTime     = 0;
+  private tapOn        = false;
+  private tapTimer     = 0;
+  private runTimer     = 0;
+  private runFrame     = 1;
+  private landTimer    = 0;
+  private prevVelY     = 0;
+  private wasOnGround  = false;
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(scene, x, y, 'player-idle');
@@ -24,7 +27,6 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     const body = this.body as Phaser.Physics.Arcade.Body;
     body.setCollideWorldBounds(true);
     body.setMaxVelocityY(500);
-    // Fix hitbox to the character body regardless of which texture is active
     body.setSize(22, 42);
     body.setOffset(9, 4);
   }
@@ -37,6 +39,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     delta: number,
   ): void {
     const body = this.body as Phaser.Physics.Arcade.Body;
+    const prevVelY = this.prevVelY;
 
     // Horizontal
     if (left) {
@@ -69,15 +72,26 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       body.setGravityY(0);
     }
 
-    // Ground check
-    if (body.blocked.down) {
+    // Ground check + landing detection
+    const onGround = body.blocked.down;
+    const justLanded = !this.wasOnGround && onGround;
+    this.wasOnGround = onGround;
+
+    if (onGround) {
       this.canJump    = true;
       this.isFloating = false;
     }
 
-    // Pick sprite based on state
-    const onGround = body.blocked.down;
-    const velY     = body.velocity.y;
+    if (justLanded && prevVelY > 280) {
+      this.landTimer = 190;
+    }
+    if (this.landTimer > 0) this.landTimer = Math.max(0, this.landTimer - delta);
+
+    // Sample velocity before physics zeroes it on next ground frame
+    this.prevVelY = body.velocity.y;
+
+    // Sprite selection
+    const velY = body.velocity.y;
     let key: string;
     if (!onGround) {
       this.idleTime  = 0;
@@ -85,15 +99,25 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       this.tapTimer  = 0;
       this.runTimer  = 0;
       this.runFrame  = 1;
+      this.landTimer = 0;
       if      (velY < -80)       key = 'player-jump';
       else if (this.isFloating)  key = 'player-float';
       else                       key = 'player-fall';
+    } else if (this.landTimer > 95) {
+      key = 'player-land';
+      this.runTimer = 0; this.runFrame = 1;
+    } else if (this.landTimer > 0) {
+      key = 'player-crouch';
+      this.runTimer = 0; this.runFrame = 1;
     } else if (left || right) {
-      this.idleTime  = 0;
-      this.tapOn     = false;
-      this.tapTimer  = 0;
+      this.idleTime = 0;
+      this.tapOn    = false;
+      this.tapTimer = 0;
       this.runTimer += delta;
-      if (this.runTimer >= 100) { this.runTimer = 0; this.runFrame = this.runFrame >= 4 ? 1 : this.runFrame + 1; }
+      if (this.runTimer >= 75) {
+        this.runTimer = 0;
+        this.runFrame = this.runFrame >= 8 ? 1 : this.runFrame + 1;
+      }
       key = `player-run-${this.runFrame}`;
     } else {
       this.runTimer = 0;
@@ -113,12 +137,15 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   resetPosition(x: number, y: number): void {
     const body = this.body as Phaser.Physics.Arcade.Body;
     body.reset(x, y);
-    this.canJump    = false;
-    this.isFloating = false;
-    this.idleTime   = 0;
-    this.tapOn      = false;
-    this.tapTimer   = 0;
-    this.runTimer   = 0;
-    this.runFrame   = 1;
+    this.canJump     = false;
+    this.isFloating  = false;
+    this.idleTime    = 0;
+    this.tapOn       = false;
+    this.tapTimer    = 0;
+    this.runTimer    = 0;
+    this.runFrame    = 1;
+    this.landTimer   = 0;
+    this.prevVelY    = 0;
+    this.wasOnGround = false;
   }
 }

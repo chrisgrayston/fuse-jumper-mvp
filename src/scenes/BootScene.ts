@@ -50,182 +50,323 @@ export class BootScene extends Phaser.Scene {
   private generateTextures(): void {
     const g = this.make.graphics({ x: 0, y: 0 });
 
-    // ── Player — FPL Newbie, 9 animation states, 40×50 px, facing RIGHT ──
+    // ── Player — FPL Newbie, 17 animation frames, 40×50px, facing RIGHT ──
     {
-      const SK = 0xffcc88; // skin
-      const HR = 0x2b1d0e; // dark hair
-      const ST = 0x1155bb; // blue football shirt
-      const SH = 0x0a3d8f; // shirt shadow stripe
-      const JN = 0x1a2d8a; // jeans
-      const JD = 0x0f1f66; // jeans crease shadow
-      const BL = 0x3b1e08; // belt leather
-      const BK = 0xd4a017; // belt buckle gold
-      const TR = 0xf0f0f0; // trainers white body
-      const TS = 0x888888; // trainer sole grey
-      const TA = 0x55aaff; // trainer accent stripe
-      const CP = 0x112266; // cap dome dark navy
-      const CB = 0x0a1644; // cap brim darker navy
-      const EY = 0x222233; // eyes
+      const SK  = 0xffcc88; // skin base
+      const SK2 = 0xcc8844; // skin shadow
+      const HR  = 0x2b1d0e; // dark hair
+      const ST  = 0x1155cc; // shirt blue
+      const ST2 = 0x083090; // shirt deep shadow
+      const ST3 = 0x5599ee; // shirt highlight
+      const CA  = 0xf0f0f0; // cape off-white
+      const CA2 = 0xbbbbbb; // cape shadow
+      const CA3 = 0xffffff; // cape brightest
+      const JN  = 0x1a2d8a; // jeans
+      const JN2 = 0x0d1d60; // jeans shadow
+      const JN3 = 0x2f4ec0; // jeans highlight
+      const BL  = 0x3b1e08; // belt leather
+      const BK  = 0xd4a017; // buckle gold
+      const TR  = 0xf0f0f0; // trainer white
+      const TS  = 0x888888; // trainer sole
+      const TA  = 0x55aaff; // trainer stripe
+      const CP  = 0x112266; // cap dome
+      const CB  = 0x0a1644; // cap brim
+      const EY  = 0x222233; // eyes
 
-      // Cap dome + forward brim at (fx, fy=top of cap)
       const drawCap = (fx: number, fy: number) => {
-        g.fillStyle(CP);
-        g.fillRect(fx,     fy,     17, 7);   // dome
-        g.fillRect(fx + 2, fy - 1,  9, 3);   // rounded top
-        g.fillStyle(CB);
-        g.fillRect(fx + 13, fy + 4, 8, 3);  // brim
-        g.fillRect(fx + 15, fy + 6, 5, 2);  // brim tip
-        g.fillStyle(0x223388);
-        g.fillRect(fx + 2, fy + 3, 12, 1);  // cap panel seam
+        g.fillStyle(CP);    g.fillRect(fx,      fy,     17, 7);
+        g.fillRect(fx + 2,  fy - 1,  9,  3);               // top curve
+        g.fillStyle(0x223388); g.fillRect(fx + 2, fy + 3, 12, 1); // seam
+        g.fillStyle(CB);    g.fillRect(fx + 13, fy + 4,  8, 3);   // brim
+        g.fillRect(fx + 15, fy + 6,  5,  2);               // brim tip
+        g.fillStyle(0x334499); g.fillRect(fx + 13, fy + 4, 2, 1); // brim root
       };
 
-      // Head (face + hair nub + neck) at (fx, fy=top of hair)
       const drawHead = (fx: number, fy: number) => {
-        g.fillStyle(HR); g.fillRect(fx, fy, 16, 3);
-        g.fillStyle(SK); g.fillRect(fx, fy + 2, 16, 11);
-        g.fillStyle(EY); g.fillRect(fx + 3, fy + 5, 3, 3);
-                         g.fillRect(fx + 10, fy + 5, 3, 3);
-        g.fillStyle(0xffffff); g.fillRect(fx + 3, fy + 5, 1, 1);
-                                g.fillRect(fx + 10, fy + 5, 1, 1);
-        g.fillStyle(0xdd7755); g.fillRect(fx + 5, fy + 10, 6, 2); // mouth
-        g.fillStyle(SK); g.fillRect(fx + 4, fy + 13, 7, 3);       // neck
+        g.fillStyle(HR);        g.fillRect(fx,      fy,      16, 3);
+        g.fillStyle(SK);        g.fillRect(fx,      fy + 2,  16, 11);
+        g.fillStyle(SK2);       g.fillRect(fx,      fy + 2,   2,  9); // L cheek shadow
+        g.fillStyle(EY);        g.fillRect(fx + 3,  fy + 5,   3,  3);
+                                g.fillRect(fx + 10, fy + 5,   3,  3);
+        g.fillStyle(0xffffff);  g.fillRect(fx + 3,  fy + 5,   1,  1);
+                                g.fillRect(fx + 10, fy + 5,   1,  1);
+        g.fillStyle(0xdd7755);  g.fillRect(fx + 5,  fy + 10,  6,  2); // mouth
+        g.fillStyle(SK);        g.fillRect(fx + 4,  fy + 13,  7,  3); // neck
+        g.fillStyle(SK2);       g.fillRect(fx + 4,  fy + 14,  3,  2); // neck shadow
       };
 
-      // Shirt torso + belt at (tx, ty=top of shoulders)
       const drawTorso = (tx: number, ty: number) => {
-        g.fillStyle(ST);  g.fillRect(tx,      ty,     20, 6);  // shoulders
-        g.fillStyle(SH);  g.fillRect(tx,      ty + 2,  3, 4);  // L shoulder shadow
-                          g.fillRect(tx + 17, ty + 2,  3, 4);  // R shoulder shadow
-        g.fillStyle(ST);  g.fillRect(tx + 3,  ty + 6, 14, 5);  // chest/waist
-        g.fillStyle(BL);  g.fillRect(tx + 3,  ty + 10, 14, 3); // belt
-        g.fillStyle(BK);  g.fillRect(tx + 9,  ty + 10,  4, 3); // buckle
-        g.fillStyle(0xffee66); g.fillRect(tx + 10, ty + 10, 2, 1); // buckle shine
+        g.fillStyle(ST);   g.fillRect(tx,      ty,      20, 6);
+        g.fillStyle(ST2);  g.fillRect(tx,      ty + 2,   3, 4); // L shadow
+                           g.fillRect(tx + 17, ty + 2,   3, 4); // R shadow
+        g.fillStyle(ST3);  g.fillRect(tx + 7,  ty,       6, 2); // chest highlight
+        g.fillStyle(ST);   g.fillRect(tx + 3,  ty + 6,  14, 5);
+        g.fillStyle(ST2);  g.fillRect(tx + 3,  ty + 9,  14, 2); // waist shadow
+        g.fillStyle(BL);   g.fillRect(tx + 3,  ty + 10, 14, 3);
+        g.fillStyle(BK);   g.fillRect(tx + 9,  ty + 10,  4, 3);
+        g.fillStyle(0xffee66); g.fillRect(tx + 10, ty + 10, 2, 1);
       };
 
-      // Single trainer at (x, y)
       const drawTrainer = (x: number, y: number) => {
-        g.fillStyle(TR); g.fillRect(x, y, 10, 4);
-        g.fillStyle(TA); g.fillRect(x + 1, y + 1, 7, 1);
-        g.fillStyle(TS); g.fillRect(x - 1, y + 3, 12, 2);
-        g.fillStyle(0xdddddd); g.fillRect(x + 8, y, 2, 3); // toe highlight
+        g.fillStyle(TR);        g.fillRect(x,     y,     10, 4);
+        g.fillStyle(TA);        g.fillRect(x + 1, y + 1,  7, 1);
+        g.fillStyle(0xffffff);  g.fillRect(x + 1, y,      3, 1); // toe shine
+        g.fillStyle(TS);        g.fillRect(x - 1, y + 3, 12, 2);
+        g.fillStyle(0x555555);  g.fillRect(x - 1, y + 4, 12, 1); // sole edge
+      };
+
+      // White cape hanging straight down (idle)
+      const drawCapeHang = (cx: number, cy: number, len: number) => {
+        g.fillStyle(CA2); g.fillRect(cx - 1, cy,     13, len);
+        g.fillStyle(CA);  g.fillRect(cx,     cy,     11, len);
+        g.fillStyle(CA3); g.fillRect(cx + 2, cy + 2,  4, len - 4);
+        g.fillStyle(CA2); g.fillRect(cx + 8, cy + 3,  3, len - 5);
+      };
+
+      // White cape trailing back-left when running (fillTriangle works per CLAUDE.md)
+      const drawCapeRun = (topX: number, topY: number) => {
+        g.fillStyle(CA2);
+        g.fillTriangle(topX, topY, topX - 16, topY + 6, topX - 11, topY + 28);
+        g.fillStyle(CA);
+        g.fillTriangle(topX - 1, topY, topX - 14, topY + 5, topX - 9, topY + 25);
+        g.fillStyle(CA3);
+        g.fillTriangle(topX - 2, topY + 2, topX - 9, topY + 8, topX - 6, topY + 18);
       };
 
       // ── player-idle ────────────────────────────────────────────────────
       g.clear();
-      drawCap(11, 0);
-      drawHead(11, 6);
-      drawTorso(10, 22);
-      g.fillStyle(ST); g.fillRect(3, 22, 8, 10);   g.fillStyle(SK); g.fillRect(3, 31, 7, 4);   // L arm
-      g.fillStyle(ST); g.fillRect(29, 22, 8, 10);  g.fillStyle(SK); g.fillRect(30, 31, 7, 4);  // R arm
-      g.fillStyle(JN); g.fillRect(11, 35, 18, 5);  // hips
-      g.fillStyle(JN); g.fillRect(11, 40, 7, 5);   g.fillStyle(JD); g.fillRect(12, 41, 5, 4);  // L leg
-      g.fillStyle(JN); g.fillRect(22, 40, 7, 5);   g.fillStyle(JD); g.fillRect(23, 41, 5, 4);  // R leg
+      drawCapeHang(2, 22, 26);
+      drawCap(11, 0); drawHead(11, 6); drawTorso(10, 22);
+      g.fillStyle(ST);  g.fillRect(3, 22, 8, 10);   g.fillStyle(ST2); g.fillRect(3, 27, 8, 5);
+      g.fillStyle(SK);  g.fillRect(3, 31, 7,  4);
+      g.fillStyle(ST);  g.fillRect(29,22, 8, 10);   g.fillStyle(ST2); g.fillRect(29,27, 8, 5);
+      g.fillStyle(SK);  g.fillRect(30,31, 7,  4);
+      g.fillStyle(JN);  g.fillRect(11,35,18,  5);
+      g.fillStyle(JN);  g.fillRect(11,40, 7,  5);   g.fillStyle(JN2); g.fillRect(12,41, 5, 4);
+      g.fillStyle(JN3); g.fillRect(11,40, 2,  3);
+      g.fillStyle(JN);  g.fillRect(22,40, 7,  5);   g.fillStyle(JN2); g.fillRect(23,41, 5, 4);
+      g.fillStyle(JN3); g.fillRect(22,40, 2,  3);
       drawTrainer(10, 44); drawTrainer(21, 44);
       g.generateTexture('player-idle', 40, 50);
 
-      // ── player-tap: right foot tapped up (idle >1 s) ──────────────────
+      // ── player-tap ─────────────────────────────────────────────────────
       g.clear();
-      drawCap(11, 0);
-      drawHead(11, 6);
-      drawTorso(10, 22);
-      g.fillStyle(ST); g.fillRect(3, 22, 8, 10);   g.fillStyle(SK); g.fillRect(3, 31, 7, 4);
-      g.fillStyle(ST); g.fillRect(29, 22, 8, 10);  g.fillStyle(SK); g.fillRect(30, 31, 7, 4);
-      g.fillStyle(JN); g.fillRect(11, 35, 18, 5);
-      g.fillStyle(JN); g.fillRect(11, 40, 7, 5);   g.fillStyle(JD); g.fillRect(12, 41, 5, 4);
-      g.fillStyle(JN); g.fillRect(22, 40, 7, 3);   // R leg shorter
-      drawTrainer(10, 44); drawTrainer(22, 41);     // R trainer raised
+      drawCapeHang(2, 22, 26);
+      drawCap(11, 0); drawHead(11, 6); drawTorso(10, 22);
+      g.fillStyle(ST);  g.fillRect(3, 22, 8, 10);   g.fillStyle(SK); g.fillRect(3, 31, 7, 4);
+      g.fillStyle(ST);  g.fillRect(29,22, 8, 10);   g.fillStyle(SK); g.fillRect(30,31, 7, 4);
+      g.fillStyle(JN);  g.fillRect(11,35,18,  5);
+      g.fillStyle(JN);  g.fillRect(11,40, 7,  5);   g.fillStyle(JN2); g.fillRect(12,41, 5, 4);
+      g.fillStyle(JN);  g.fillRect(22,40, 7,  3);   // R leg shorter
+      drawTrainer(10, 44); drawTrainer(22, 41);      // R trainer raised
       g.generateTexture('player-tap', 40, 50);
 
-      // ── player-run-1: R leg forward, L arm forward ────────────────────
+      // ── player-land (impact — very deep squat, wide stance) ────────────
       g.clear();
-      drawCap(13, 0);
-      drawHead(13, 6);
-      drawTorso(12, 21);
-      g.fillStyle(ST); g.fillRect(5, 23, 8, 8);    g.fillStyle(SK); g.fillRect(4, 30, 6, 4);   // L arm back
-      g.fillStyle(ST); g.fillRect(30, 14, 7, 10);  g.fillStyle(SK); g.fillRect(32, 11, 5, 5);  // R arm raised
-      g.fillStyle(JN); g.fillRect(13, 34, 15, 4);  // hips
-      g.fillStyle(JN); g.fillRect(11, 38, 6, 5);   g.fillRect(9, 42, 5, 6);    // L leg back
-      g.fillStyle(JD); g.fillRect(10, 43, 3, 5);
-      g.fillStyle(JN); g.fillRect(22, 38, 6, 7);   g.fillRect(23, 44, 5, 4);   // R leg forward
-      drawTrainer(8, 46);  drawTrainer(22, 44);
+      drawCapeHang(2, 19, 18);
+      drawCap(10, 1); drawHead(10, 7);
+      // Compressed torso (body low)
+      g.fillStyle(ST);   g.fillRect(9,  21, 22, 5);
+      g.fillStyle(ST2);  g.fillRect(9,  23,  3, 3); g.fillRect(28, 23, 3, 3);
+      g.fillStyle(ST3);  g.fillRect(16, 21,  6, 2);
+      g.fillStyle(ST);   g.fillRect(12, 25, 16, 3);
+      g.fillStyle(BL);   g.fillRect(12, 27, 16, 2); g.fillStyle(BK); g.fillRect(18,27, 4,2);
+      g.fillStyle(ST);   g.fillRect(1,  21,  9, 7);  g.fillStyle(SK); g.fillRect(0, 27, 7, 3); // L arm spread
+      g.fillStyle(ST);   g.fillRect(30, 21,  9, 7);  g.fillStyle(SK); g.fillRect(33,27, 7, 3); // R arm spread
+      g.fillStyle(JN);   g.fillRect(11, 28, 18, 4);
+      // Deep bent knees wide
+      g.fillStyle(JN);   g.fillRect(7,  32,  8, 9);  g.fillStyle(JN2); g.fillRect(8, 34, 6, 7);
+      g.fillStyle(JN3);  g.fillRect(7,  32,  2, 5);
+      g.fillStyle(JN);   g.fillRect(6,  40,  9, 5);
+      g.fillStyle(JN);   g.fillRect(25, 32,  8, 9);  g.fillStyle(JN2); g.fillRect(26,34, 6, 7);
+      g.fillStyle(JN3);  g.fillRect(25, 32,  2, 5);
+      g.fillStyle(JN);   g.fillRect(25, 40,  9, 5);
+      drawTrainer(5, 43); drawTrainer(25, 43);
+      g.generateTexture('player-land', 40, 50);
+
+      // ── player-crouch (recovering from land) ───────────────────────────
+      g.clear();
+      drawCapeHang(2, 20, 22);
+      drawCap(11, 0); drawHead(11, 6);
+      g.fillStyle(ST);   g.fillRect(10, 20, 20, 5);
+      g.fillStyle(ST2);  g.fillRect(10, 22,  3, 3); g.fillRect(27, 22, 3, 3);
+      g.fillStyle(ST3);  g.fillRect(16, 20,  6, 2);
+      g.fillStyle(ST);   g.fillRect(13, 24, 14, 4);
+      g.fillStyle(BL);   g.fillRect(13, 27, 14, 2); g.fillStyle(BK); g.fillRect(19,27, 4,2);
+      g.fillStyle(ST);   g.fillRect(3, 20,  8, 8);  g.fillStyle(SK); g.fillRect(3, 27, 7, 3);
+      g.fillStyle(ST);   g.fillRect(29,20,  8, 8);  g.fillStyle(SK); g.fillRect(30,27, 7, 3);
+      g.fillStyle(JN);   g.fillRect(12, 28, 16, 4);
+      g.fillStyle(JN);   g.fillRect(9,  32,  7, 9); g.fillStyle(JN2); g.fillRect(10,34, 5, 7);
+      g.fillStyle(JN3);  g.fillRect(9,  32,  2, 5);
+      g.fillStyle(JN);   g.fillRect(8,  40,  8, 5);
+      g.fillStyle(JN);   g.fillRect(24, 32,  7, 9); g.fillStyle(JN2); g.fillRect(25,34, 5, 7);
+      g.fillStyle(JN3);  g.fillRect(24, 32,  2, 5);
+      g.fillStyle(JN);   g.fillRect(24, 40,  8, 5);
+      drawTrainer(7, 43); drawTrainer(23, 43);
+      g.generateTexture('player-crouch', 40, 50);
+
+      // ── RUN CYCLE — 8 frames (full biomechanical stride) ─────────────
+      // Frame 1: Left contact — L foot strikes, R arm forward
+      g.clear();
+      drawCapeRun(12, 22);
+      drawCap(13, 0); drawHead(13, 6); drawTorso(12, 21);
+      g.fillStyle(ST);  g.fillRect(29,13, 7,10);  g.fillStyle(ST2); g.fillRect(29,18, 7, 5);
+      g.fillStyle(SK);  g.fillRect(31,10, 5, 5);  // R arm forward-up
+      g.fillStyle(ST);  g.fillRect(6, 24, 7, 8);  g.fillStyle(ST2); g.fillRect(6, 28, 7, 4);
+      g.fillStyle(SK);  g.fillRect(5, 31, 6, 4);  // L arm back
+      g.fillStyle(JN);  g.fillRect(13,34,15, 4);
+      g.fillStyle(JN);  g.fillRect(11,38, 6, 6);  g.fillStyle(JN3); g.fillRect(11,38, 2, 4); // L forward
+      g.fillStyle(JN);  g.fillRect(10,43, 6, 4);
+      g.fillStyle(JN);  g.fillRect(22,38, 6, 5);  // R pushing off
+      g.fillStyle(JN);  g.fillRect(24,42, 5, 5);  g.fillStyle(JN2); g.fillRect(25,43, 3, 4);
+      drawTrainer(9,  46); drawTrainer(23, 45);
       g.generateTexture('player-run-1', 40, 50);
 
-      // ── player-run-2: contact / both feet near ground ─────────────────
+      // Frame 2: Left mid-support — body over left foot, R knee rising
       g.clear();
-      drawCap(12, 1);   // slight downward weight shift
-      drawHead(12, 7);
-      drawTorso(11, 22);
-      g.fillStyle(ST); g.fillRect(4, 22, 8, 9);    g.fillStyle(SK); g.fillRect(3, 30, 6, 4);
-      g.fillStyle(ST); g.fillRect(28, 22, 8, 9);   g.fillStyle(SK); g.fillRect(30, 30, 6, 4);
-      g.fillStyle(JN); g.fillRect(12, 35, 16, 4);
-      g.fillStyle(JN); g.fillRect(11, 39, 7, 6);   g.fillStyle(JD); g.fillRect(12, 40, 5, 5);
-      g.fillStyle(JN); g.fillRect(22, 39, 7, 6);   g.fillStyle(JD); g.fillRect(23, 40, 5, 5);
-      drawTrainer(10, 44); drawTrainer(21, 44);
+      drawCapeRun(12, 21);
+      drawCap(13, 1); drawHead(13, 7); drawTorso(12, 22); // body dips
+      g.fillStyle(ST);  g.fillRect(28,17, 7, 9);  g.fillStyle(SK); g.fillRect(30,14, 5, 5);
+      g.fillStyle(ST);  g.fillRect(7, 22, 7, 9);  g.fillStyle(SK); g.fillRect(5, 29, 6, 4);
+      g.fillStyle(JN);  g.fillRect(13,35,15, 4);
+      g.fillStyle(JN);  g.fillRect(12,39, 6, 6);  g.fillStyle(JN2); g.fillRect(13,41, 4, 4); // L planted
+      g.fillStyle(JN);  g.fillRect(11,44, 7, 4);
+      g.fillStyle(JN);  g.fillRect(22,36, 6, 5);  // R knee rising
+      g.fillStyle(JN);  g.fillRect(23,40, 5, 5);  g.fillStyle(JN2); g.fillRect(24,41, 3, 4);
+      drawTrainer(10, 47); drawTrainer(22, 43);
       g.generateTexture('player-run-2', 40, 50);
 
-      // ── player-run-3: L leg forward, R arm forward ────────────────────
+      // Frame 3: Left toe-off — L pushes, R leg swings through, body rises
       g.clear();
-      drawCap(13, 0);
-      drawHead(13, 6);
-      drawTorso(12, 21);
-      g.fillStyle(ST); g.fillRect(28, 23, 8, 8);   g.fillStyle(SK); g.fillRect(30, 30, 6, 4);  // R arm back
-      g.fillStyle(ST); g.fillRect(5, 14, 7, 10);   g.fillStyle(SK); g.fillRect(3, 11, 5, 5);   // L arm raised
-      g.fillStyle(JN); g.fillRect(13, 34, 15, 4);
-      g.fillStyle(JN); g.fillRect(22, 38, 6, 5);   g.fillRect(24, 42, 5, 6);   // R leg back
-      g.fillStyle(JD); g.fillRect(25, 43, 3, 5);
-      g.fillStyle(JN); g.fillRect(11, 38, 6, 7);   g.fillRect(10, 44, 5, 4);   // L leg forward
-      drawTrainer(24, 46); drawTrainer(9, 44);
+      drawCapeRun(13, 20);
+      drawCap(14, 0); drawHead(14, 6); drawTorso(13, 21);
+      g.fillStyle(ST);  g.fillRect(28,20, 7, 8);  g.fillStyle(SK); g.fillRect(30,27, 6, 4); // R arm back
+      g.fillStyle(ST);  g.fillRect(7, 14, 7,10);  g.fillStyle(SK); g.fillRect(5, 11, 5, 5); // L arm forward
+      g.fillStyle(JN);  g.fillRect(14,34,14, 4);
+      g.fillStyle(JN);  g.fillRect(10,38, 6, 6);  g.fillStyle(JN); g.fillRect(8, 43, 6, 4);  // L toe-off
+      g.fillStyle(JN2); g.fillRect(8, 44, 4, 3);
+      g.fillStyle(JN);  g.fillRect(23,35, 6, 6);  // R high swing
+      g.fillStyle(JN);  g.fillRect(24,39, 5, 6);  g.fillStyle(JN2); g.fillRect(25,40, 3, 5);
+      drawTrainer(7,  45); drawTrainer(23, 43);
       g.generateTexture('player-run-3', 40, 50);
 
-      // ── player-run-4: contact / push-off mirror ───────────────────────
+      // Frame 4: Float A — L trails back, R reaches forward, both off ground
       g.clear();
-      drawCap(12, 1);
-      drawHead(12, 7);
-      drawTorso(11, 22);
-      g.fillStyle(ST); g.fillRect(28, 22, 8, 9);   g.fillStyle(SK); g.fillRect(30, 30, 6, 4);
-      g.fillStyle(ST); g.fillRect(4, 22, 8, 9);    g.fillStyle(SK); g.fillRect(3, 30, 6, 4);
-      g.fillStyle(JN); g.fillRect(12, 35, 16, 4);
-      g.fillStyle(JN); g.fillRect(22, 39, 7, 6);   g.fillStyle(JD); g.fillRect(23, 40, 5, 5);
-      g.fillStyle(JN); g.fillRect(11, 39, 7, 6);   g.fillStyle(JD); g.fillRect(12, 40, 5, 5);
-      drawTrainer(21, 44); drawTrainer(10, 44);
+      drawCapeRun(13, 18); // cape streams more aggressively when airborne
+      drawCap(14, 0); drawHead(14, 5); drawTorso(13, 20); // body highest
+      g.fillStyle(ST);  g.fillRect(27,18, 7, 8);  g.fillStyle(SK); g.fillRect(29,14, 5, 4);
+      g.fillStyle(ST);  g.fillRect(8, 13, 7, 9);  g.fillStyle(SK); g.fillRect(6, 10, 5, 5);
+      g.fillStyle(JN);  g.fillRect(14,33,14, 4);
+      g.fillStyle(JN);  g.fillRect(8, 37, 6, 7);  g.fillStyle(JN2); g.fillRect(9, 38, 4, 6); // L trailing
+      g.fillStyle(JN);  g.fillRect(6, 43, 7, 4);
+      g.fillStyle(JN);  g.fillRect(24,36, 6, 7);  g.fillStyle(JN3); g.fillRect(24,36, 2, 5); // R reaching
+      g.fillStyle(JN);  g.fillRect(25,42, 6, 4);
+      drawTrainer(5, 45); drawTrainer(24, 44);
       g.generateTexture('player-run-4', 40, 50);
 
-      // ── player-jump: arms raised overhead, legs tucked ────────────────
+      // Frame 5: Right contact — R foot strikes, L arm forward (mirror of 1)
       g.clear();
-      drawCap(11, 1);
-      drawHead(11, 7);
-      drawTorso(10, 22);
-      g.fillStyle(ST); g.fillRect(2, 11, 9, 13);   g.fillStyle(SK); g.fillRect(1, 8, 8, 5);   // L arm up
-      g.fillStyle(ST); g.fillRect(29, 11, 9, 13);  g.fillStyle(SK); g.fillRect(31, 8, 8, 5);  // R arm up
-      g.fillStyle(JN); g.fillRect(11, 35, 18, 4);
-      g.fillStyle(JN); g.fillRect(10, 39, 7, 6);   g.fillStyle(JD); g.fillRect(11, 40, 5, 5);
-      g.fillStyle(JN); g.fillRect(23, 39, 7, 6);   g.fillStyle(JD); g.fillRect(24, 40, 5, 5);
-      drawTrainer(9, 43); drawTrainer(22, 43);
+      drawCapeRun(12, 22);
+      drawCap(13, 0); drawHead(13, 6); drawTorso(12, 21);
+      g.fillStyle(ST);  g.fillRect(5, 13, 7,10);  g.fillStyle(ST2); g.fillRect(5, 18, 7, 5);
+      g.fillStyle(SK);  g.fillRect(4, 10, 5, 5);  // L arm forward-up
+      g.fillStyle(ST);  g.fillRect(27,24, 7, 8);  g.fillStyle(ST2); g.fillRect(27,28, 7, 4);
+      g.fillStyle(SK);  g.fillRect(29,31, 6, 4);  // R arm back
+      g.fillStyle(JN);  g.fillRect(13,34,15, 4);
+      g.fillStyle(JN);  g.fillRect(22,38, 6, 6);  g.fillStyle(JN3); g.fillRect(22,38, 2, 4); // R forward
+      g.fillStyle(JN);  g.fillRect(23,43, 6, 4);
+      g.fillStyle(JN);  g.fillRect(11,38, 6, 5);  // L pushing off
+      g.fillStyle(JN);  g.fillRect(9, 42, 5, 5);  g.fillStyle(JN2); g.fillRect(9, 43, 3, 4);
+      drawTrainer(22, 46); drawTrainer(8, 45);
+      g.generateTexture('player-run-5', 40, 50);
+
+      // Frame 6: Right mid-support (mirror of 2)
+      g.clear();
+      drawCapeRun(12, 21);
+      drawCap(13, 1); drawHead(13, 7); drawTorso(12, 22);
+      g.fillStyle(ST);  g.fillRect(5, 17, 7, 9);  g.fillStyle(SK); g.fillRect(4, 14, 5, 5);
+      g.fillStyle(ST);  g.fillRect(27,22, 7, 9);  g.fillStyle(SK); g.fillRect(30,29, 6, 4);
+      g.fillStyle(JN);  g.fillRect(13,35,15, 4);
+      g.fillStyle(JN);  g.fillRect(21,39, 6, 6);  g.fillStyle(JN2); g.fillRect(22,41, 4, 4); // R planted
+      g.fillStyle(JN);  g.fillRect(22,44, 7, 4);
+      g.fillStyle(JN);  g.fillRect(11,36, 6, 5);  // L knee rising
+      g.fillStyle(JN);  g.fillRect(10,40, 5, 5);  g.fillStyle(JN2); g.fillRect(11,41, 3, 4);
+      drawTrainer(21, 47); drawTrainer(9, 43);
+      g.generateTexture('player-run-6', 40, 50);
+
+      // Frame 7: Right toe-off (mirror of 3)
+      g.clear();
+      drawCapeRun(13, 20);
+      drawCap(14, 0); drawHead(14, 6); drawTorso(13, 21);
+      g.fillStyle(ST);  g.fillRect(9, 20, 7, 8);  g.fillStyle(SK); g.fillRect(8, 27, 6, 4);  // L arm back
+      g.fillStyle(ST);  g.fillRect(27,14, 7,10);  g.fillStyle(SK); g.fillRect(30,11, 5, 5);  // R arm forward
+      g.fillStyle(JN);  g.fillRect(14,34,14, 4);
+      g.fillStyle(JN);  g.fillRect(23,38, 6, 6);  g.fillStyle(JN); g.fillRect(25,43, 6, 4);  // R toe-off
+      g.fillStyle(JN2); g.fillRect(26,44, 4, 3);
+      g.fillStyle(JN);  g.fillRect(10,35, 6, 6);  // L high swing
+      g.fillStyle(JN);  g.fillRect(9, 39, 5, 6);  g.fillStyle(JN2); g.fillRect(9, 40, 3, 5);
+      drawTrainer(24, 45); drawTrainer(8, 43);
+      g.generateTexture('player-run-7', 40, 50);
+
+      // Frame 8: Float B — R trails, L reaches, both airborne (mirror of 4)
+      g.clear();
+      drawCapeRun(13, 18);
+      drawCap(14, 0); drawHead(14, 5); drawTorso(13, 20);
+      g.fillStyle(ST);  g.fillRect(9, 18, 7, 8);  g.fillStyle(SK); g.fillRect(8, 14, 5, 4);
+      g.fillStyle(ST);  g.fillRect(27,13, 7, 9);  g.fillStyle(SK); g.fillRect(30,10, 5, 5);
+      g.fillStyle(JN);  g.fillRect(14,33,14, 4);
+      g.fillStyle(JN);  g.fillRect(24,37, 6, 7);  g.fillStyle(JN2); g.fillRect(25,38, 4, 6); // R trailing
+      g.fillStyle(JN);  g.fillRect(26,43, 7, 4);
+      g.fillStyle(JN);  g.fillRect(9, 36, 6, 7);  g.fillStyle(JN3); g.fillRect(9, 36, 2, 5); // L reaching
+      g.fillStyle(JN);  g.fillRect(8, 42, 6, 4);
+      drawTrainer(25, 45); drawTrainer(7, 44);
+      g.generateTexture('player-run-8', 40, 50);
+
+      // ── player-jump (launch — arms driving up, legs extending) ─────────
+      g.clear();
+      drawCapeRun(12, 19);
+      drawCap(11, 0); drawHead(11, 6); drawTorso(10, 21);
+      g.fillStyle(ST);  g.fillRect(2,  9, 9,13);  g.fillStyle(ST2); g.fillRect(2, 15, 9, 7);
+      g.fillStyle(SK);  g.fillRect(1,  6, 8, 5);
+      g.fillStyle(ST);  g.fillRect(29, 9, 9,13);  g.fillStyle(ST2); g.fillRect(29,15, 9, 7);
+      g.fillStyle(SK);  g.fillRect(31, 6, 8, 5);
+      g.fillStyle(JN);  g.fillRect(11,34,18, 4);
+      g.fillStyle(JN);  g.fillRect(10,38, 7, 6);  g.fillStyle(JN2); g.fillRect(11,39, 5, 5);
+      g.fillStyle(JN);  g.fillRect(23,38, 7, 6);  g.fillStyle(JN2); g.fillRect(24,39, 5, 5);
+      drawTrainer(9, 42); drawTrainer(22, 42);
       g.generateTexture('player-jump', 40, 50);
 
-      // ── player-float: arms spread wide, gliding ───────────────────────
+      // ── player-float (gliding — cape billows left, arms wide) ──────────
       g.clear();
-      drawCap(14, 2);
-      drawHead(14, 8);
-      drawTorso(13, 23);
-      g.fillStyle(ST); g.fillRect(1, 24, 13, 5);   g.fillStyle(SK); g.fillRect(0, 24, 4, 4);  // L arm spread
-      g.fillStyle(ST); g.fillRect(32, 24, 8, 5);   g.fillStyle(SK); g.fillRect(38, 24, 3, 4); // R arm spread
-      g.fillStyle(JN); g.fillRect(14, 32, 14, 4);
-      g.fillStyle(JN); g.fillRect(12, 36, 7, 10);  g.fillStyle(JD); g.fillRect(13, 37, 5, 9);
-      g.fillStyle(JN); g.fillRect(23, 36, 7, 10);  g.fillStyle(JD); g.fillRect(24, 37, 5, 9);
-      drawTrainer(11, 44); drawTrainer(22, 44);
+      // Cape billowing wide to the left
+      g.fillStyle(CA2); g.fillRect(0,  4, 19, 8); g.fillRect(1, 12,16, 7); g.fillRect(3, 19,13, 6);
+      g.fillStyle(CA);  g.fillRect(1,  4, 15, 7); g.fillRect(2, 11,13, 6); g.fillRect(4, 18,10, 5);
+      g.fillStyle(CA3); g.fillRect(2,  5,  5, 4); g.fillRect(3, 11, 4, 4);
+      drawCap(16, 3); drawHead(16, 9); drawTorso(15, 24);
+      g.fillStyle(ST);  g.fillRect(3, 25,13, 5);  g.fillStyle(ST2); g.fillRect(3, 27,13, 3);
+      g.fillStyle(SK);  g.fillRect(1, 25, 4, 4);  // L arm spread wide
+      g.fillStyle(ST);  g.fillRect(34,25, 7, 5);  g.fillStyle(ST2); g.fillRect(34,27, 7, 3);
+      g.fillStyle(SK);  g.fillRect(39,25, 2, 4);  // R arm spread wide
+      g.fillStyle(JN);  g.fillRect(16,33,14, 4);
+      g.fillStyle(JN);  g.fillRect(14,37, 7,10);  g.fillStyle(JN2); g.fillRect(15,38, 5, 9);
+      g.fillStyle(JN);  g.fillRect(25,37, 7,10);  g.fillStyle(JN2); g.fillRect(26,38, 5, 9);
+      drawTrainer(13, 45); drawTrainer(24, 45);
       g.generateTexture('player-float', 40, 50);
 
-      // ── player-fall: arms out bracing, legs straight ──────────────────
+      // ── player-fall (arms out bracing, cape streams up behind) ─────────
       g.clear();
-      drawCap(11, 0);
-      drawHead(11, 6);
-      drawTorso(10, 21);
-      g.fillStyle(ST); g.fillRect(1, 21, 10, 6);   g.fillStyle(SK); g.fillRect(0, 21, 3, 5);  // L arm out
-      g.fillStyle(ST); g.fillRect(29, 21, 10, 6);  g.fillStyle(SK); g.fillRect(37, 21, 3, 5); // R arm out
-      g.fillStyle(JN); g.fillRect(11, 30, 18, 5);
-      g.fillStyle(JN); g.fillRect(11, 35, 7, 10);  g.fillStyle(JD); g.fillRect(12, 36, 5, 9);
-      g.fillStyle(JN); g.fillRect(22, 35, 7, 10);  g.fillStyle(JD); g.fillRect(23, 36, 5, 9);
+      // Cape trailing upward (falling = cape goes up)
+      g.fillStyle(CA2); g.fillTriangle(13, 20,  0,  2, 5, 0);
+      g.fillStyle(CA);  g.fillTriangle(13, 21,  1,  4, 6, 1);
+      g.fillStyle(CA3); g.fillTriangle(12, 22,  4,  8, 7, 4);
+      drawCap(11, 1); drawHead(11, 7); drawTorso(10, 22);
+      g.fillStyle(ST);  g.fillRect(1, 22,10, 6);  g.fillStyle(ST2); g.fillRect(1, 24,10, 4);
+      g.fillStyle(SK);  g.fillRect(0, 22, 3, 5);
+      g.fillStyle(ST);  g.fillRect(29,22,10, 6);  g.fillStyle(ST2); g.fillRect(29,24,10, 4);
+      g.fillStyle(SK);  g.fillRect(37,22, 3, 5);
+      g.fillStyle(JN);  g.fillRect(11,31,18, 5);
+      g.fillStyle(JN);  g.fillRect(11,36, 7,10);  g.fillStyle(JN2); g.fillRect(12,37, 5, 9);
+      g.fillStyle(JN);  g.fillRect(22,36, 7,10);  g.fillStyle(JN2); g.fillRect(23,37, 5, 9);
       drawTrainer(10, 44); drawTrainer(21, 44);
       g.generateTexture('player-fall', 40, 50);
     }
