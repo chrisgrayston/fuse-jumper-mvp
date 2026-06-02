@@ -557,7 +557,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
             // st.kickDir tracks step 0–7; angle from +X axis = 20 + step*20 degrees
             const stepDeg = 20 + this.st.kickDir * 20;  // 20,40,60,80,100,120,140,160
             const angle   = Phaser.Math.DegToRad(stepDeg);
-            const speed   = Phaser.Math.Between(1040, 1360);
+            const speed   = Phaser.Math.Between(520, 680);
             this.padelBall = this.spawn(
               this.x - 14, this.y - 22, 'padel-ball',
               Math.cos(angle) * speed, -Math.sin(angle) * speed,

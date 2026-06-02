@@ -54,7 +54,7 @@ export class Projectile extends Phaser.Physics.Arcade.Sprite {
       body.allowGravity = false;
       body.setBounce(1.0, 1.0);
       body.setCollideWorldBounds(true);
-      this.glassLifespan = 8000; // reuse lifespan field — ball expires after 8 s
+      this.glassLifespan = 2000; // reuse lifespan field — ball expires after 2 s
     } else {
       body.allowGravity = true;
     }
@@ -110,9 +110,20 @@ export class Projectile extends Phaser.Physics.Arcade.Sprite {
       body.velocity.x   = this.pieVX;
       body.velocity.y   = 0;
     }
-    if ((this.projType === 'glass-shard' || this.projType === 'padel-ball') && this.active) {
+    if (this.projType === 'glass-shard' && this.active) {
       this.glassLifespan -= delta;
       if (this.glassLifespan <= 0) { this.destroy(); return; }
+    }
+    if (this.projType === 'padel-ball' && this.active) {
+      if (this.glassLifespan > 0) {
+        this.glassLifespan -= delta;
+      } else {
+        const body = this.body as Phaser.Physics.Arcade.Body;
+        if (body.blocked.left || body.blocked.right || body.blocked.up || body.blocked.down) {
+          this.destroy();
+          return;
+        }
+      }
     }
 
     // Per-type boundary rules
