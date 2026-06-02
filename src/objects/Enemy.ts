@@ -81,6 +81,10 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       body.setSize(24, 44);
       body.setOffset(8, 6);
     }
+    if (this.eType === 'clippy') {
+      body.setSize(22, 44);
+      body.setOffset(9, 4);
+    }
     if (this.eType === 'melonhead') {
       body.setCollideWorldBounds(true);
       body.setSize(24, 44);
@@ -353,13 +357,12 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       }
 
       case 'clippy': {
+        this.st.sineT += delta;
         this.patrolBounce(body, this.eData.patrolLeft ?? 50, this.eData.patrolRight ?? 750, SPEEDS['clippy']!);
-        if (this.st.clock >= this.st.nextAction) {
-          this.st.clock = 0;
-          this.st.nextAction = Phaser.Math.Between(2500, 4000);
-          const dir = this.st.direction;
-          this.spawn(this.x + dir * 20, this.y - 5, 'mallet', dir * 260, -60);
-        }
+        this.setFlipX(this.st.direction < 0);
+        // 8-frame shuffle at 200ms per frame
+        const cf = Math.floor(this.st.sineT / 200) % 8;
+        this.setTexture(cf === 0 ? 'enemy-clippy' : `enemy-clippy-${cf + 1}`);
         break;
       }
 

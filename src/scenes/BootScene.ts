@@ -898,12 +898,202 @@ export class BootScene extends Phaser.Scene {
       g.generateTexture('enemy-melonhead-swing-2', W, H);
     }
 
-    // ── Clippy — grey suit, red folder, SE3 ──────────────────────────────
-    g.clear();
-    g.fillStyle(0x666677); g.fillRect(2, 8, 22, 22);
-    g.fillStyle(0xcc2200); g.fillRect(18, 12, 10, 14); // folder
-    g.fillStyle(0xffcc88); g.fillRect(7, 0, 12, 9);
-    g.generateTexture('enemy-clippy', 30, 30);
+    // ── Clippy — accountant, 8-frame old-man shuffle, 40×50px ──────────────
+    {
+      const SK  = 0xffcc88; // skin
+      const SK2 = 0xb07040; // skin shadow / wrinkles
+      const SK3 = 0xffddb0; // forehead highlight
+      const HW  = 0xcccccc; // white-grey hair
+      const SJ  = 0x35354a; // charcoal suit
+      const SJ2 = 0x20202e; // suit deep shadow
+      const SJ3 = 0x48485e; // suit pinstripe line
+      const WS  = 0xf0f0f0; // white shirt
+      const TI  = 0x880033; // burgundy tie
+      const TI2 = 0x550020; // tie shadow
+      const TR  = 0x3e3e52; // trousers (slightly lighter than jacket)
+      const TR2 = 0x28283a; // trouser crease shadow
+      const SH  = 0x181000; // shoe dark
+      const SH2 = 0x382808; // shoe toe cap highlight
+      const CB  = 0xc09050; // clipboard hardboard
+      const CB2 = 0x907030; // clipboard shadow edge
+      const CP  = 0xffffdc; // clipboard paper cream
+      const CC  = 0xaaaaaa; // clipboard clip metal
+
+      // Old man head: bald crown, white side hair, round glasses, jowls
+      const drawHead = (hy: number) => {
+        const hx = 11;
+        // White-grey hair on sides (nearly bald on top)
+        g.fillStyle(HW); g.fillRect(hx - 1, hy + 2,  3, 11);  // L side hair
+                         g.fillRect(hx + 14,hy + 2,  3, 11);  // R side hair
+        // Skin: head crown and face
+        g.fillStyle(SK);  g.fillRect(hx,     hy,     15, 14);
+        g.fillStyle(SK3); g.fillRect(hx + 3, hy,      7,  3); // forehead shine
+        // Age wrinkles (horizontal crease lines)
+        g.fillStyle(SK2); g.fillRect(hx + 2, hy + 1,  8,  1);
+                          g.fillRect(hx + 3, hy + 3,  6,  1);
+        // Lower face shadow (jowls/saggy cheeks)
+        g.fillStyle(SK2); g.fillRect(hx,     hy + 10, 3,  4);
+                          g.fillRect(hx + 12,hy + 10, 2,  3);
+        // Glasses: round wire-rim with tinted lenses
+        g.fillStyle(0x141414);
+        g.fillRect(hx + 1, hy + 5,  5, 4);  // L lens frame
+        g.fillRect(hx + 8, hy + 5,  5, 4);  // R lens frame
+        g.fillRect(hx + 6, hy + 6,  2, 2);  // nose bridge
+        g.fillRect(hx - 2, hy + 6,  3, 1);  // L temple arm
+        g.fillRect(hx + 15,hy + 6,  3, 1);  // R temple arm
+        g.fillStyle(0xcce4ff);               // lens tint
+        g.fillRect(hx + 2, hy + 6,  3, 2);
+        g.fillRect(hx + 9, hy + 6,  3, 2);
+        g.fillStyle(0x334455);               // eyes behind lenses
+        g.fillRect(hx + 3, hy + 6,  1, 1);
+        g.fillRect(hx + 10,hy + 6,  1, 1);
+        // Eyebrows (grey, furrowed inner corner = worried accountant)
+        g.fillStyle(HW);  g.fillRect(hx + 1, hy + 4,  4,  1);
+                          g.fillRect(hx + 8, hy + 4,  4,  1);
+        g.fillStyle(SK2); g.fillRect(hx + 1, hy + 4,  1,  1); // L inner frown
+                          g.fillRect(hx + 11,hy + 4,  1,  1); // R inner frown
+        // Mouth (thin, pursed — deep in thought)
+        g.fillStyle(SK2); g.fillRect(hx + 4, hy + 11, 6,  1);
+        // Neck
+        g.fillStyle(SK);  g.fillRect(hx + 4, hy + 14, 7,  4);
+        g.fillStyle(SK2); g.fillRect(hx + 4, hy + 15, 2,  3); // neck shadow
+        // White shirt collar spread open
+        g.fillStyle(WS);  g.fillRect(hx + 2, hy + 15,12,  3);
+        g.fillStyle(WS);  g.fillRect(hx + 3, hy + 17, 1,  2); // L collar point
+                          g.fillRect(hx + 11,hy + 17, 1,  2); // R collar point
+      };
+
+      // Charcoal pinstripe jacket with shirt-and-tie showing in V
+      const drawJacket = (ty: number) => {
+        const tx = 8;
+        // Full jacket block
+        g.fillStyle(SJ);  g.fillRect(tx, ty, 24, 18);
+        // Pinstripes (subtle vertical lines every 4px)
+        g.fillStyle(SJ3);
+        for (let px = 2; px < 24; px += 4) g.fillRect(tx + px, ty, 1, 18);
+        // Side depth shadows
+        g.fillStyle(SJ2); g.fillRect(tx,      ty + 2, 3, 16);
+                          g.fillRect(tx + 21, ty + 2, 3, 16);
+        // White shirt front (V-neck opening between lapels)
+        g.fillStyle(WS);  g.fillRect(tx + 8,  ty,      8,  4); // collar spread
+                          g.fillRect(tx + 9,  ty + 4,  6,  5); // V upper
+                          g.fillRect(tx + 10, ty + 9,  4,  5); // V lower
+                          g.fillRect(tx + 11, ty + 14, 2,  3); // shirt strip
+        // Burgundy tie over shirt
+        g.fillStyle(TI);  g.fillRect(tx + 11, ty + 1,  3, 15);
+        g.fillStyle(TI2); g.fillRect(tx + 13, ty + 3,  1, 13); // tie R shadow
+        g.fillStyle(0xaa0044); g.fillRect(tx + 11, ty,  3,  2); // tie knot
+        // Lapel fold shadow lines
+        g.fillStyle(SJ2); g.fillRect(tx + 8,  ty + 1,  2,  5); // L lapel
+                          g.fillRect(tx + 15, ty + 1,  2,  5); // R lapel
+        // Jacket buttons
+        g.fillStyle(SJ2); g.fillRect(tx + 12, ty + 13, 1,  1);
+                          g.fillRect(tx + 12, ty + 15, 1,  1);
+        // Breast pocket (R chest) — very proper accountant detail
+        g.fillStyle(SJ3); g.fillRect(tx + 17, ty + 3,  5,  1); // pocket seam
+        g.fillStyle(WS);  g.fillRect(tx + 17, ty + 4,  5,  2); // white pocket square
+      };
+
+      // Clipboard (hardboard + spring clip + ruled paper + pen marks)
+      const drawClipboard = (cby: number) => {
+        g.fillStyle(CB);  g.fillRect(0, cby,     13, 15);
+        g.fillStyle(CB2); g.fillRect(0, cby + 2,  2, 13); // L shadow
+                          g.fillRect(11,cby + 2,  2, 13); // R shadow
+        g.fillStyle(CP);  g.fillRect(1, cby + 3, 11, 11); // paper
+        // Ruled lines
+        g.fillStyle(0xccccaa);
+        g.fillRect(2, cby + 5, 9, 1); g.fillRect(2, cby + 7, 9, 1);
+        g.fillRect(2, cby + 9, 9, 1); g.fillRect(2, cby + 11,7, 1);
+        // Pen marks (he's been filling things in)
+        g.fillStyle(0x334466);
+        g.fillRect(2, cby + 5, 6, 1); g.fillRect(7, cby + 5,  2, 1);
+        g.fillRect(2, cby + 7, 8, 1);
+        g.fillRect(2, cby + 9, 4, 1); g.fillRect(7, cby + 9,  3, 1);
+        g.fillRect(2, cby + 11,3, 1);
+        // Metal spring clip at top
+        g.fillStyle(CC);  g.fillRect(3, cby,     7, 3);
+        g.fillStyle(0xdddddd); g.fillRect(4, cby, 5, 1); // clip shine
+        g.fillStyle(0x666666); g.fillRect(3, cby + 2, 7, 1); // clamp shadow
+      };
+
+      // Left hand gripping the clipboard (just hand + cuff visible)
+      const drawLeftHand = (ty: number) => {
+        g.fillStyle(WS);  g.fillRect(7, ty + 16, 5, 2); // shirt cuff
+        g.fillStyle(SK);  g.fillRect(7, ty + 18, 6, 4); // hand
+        g.fillStyle(SK2); g.fillRect(7, ty + 19, 2, 3); // hand shadow
+      };
+
+      // Right arm (free, barely swings left/right by dx pixels)
+      const drawRightArm = (ty: number, dx: number) => {
+        const ax = 29 + dx;
+        g.fillStyle(SJ);  g.fillRect(ax,     ty,      5, 10);
+        g.fillStyle(SJ2); g.fillRect(ax + 2, ty + 3,  3,  7); // sleeve shadow
+        g.fillStyle(WS);  g.fillRect(ax,     ty + 10, 5,  2); // cuff
+        g.fillStyle(SK);  g.fillRect(ax,     ty + 12, 5,  3); // hand
+        g.fillStyle(SK2); g.fillRect(ax,     ty + 13, 2,  2); // hand shadow
+      };
+
+      // Lower body: trousers + legs + shoes
+      // lx/rx = shoe x-origin; shoes are always at y=44 (ground); body bobs above
+      const drawLower = (lx: number, rx: number, by: number) => {
+        const hipY    = 36 + by;
+        const legTopY = hipY + 5;
+        const legH    = Math.max(0, 44 - legTopY);
+        // Trouser hip block
+        g.fillStyle(TR);  g.fillRect(9,  hipY,  22, 6);
+        g.fillStyle(TR2); g.fillRect(9,  hipY + 1, 3, 5); // L shadow
+                          g.fillRect(28, hipY + 1, 3, 5); // R shadow
+                          g.fillRect(20, hipY,     1, 6); // centre crease
+        // L trouser leg column
+        if (legH > 0) {
+          g.fillStyle(TR);  g.fillRect(lx + 1, legTopY, 7, legH);
+          g.fillStyle(TR2); g.fillRect(lx + 2, legTopY + 1, 2, legH - 1);
+        }
+        // R trouser leg column
+        if (legH > 0) {
+          g.fillStyle(TR);  g.fillRect(rx + 1, legTopY, 7, legH);
+          g.fillStyle(TR2); g.fillRect(rx + 2, legTopY + 1, 2, legH - 1);
+        }
+        // L dress shoe (oxford, polished dark)
+        g.fillStyle(SH);  g.fillRect(lx,     44, 10, 4);
+        g.fillStyle(SH2); g.fillRect(lx + 1, 44,  4, 2); // toe cap shine
+        g.fillStyle(0x000000); g.fillRect(lx - 1, 47, 12, 2); // sole
+        g.fillStyle(SH2); g.fillRect(lx - 1, 47, 12, 1);      // sole highlight
+        // R dress shoe
+        g.fillStyle(SH);  g.fillRect(rx,     44, 10, 4);
+        g.fillStyle(SH2); g.fillRect(rx + 1, 44,  4, 2);
+        g.fillStyle(0x000000); g.fillRect(rx - 1, 47, 12, 2);
+        g.fillStyle(SH2); g.fillRect(rx - 1, 47, 12, 1);
+      };
+
+      // 8 shuffle frames: [lx, rx, bodyOffset, rArmDx]
+      // Walking right: rx increases then decreases, lx mirrors; feet barely leave ground
+      const shuffles: [number, number, number, number][] = [
+        [ 9, 22, 0,  0], // F1 neutral
+        [10, 23, 0, -1], // F2 R advances slightly, arm back
+        [11, 23, 1,  0], // F3 L steps, bob down
+        [12, 22, 1,  1], // F4 L forward, R starts trailing
+        [12, 21, 0,  0], // F5 weight over L, R lifting
+        [11, 23, 0, -1], // F6 R stepping, arm swings
+        [10, 24, 1,  0], // F7 R contact, bob
+        [ 9, 24, 1,  1], // F8 R forward, L trailing
+      ];
+
+      shuffles.forEach(([lx, rx, by, dx], i) => {
+        g.clear();
+        const jy = 18 + by;  // jacket top (whole body shifts with bob)
+
+        drawClipboard(jy + 6);      // behind body
+        drawHead(by);
+        drawJacket(jy);
+        drawLeftHand(jy);
+        drawRightArm(jy + 1, dx);
+        drawLower(lx, rx, by);
+
+        const key = i === 0 ? 'enemy-clippy' : `enemy-clippy-${i + 1}`;
+        g.generateTexture(key, 40, 50);
+      });
+    }
 
     // ── Butter Fingers — 14 frames, 40×56px, khaki jacket, red shirt, blond ──
     {
