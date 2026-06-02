@@ -346,16 +346,11 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
           const swDir = playerX < this.x ? -1 : 1;
           this.setFlipX(swDir < 0);
           this.setTexture(this.st.kickClock < 200 ? 'enemy-melonhead-swing-1' : 'enemy-melonhead-swing-2');
-          if (!this.st.isCharging && this.st.kickClock >= 100) {
-            this.spawn(this.x + swDir * 18, this.y, 'mallet', swDir * 260, -60);
-            this.st.isCharging = true;
-          }
           if (this.st.kickClock >= 400) {
             this.st.nextKick    = SETTLE;
             this.st.chargeTimer = Phaser.Math.Between(700, 1300);
             this.st.kickClock   = 0;
             this.st.sineT       = 0;
-            this.st.isCharging  = false;
           }
         } else {
           const t      = Math.min(1, this.st.kickClock / FLIGHT_MS);
@@ -374,7 +369,6 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
             this.st.nextKick    = SWING;
             this.st.kickClock   = 0;
             this.st.sineT       = 0;
-            this.st.isCharging  = false;
           }
         }
         break;
