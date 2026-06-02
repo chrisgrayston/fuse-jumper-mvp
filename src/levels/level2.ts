@@ -17,7 +17,7 @@ export const level2: LevelData = {
     { x: 0,   y: 378, width: 110, height: 12 },
     { x: 690, y: 378, width: 110, height: 12 },
     // Stage
-    { x: 255, y: 326, width: 290, height: 12 },
+    { x: 255, y: 280, width: 290, height: 12 },
     // Mid left / right
     { x: 45,  y: 272, width: 155, height: 12 },
     { x: 600, y: 272, width: 155, height: 12 },
@@ -35,8 +35,8 @@ export const level2: LevelData = {
     { number: 2,  x: 580, y: 415 },
     { number: 3,  x: 50,  y: 362 },
     { number: 4,  x: 730, y: 362 },
-    { number: 5,  x: 320, y: 310 },
-    { number: 6,  x: 450, y: 310 },
+    { number: 5,  x: 320, y: 264 },
+    { number: 6,  x: 450, y: 264 },
     { number: 7,  x: 85,  y: 255 },
     { number: 8,  x: 640, y: 255 },
     { number: 9,  x: 360, y: 143 },
