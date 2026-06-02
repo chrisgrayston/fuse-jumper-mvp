@@ -736,39 +736,21 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       }
 
       case 'puffin': {
-        // 4-phase drive: IDLE→WINDUP(4 frames)→IMPACT→FOLLOW(5 frames)→IDLE
+        // Mirror padel punisher: WINDUP(spawn at end) → FOLLOW → IDLE(wait for ball) → WINDUP
         const PG_IDLE   = 0;
         const PG_WINDUP = 1;
-        const PG_IMPACT = 2;
-        const PG_FOLLOW = 3;
+        const PG_FOLLOW = 2;
 
         body.reset(this.eData.x, this.eData.y);
+        this.st.sineT     += delta;
         this.st.kickClock += delta;
 
-        if (this.st.nextKick === PG_IDLE) {
-          // Waggle waiting for ball to expire
-          const wf = Math.floor(this.st.kickClock / 550) % 2;
-          this.setTexture(wf === 0 ? 'enemy-puffin-golfer' : 'enemy-puffin-golfer-wait-2');
-          if (!this.padelBall || !this.padelBall.active) {
-            this.padelBall   = null;
-            this.st.nextKick = PG_WINDUP;
-            this.st.kickClock = 0;
-          }
-
-        } else if (this.st.nextKick === PG_WINDUP) {
-          // 4-frame windup over 800ms (200ms each)
-          const wPhase = Math.min(3, Math.floor(this.st.kickClock / 200));
-          const wKeys = ['windup-1', 'windup-2', 'windup-3', 'windup-4'];
+        if (this.st.nextKick === PG_WINDUP) {
+          // 4 windup frames (200ms each) then impact frame — 1000ms total, ball spawns at transition
+          const wPhase = Math.min(4, Math.floor(this.st.kickClock / 200));
+          const wKeys  = ['windup-1', 'windup-2', 'windup-3', 'windup-4', 'impact'];
           this.setTexture(`enemy-puffin-golfer-${wKeys[wPhase]}`);
-          if (this.st.kickClock >= 800) {
-            this.st.nextKick  = PG_IMPACT;
-            this.st.kickClock = 0;
-          }
-
-        } else if (this.st.nextKick === PG_IMPACT) {
-          this.setTexture('enemy-puffin-golfer-impact');
-          if (this.st.kickClock < 30) {
-            // Sweep left: elevation 10–80° in 8 steps of 10°
+          if (this.st.kickClock >= 1000) {
             const elevDeg = 10 + this.st.kickDir * 10;
             const angle   = Phaser.Math.DegToRad(elevDeg);
             const speed   = Phaser.Math.Between(580, 720);
@@ -776,9 +758,8 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
               this.x - 16, this.y - 22, 'golf-ball',
               -Math.cos(angle) * speed, -Math.sin(angle) * speed,
             );
-            this.st.kickDir = (this.st.kickDir + 1) % 8;
-            // "RIP!!!!!" shout
-            const rip = this.scene.add.text(this.x - 20, this.y - 40, 'RIP!!!!!', {
+            this.st.kickDir  = (this.st.kickDir + 1) % 8;
+            const rip = this.scene.add.text(this.x - 20, this.y - 40, 'RIP!!!', {
               fontSize: '13px', fontFamily: 'monospace',
               color: '#ffffff', stroke: '#000000', strokeThickness: 3,
             }).setOrigin(0.5).setDepth(25);
@@ -786,19 +767,30 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
               targets: rip, y: rip.y - 35, alpha: 0, duration: 900,
               onComplete: () => rip.destroy(),
             });
-          }
-          if (this.st.kickClock >= 120) {
             this.st.nextKick  = PG_FOLLOW;
             this.st.kickClock = 0;
+            this.st.sineT     = 0;
           }
 
-        } else {
-          // PG_FOLLOW — 5 frames over 600ms (120ms each)
+        } else if (this.st.nextKick === PG_FOLLOW) {
+          // 5 follow-through frames over 600ms (120ms each)
           const fPhase = Math.min(4, Math.floor(this.st.kickClock / 120));
           this.setTexture(`enemy-puffin-golfer-follow-${fPhase + 1}`);
           if (this.st.kickClock >= 600) {
             this.st.nextKick  = PG_IDLE;
             this.st.kickClock = 0;
+            this.st.sineT     = 0;
+          }
+
+        } else {
+          // PG_IDLE — waggle, watch ball; start new swing once ball expires
+          const wf = Math.floor(this.st.sineT / 550) % 2;
+          this.setTexture(wf === 0 ? 'enemy-puffin-golfer' : 'enemy-puffin-golfer-wait-2');
+          if (!this.padelBall || !this.padelBall.active) {
+            this.padelBall    = null;
+            this.st.nextKick  = PG_WINDUP;
+            this.st.kickClock = 0;
+            this.st.sineT     = 0;
           }
         }
         break;
