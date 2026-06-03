@@ -376,6 +376,9 @@ export class GameScene extends Phaser.Scene {
         body.setBounce(1.0, 1.0);
         body.setCollideWorldBounds(true);
       }
+      if (type === 'dark-magic') {
+        body.allowGravity = false;
+      }
       this.projectileList.push(proj);
       return proj;
     };
