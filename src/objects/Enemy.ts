@@ -98,6 +98,10 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       this.st.kickClock   = 0;
       this.st.chargeTimer = 800;
     }
+    if (this.eType === 'condor') {
+      body.setSize(18, 36);
+      body.setOffset(11, 8);   // body hitbox only — wings are visual only
+    }
     if (this.eType === 'butter-fingers') {
       body.allowGravity = false;
       body.setSize(28, 48);
@@ -705,10 +709,15 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       }
 
       case 'condor': {
-        this.st.sineT += delta * 0.0016;
+        this.st.sineT   += delta * 0.0016;
+        this.st.kickClock += delta;
         this.x = 400 + Math.cos(this.st.sineT * 0.6) * 330;
         this.y = this.eData.y + Math.sin(this.st.sineT) * 55;
         body.reset(this.x, this.y);
+        // 12-frame wing cycle at 65 ms/frame ≈ 1.3 flaps/sec
+        this.setTexture(`enemy-condor-${Math.floor(this.st.kickClock / 65) % 12}`);
+        // Face direction of horizontal travel
+        this.setFlipX(Math.sin(this.st.sineT * 0.6) > 0);
         break;
       }
 

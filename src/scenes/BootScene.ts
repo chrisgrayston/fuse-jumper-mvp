@@ -1600,157 +1600,570 @@ export class BootScene extends Phaser.Scene {
       g.generateTexture('enemy-padel-punisher-follow-2', 40, 50);
     }
 
-    // ── Condor — Crystal Palace red/blue angular ──────────────────────────
-    g.clear();
-    g.fillStyle(0xcc0000);
-    g.fillTriangle(14, 0, 28, 28, 0, 28);
-    g.fillStyle(0x0033cc); g.fillRect(6, 14, 16, 14);
-    g.fillStyle(0xffcc88); g.fillRect(8, 8, 12, 8);
-    g.generateTexture('enemy-condor', 28, 28);
-
-    // ── Giant Bear — fierce 48×72, white football top, 16 animation frames ─
+    // ── Condor — half-man half-condor, Crystal Palace kit, 40×50, 12 wing-flap frames ─
     {
-      const FUR  = 0x5a2d0c;
-      const SNT  = 0xb06030;
-      const NOZ  = 0x060200;
-      const EYR  = 0xff1100;   // always-red menacing eyes
-      const EYG  = 0xff6600;   // blazing orange for peak growl
-      const WSH  = 0xffffff;
-      const SHD  = 0xcccccc;
-      const PNK  = 0xcc0033;   // mouth interior
-      const TTH  = 0xf0e8d0;   // ivory teeth
-      const BROW = 0x2c0e02;
+      const W = 40, H = 50;
 
-      // mth: 0=closed 1=snarl 2=open 3=ROAR
-      const gbHead = (mth: number, eyGlow: boolean) => {
-        g.fillStyle(FUR);  g.fillRect( 3, 0, 8, 8);
-        g.fillStyle(SNT);  g.fillRect( 5, 1, 5, 5);
-        g.fillStyle(FUR);  g.fillRect(37, 0, 8, 8);
-        g.fillStyle(SNT);  g.fillRect(39, 1, 5, 5);
-        g.fillStyle(FUR);  g.fillRect(5, 4, 38, 30);
-        g.fillStyle(BROW); g.fillRect(5, 10, 38, 4);
-        g.fillStyle(0x000000);
-        g.fillRect(11,13, 9, 7); g.fillRect(28,13, 9, 7);
-        if (eyGlow) {
-          g.fillStyle(0xff4400); g.fillRect(10,12,11,9); g.fillRect(27,12,11,9);
-          g.fillStyle(EYG);      g.fillRect(12,14, 7,5); g.fillRect(29,14, 7,5);
-        } else {
-          g.fillStyle(EYR);      g.fillRect(12,14, 6,5); g.fillRect(29,14, 6,5);
+      // Palette
+      const CPR  = 0xc4122e;  // Crystal Palace red
+      const CPR2 = 0x8a0d1f;  // CP red shadow
+      const CPB  = 0x1b5ebf;  // Crystal Palace blue
+      const CPB2 = 0x123d80;  // CP blue shadow
+      const CPW  = 0xf6f6f6;  // white (shorts, collar)
+      const CPW2 = 0xbbbbbb;  // white shadow
+      const SK   = 0xf0c088;  // leg skin
+      const SK2  = 0xc07040;  // leg shadow
+      const HDS  = 0xdf5c4a;  // condor head skin (bald reddish-pink)
+      const HDS2 = 0xa83030;  // head shadow
+      const BKC  = 0xe8b420;  // beak yellow
+      const BKC2 = 0xa87010;  // beak shadow
+      const EYC  = 0x141414;  // eye
+      const RUF  = 0xeeeeee;  // white neck ruff
+      const RUF2 = 0x999999;  // ruff shadow
+      const WF   = 0x0c0c16;  // wing feathers main (near-black)
+      const WF2  = 0x22223a;  // secondary coverts (dark blue-gray)
+      const WH   = 0x3e3e60;  // wing highlight (iridescent sheen)
+      const WW   = 0xd0d0da;  // underwing white patch (condor characteristic)
+      const TAL  = 0x504010;  // talon dark
+      const TAL2 = 0x906820;  // talon highlight
+      const GLD  = 0xffd700;  // badge gold
+
+      // Left wing: upper shoulder (11,17), trailing edge (12,30)
+      const drawLeftWing = (tipX: number, tipY: number, fold: boolean) => {
+        const ax = 11, ay = 17;
+        const trailX = fold ? 14 : 12;
+        const trailY = fold ? 27 : 30;
+
+        // Main feather body (near-black)
+        g.fillStyle(WF);
+        g.fillTriangle(ax, ay, tipX, tipY, trailX, trailY);
+
+        // Secondary coverts — inner ~42%, slightly lighter
+        const iMx = Math.round(ax + (tipX - ax) * 0.42);
+        const iMy = Math.round(ay + (tipY - ay) * 0.42);
+        g.fillStyle(WF2);
+        g.fillTriangle(ax + 1, ay + 3, iMx, iMy + 2, trailX, trailY);
+
+        // White underwing bar (Andean Condor's signature marking)
+        const wEx = Math.round(ax + (tipX - ax) * 0.28);
+        const wEy = Math.round(ay + (tipY - ay) * 0.28);
+        g.fillStyle(WW);
+        g.fillTriangle(ax + 1, ay + 5, wEx, wEy + 2, trailX - 1, trailY - 4);
+
+        // Iridescent leading-edge sheen
+        const lEx = Math.round(ax + (tipX - ax) * 0.50);
+        const lEy = Math.round(ay + (tipY - ay) * 0.50);
+        const lMx = Math.round(ax + (tipX - ax) * 0.28);
+        const lMy = Math.round(ay + (tipY - ay) * 0.28) - 1;
+        g.fillStyle(WH);
+        g.fillTriangle(ax, ay, lEx, lEy, lMx, lMy);
+      };
+
+      // Right wing: upper shoulder (29,17), trailing edge (28,30)
+      const drawRightWing = (tipX: number, tipY: number, fold: boolean) => {
+        const ax = 29, ay = 17;
+        const trailX = fold ? 26 : 28;
+        const trailY = fold ? 27 : 30;
+
+        g.fillStyle(WF);
+        g.fillTriangle(ax, ay, tipX, tipY, trailX, trailY);
+
+        const iMx = Math.round(ax + (tipX - ax) * 0.42);
+        const iMy = Math.round(ay + (tipY - ay) * 0.42);
+        g.fillStyle(WF2);
+        g.fillTriangle(ax - 1, ay + 3, iMx, iMy + 2, trailX, trailY);
+
+        const wEx = Math.round(ax + (tipX - ax) * 0.28);
+        const wEy = Math.round(ay + (tipY - ay) * 0.28);
+        g.fillStyle(WW);
+        g.fillTriangle(ax - 1, ay + 5, wEx, wEy + 2, trailX + 1, trailY - 4);
+
+        const lEx = Math.round(ax + (tipX - ax) * 0.50);
+        const lEy = Math.round(ay + (tipY - ay) * 0.50);
+        const lMx = Math.round(ax + (tipX - ax) * 0.28);
+        const lMy = Math.round(ay + (tipY - ay) * 0.28) - 1;
+        g.fillStyle(WH);
+        g.fillTriangle(ax, ay, lEx, lEy, lMx, lMy);
+      };
+
+      const drawBody = () => {
+        // ── BEAK (drawn first; head circle overlaps the base) ──
+        g.fillStyle(BKC);
+        g.fillTriangle(21, 3, 33, 7, 21, 9);   // upper mandible pointing right
+        g.fillStyle(BKC);
+        g.fillRect(29, 5, 4, 5);               // hooked tip block
+        g.fillStyle(BKC2);
+        g.fillRect(30, 9, 3, 2);               // hook curves down
+        g.fillStyle(BKC2);
+        g.fillTriangle(21, 8, 28, 8, 21, 11);  // lower mandible (shorter)
+        g.fillStyle(0xf0a030);                 // cere (fleshy beak base)
+        g.fillRect(21, 6, 3, 3);
+
+        // ── HEAD (bald reddish condor skin) ──
+        g.fillStyle(HDS);
+        g.fillCircle(17, 8, 7);
+        g.fillStyle(HDS2);
+        g.fillRect(10, 6, 3, 5);               // left shadow
+        g.fillRect(11, 2, 3, 5);               // top-left shadow
+        // Caruncle (fleshy crown knob)
+        g.fillStyle(0xcc3838);
+        g.fillRect(14, 1, 5, 3);
+        g.fillRect(15, 0, 3, 2);
+
+        // ── EYE ──
+        g.fillStyle(EYC);
+        g.fillRect(20, 6, 3, 2);
+        g.fillStyle(0xffffff);
+        g.fillRect(20, 6, 1, 1);               // catchlight
+        g.fillStyle(0xff8822);                 // amber iris
+        g.fillRect(21, 6, 1, 1);
+
+        // ── NECK RUFF (white fluffy feathers) ──
+        g.fillStyle(RUF);
+        g.fillRect(11, 14, 18, 4);
+        g.fillStyle(RUF2);
+        g.fillRect(11, 17, 18, 1);             // bottom shadow
+        g.fillStyle(0xdddddd);
+        for (let rfx = 13; rfx < 29; rfx += 3) {
+          g.fillRect(rfx, 14, 1, 3);           // feather division lines
         }
-        g.fillStyle(0xffffff); g.fillRect(12,14,2,2); g.fillRect(29,14,2,2);
-        g.fillStyle(SNT);  g.fillRect(12,22,24,12);
-        g.fillStyle(NOZ);  g.fillRect(16,22,16, 7);
-        g.fillStyle(SNT);  g.fillRect(18,24, 4, 3); g.fillRect(26,24, 4, 3);
+
+        // ── CRYSTAL PALACE SHIRT (vertical red/blue stripes) ──
+        // x=11–28 (6 stripes × 3px), y=18–31
+        for (let s = 0; s < 6; s++) {
+          const sx = 11 + s * 3;
+          g.fillStyle(s % 2 === 0 ? CPR : CPB);
+          g.fillRect(sx, 18, 3, 14);
+          g.fillStyle(s % 2 === 0 ? CPR2 : CPB2);
+          g.fillRect(sx + 2, 18, 1, 14);       // right-edge shadow on each stripe
+        }
+        // White V-neck collar
+        g.fillStyle(CPW);
+        g.fillRect(17, 17, 6, 2);
+        g.fillRect(18, 19, 4, 1);
+        // Club badge (small gold diamond, left chest)
+        g.fillStyle(GLD);
+        g.fillRect(14, 21, 3, 2);
+        g.fillRect(15, 20, 1, 1);
+
+        // ── SHORTS (white with red side stripe) ──
+        g.fillStyle(CPW);
+        g.fillRect(11, 32, 18, 8);
+        g.fillStyle(CPW2);
+        g.fillRect(20, 32, 1, 8);             // center seam
+        g.fillRect(11, 39, 18, 1);            // hem shadow
+        g.fillStyle(CPR);
+        g.fillRect(11, 32, 2, 8);             // left red stripe
+        g.fillRect(27, 32, 2, 8);             // right red stripe
+
+        // ── LEGS (human skin) ──
+        g.fillStyle(SK);
+        g.fillRect(13, 40, 6, 7);             // left
+        g.fillRect(21, 40, 6, 7);             // right
+        g.fillStyle(SK2);
+        g.fillRect(13, 40, 2, 7);
+        g.fillRect(21, 40, 2, 7);
+
+        // ── CONDOR TALONS ──
+        g.fillStyle(TAL);
+        g.fillRect(11, 47, 8, 2);             // L foot
+        g.fillRect( 9, 48, 3, 1);             // L rear talon
+        g.fillRect(11, 48, 2, 2);             // L inner toe
+        g.fillRect(14, 48, 2, 3);             // L middle toe (longest)
+        g.fillRect(17, 48, 2, 2);             // L outer toe
+        g.fillStyle(TAL2);
+        g.fillRect(11, 47, 8, 1);
+
+        g.fillStyle(TAL);
+        g.fillRect(21, 47, 8, 2);             // R foot
+        g.fillRect(29, 48, 3, 1);             // R rear talon
+        g.fillRect(21, 48, 2, 2);
+        g.fillRect(24, 48, 2, 3);
+        g.fillRect(27, 48, 2, 2);
+        g.fillStyle(TAL2);
+        g.fillRect(21, 47, 8, 1);
+      };
+
+      // 12-frame flap cycle: [leftTipX, leftTipY, rightTipX, rightTipY, fold]
+      // Frames 0–7 = downstroke (fully spread); 8–11 = upstroke (slightly folded)
+      const FRAMES: Array<[number, number, number, number, boolean]> = [
+        [ 3,  2, 37,  2, false],   // 0  UP MAX
+        [ 1,  7, 39,  7, false],   // 1  UP HIGH
+        [ 0, 13, 40, 13, false],   // 2  UP MID
+        [ 0, 18, 40, 18, false],   // 3  LEVEL (horizontal)
+        [ 0, 23, 40, 23, false],   // 4  DOWN 1
+        [ 1, 29, 39, 29, false],   // 5  DOWN 2
+        [ 2, 34, 38, 34, false],   // 6  DOWN 3
+        [ 3, 38, 37, 38, false],   // 7  DOWN MAX
+        [ 6, 34, 34, 34,  true],   // 8  RECOVER 1 (fold begins)
+        [ 6, 27, 34, 27,  true],   // 9  RECOVER 2
+        [ 5, 20, 35, 20,  true],   // 10 RECOVER 3
+        [ 4, 10, 36, 10,  true],   // 11 RECOVER 4
+      ];
+
+      FRAMES.forEach(([lx, ly, rx, ry, fold], i) => {
+        g.clear();
+        drawLeftWing(lx, ly, fold);
+        drawRightWing(rx, ry, fold);
+        drawBody();
+        g.generateTexture(`enemy-condor-${i}`, W, H);
+        if (i === 0) g.generateTexture('enemy-condor', W, H); // alias for reset
+      });
+    }
+
+    // ── Giant Bear — 48×72, maximum detail, 16 frames ────────────────────────
+    {
+      // 5-shade fur palette
+      const FO = 0x1a0800;   // near-black outline/deep shadow
+      const FD = 0x3d1a08;   // dark fur
+      const FM = 0x6b3a1a;   // mid fur (main body colour)
+      const FL = 0x9a5530;   // light fur (highlight)
+      const FH = 0xc07848;   // specular fur (forehead catch)
+      // Snout / paw
+      const SD = 0x7a4020;
+      const SM = 0xb87040;
+      const SL = 0xd89860;
+      // Nose
+      const NZ = 0x050100;
+      // Eyes
+      const EI = 0xff1100;   // red iris
+      const EG = 0xff7700;   // blazing orange glow iris
+      // Mouth anatomy
+      const GM = 0xaa2233;   // gum
+      const MC = 0x77000f;   // mouth cavity
+      const TH = 0x300006;   // throat dark
+      const TG = 0xcc2244;   // tongue base
+      const TN = 0xff4466;   // tongue bright
+      const IV = 0xf0e8d0;   // ivory tooth
+      const TS = 0xc8c0a8;   // tooth shadow face
+      // Shirt
+      const WH = 0xffffff;
+      const S1 = 0xf0f0f0;
+      const S2 = 0xdddddd;
+      const S3 = 0xaaaaaa;
+      // Paw / claw
+      const PC = 0xb87040;
+      const CL = 0xddd5b8;
+
+      // ── Detailed brow (stepped diagonal — inner low = scowl) ─────────
+      const gbBrow = () => {
+        g.fillStyle(FO);
+        g.fillRect(10,15, 2,4); g.fillRect(12,13, 3,3);   // L inner→mid
+        g.fillRect(15,11, 3,3); g.fillRect(18,10, 5,3);   // L mid→outer peak
+        g.fillStyle(FD); g.fillRect(10,17, 9,2);           // L under-brow shadow
+        g.fillStyle(FL); g.fillRect(18,10, 4,2);           // L highlight
+        g.fillStyle(FO);
+        g.fillRect(36,15, 2,4); g.fillRect(33,13, 3,3);   // R (mirror)
+        g.fillRect(30,11, 3,3); g.fillRect(25,10, 5,3);
+        g.fillStyle(FD); g.fillRect(29,17, 9,2);
+        g.fillStyle(FL); g.fillRect(26,10, 4,2);
+      };
+
+      // ── Eyes: socket → iris ring → iris → vertical slit → catchlight ─
+      const gbEyes = (glow: boolean) => {
+        if (glow) {
+          g.fillStyle(0xff4400); g.fillRect( 9,15,13,10); g.fillRect(26,15,13,10);
+          g.fillStyle(0xff8800); g.fillRect(10,16,11, 8); g.fillRect(27,16,11, 8);
+        }
+        g.fillStyle(FO);         g.fillRect(10,16,11, 8); g.fillRect(27,16,11, 8);
+        g.fillStyle(0xaa0000);   g.fillRect(11,17, 9, 6); g.fillRect(28,17, 9, 6);
+        g.fillStyle(glow?EG:EI); g.fillRect(12,17, 7, 6); g.fillRect(29,17, 7, 6);
+        // Vertical slit pupil — tall, narrow, predatory
+        g.fillStyle(0x050000);   g.fillRect(15,15, 2,10); g.fillRect(32,15, 2,10);
+        g.fillStyle(0xffffff);   g.fillRect(12,17, 2, 2); g.fillRect(29,17, 2, 2);
+      };
+
+      // ── Muzzle + nose + nostrils ──────────────────────────────────────
+      const gbMuzzle = () => {
+        g.fillStyle(FO); g.fillRect( 9,22,30,13);           // outer shadow
+        g.fillStyle(SD); g.fillRect(10,23,28,12);           // dark snout
+        g.fillStyle(SM); g.fillRect(11,23,26,11);           // mid snout
+        g.fillStyle(SL); g.fillRect(12,24,11, 7);           // L highlight
+        // Nose
+        g.fillStyle(FO); g.fillRect(14,22,20,10);
+        g.fillStyle(NZ); g.fillRect(15,23,18, 9);
+        g.fillStyle(0x444444); g.fillRect(16,24, 6,2);      // L sheen
+        g.fillStyle(0x2a2a2a); g.fillRect(23,24, 4,2);      // R sheen
+        // Nostrils
+        g.fillStyle(FO); g.fillRect(17,26, 6,5); g.fillRect(25,26, 6,5);
+        g.fillStyle(0x180300); g.fillRect(18,27, 4,3); g.fillRect(26,27, 4,3);
+        g.fillStyle(SM); g.fillRect(19,27, 2,2); g.fillRect(27,27, 2,2);
+      };
+
+      // ── Mouth: 0=closed 1=snarl 2=open 3=ROAR ────────────────────────
+      const gbMouth = (mth: number) => {
         if (mth === 0) {
-          g.fillStyle(NOZ); g.fillRect(15,31,18, 2);
+          g.fillStyle(FO); g.fillRect(13,33,22,2);
+          g.fillStyle(FD); g.fillRect(14,34,20,2);
         } else if (mth === 1) {
-          g.fillStyle(NOZ); g.fillRect(13,30,22, 3);
-          g.fillStyle(TTH);
-          g.fillRect(15,31,4,4); g.fillRect(21,31,4,4); g.fillRect(27,31,4,4);
-          g.fillStyle(NOZ); g.fillRect(19,31,2,4); g.fillRect(25,31,2,4);
+          // Snarl: lips parted, 2 big outer fangs + 2 small incisors
+          g.fillStyle(FO); g.fillRect(11,31,26,4);
+          g.fillStyle(GM); g.fillRect(12,32,24,4);
+          // Outer fangs
+          g.fillStyle(FO);  g.fillRect(12,31, 6,7); g.fillRect(30,31, 6,7);
+          g.fillStyle(TS);  g.fillRect(13,32, 4,6); g.fillRect(31,32, 4,6);
+          g.fillStyle(IV);  g.fillRect(13,32, 4,6); g.fillRect(31,32, 4,6);
+          // Middle incisors
+          g.fillStyle(FO);  g.fillRect(19,32, 4,4); g.fillRect(25,32, 4,4);
+          g.fillStyle(IV);  g.fillRect(19,33, 3,3); g.fillRect(25,33, 3,3);
+          // Tooth tip gleam
+          g.fillStyle(0xffffff); g.fillRect(13,32,2,1); g.fillRect(31,32,2,1);
+          // Dark gap below
+          g.fillStyle(MC); g.fillRect(12,36,24,2);
         } else if (mth === 2) {
-          g.fillStyle(NOZ); g.fillRect(11,28,26, 4);
-          g.fillStyle(PNK); g.fillRect(12,31,24, 8);
-          g.fillStyle(TTH);
-          g.fillRect(12,28,4,5); g.fillRect(18,28,4,5); g.fillRect(24,28,4,5); g.fillRect(30,28,4,5);
-          g.fillRect(13,36,4,4); g.fillRect(19,36,4,4); g.fillRect(25,36,4,4);
-        } else { // ROAR — massive gaping maw
-          g.fillStyle(NOZ); g.fillRect( 9,26,30, 4);
-          g.fillStyle(PNK); g.fillRect(10,29,28,12);
-          g.fillStyle(0xff0022); g.fillRect(15,33,18, 6); // blazing throat
-          g.fillStyle(TTH);
-          g.fillRect( 9,26,5,7); g.fillRect(16,26,5,7); g.fillRect(23,26,5,7); g.fillRect(30,26,5,7);
-          g.fillRect(10,38,5,5); g.fillRect(17,38,5,5); g.fillRect(24,38,5,5); g.fillRect(30,38,4,5);
+          // Open: full gum + 4 upper + 4 lower teeth + tongue + throat
+          g.fillStyle(FO); g.fillRect( 9,27,30,4);
+          g.fillStyle(GM); g.fillRect(10,28,28,4);
+          g.fillStyle(MC); g.fillRect(10,31,28,10);
+          g.fillStyle(TH); g.fillRect(16,36,16, 6);
+          // Tongue
+          g.fillStyle(TG); g.fillRect(12,36,24,5);
+          g.fillStyle(TN); g.fillRect(13,37,22,3);
+          g.fillStyle(TG); g.fillRect(23,36, 2,5);  // ridge
+          // Upper: 2 outer fangs (bigger) + 2 inner (smaller)
+          g.fillStyle(FO); g.fillRect( 9,27, 7,9); g.fillRect(32,27, 7,9);
+          g.fillStyle(FO); g.fillRect(17,28, 5,7); g.fillRect(26,28, 5,7);
+          g.fillStyle(IV); g.fillRect(10,28, 5,8); g.fillRect(33,28, 5,8);
+          g.fillStyle(IV); g.fillRect(18,29, 3,6); g.fillRect(27,29, 3,6);
+          g.fillStyle(0xffffff); g.fillRect(10,28,2,2); g.fillRect(33,28,2,2);
+          g.fillStyle(0xffffff); g.fillRect(18,29,2,2); g.fillRect(27,29,2,2);
+          // Lower gum + 4 lower teeth
+          g.fillStyle(GM); g.fillRect(10,40,28,3);
+          g.fillStyle(FO); g.fillRect(11,40, 5,6); g.fillRect(32,40, 5,6);
+          g.fillStyle(FO); g.fillRect(18,40, 4,5); g.fillRect(26,40, 4,5);
+          g.fillStyle(IV); g.fillRect(11,41, 4,5); g.fillRect(32,41, 4,5);
+          g.fillStyle(IV); g.fillRect(18,41, 3,4); g.fillRect(26,41, 3,4);
+        } else {
+          // ROAR — cavernous maw, 4 upper + 4 lower fangs, massive tongue
+          g.fillStyle(FO); g.fillRect( 7,24,34,4);
+          g.fillStyle(GM); g.fillRect( 8,25,32,5);
+          // Deep cavity
+          g.fillStyle(MC); g.fillRect( 8,29,32,12);
+          g.fillStyle(TH); g.fillRect(14,33,20,10);
+          g.fillStyle(0x120003); g.fillRect(19,36,10, 7); // abyss
+          // Big tongue
+          g.fillStyle(TG); g.fillRect(10,33,28, 9);
+          g.fillStyle(TN); g.fillRect(11,34,26, 6);
+          g.fillStyle(0xff6688); g.fillRect(15,35,18, 3); // wet specular
+          g.fillStyle(TG); g.fillRect(23,33, 2, 9);       // ridge
+          // Upper fangs: outer pair huge, inner pair large
+          g.fillStyle(FO); g.fillRect( 6,24, 8,12); g.fillStyle(TS); g.fillRect( 7,25, 6,10);
+          g.fillStyle(IV); g.fillRect( 7,25, 6,10); g.fillStyle(0xffffff); g.fillRect( 7,25,3,2);
+          g.fillStyle(FO); g.fillRect(15,25, 7,10);
+          g.fillStyle(IV); g.fillRect(16,26, 5, 9); g.fillStyle(0xffffff); g.fillRect(16,26,2,2);
+          g.fillStyle(FO); g.fillRect(26,25, 7,10);
+          g.fillStyle(IV); g.fillRect(27,26, 5, 9); g.fillStyle(0xffffff); g.fillRect(27,26,2,2);
+          g.fillStyle(FO); g.fillRect(34,24, 8,12); g.fillStyle(TS); g.fillRect(35,25, 6,10);
+          g.fillStyle(IV); g.fillRect(35,25, 6,10); g.fillStyle(0xffffff); g.fillRect(35,25,3,2);
+          // Lower jaw + fangs
+          g.fillStyle(FO); g.fillRect( 7,40,34,4);
+          g.fillStyle(GM); g.fillRect( 8,41,32,3);
+          g.fillStyle(FO); g.fillRect( 8,41, 6,6); g.fillStyle(IV); g.fillRect( 9,42, 4,5);
+          g.fillStyle(FO); g.fillRect(15,41, 5,5); g.fillStyle(IV); g.fillRect(16,42, 3,4);
+          g.fillStyle(FO); g.fillRect(28,41, 5,5); g.fillStyle(IV); g.fillRect(29,42, 3,4);
+          g.fillStyle(FO); g.fillRect(34,41, 6,6); g.fillStyle(IV); g.fillRect(35,42, 4,5);
         }
-        if (mth < 3) { g.fillStyle(FUR); g.fillRect(16,34,16, 8); } // neck (ROAR fills it)
       };
 
+      // ── Full head ─────────────────────────────────────────────────────
+      const gbHead = (mth: number, glow: boolean) => {
+        // Ears (outer dark, mid fill, leading-edge highlight, snout inner)
+        g.fillStyle(FO); g.fillRect( 2,0,10,9); g.fillRect(36,0,10,9);
+        g.fillStyle(FM); g.fillRect( 3,1, 8,7); g.fillRect(37,1, 8,7);
+        g.fillStyle(FL); g.fillRect( 3,1, 3,5); g.fillRect(44,1, 3,5);
+        g.fillStyle(FD); g.fillRect( 5,2, 4,4); g.fillRect(39,2, 4,4);
+        g.fillStyle(SM); g.fillRect( 6,3, 2,3); g.fillRect(40,3, 2,3);
+
+        // Skull — 5-layer shaded depth
+        g.fillStyle(FO); g.fillRect( 5, 3,38,38);  // dark outline border
+        g.fillStyle(FD); g.fillRect( 6, 4,36,36);  // deep brown
+        g.fillStyle(FM); g.fillRect( 7, 4,34,35);  // main brown
+        g.fillStyle(FL); g.fillRect( 8, 4,32,17);  // upper face lighter
+        g.fillStyle(FH); g.fillRect(14, 5,20, 8);  // forehead specular catch
+        // Cheek bulge (darker lateral areas)
+        g.fillStyle(FD); g.fillRect( 6,20, 4,18); g.fillRect(38,20, 4,18);
+        // Jaw area (dark underneath)
+        g.fillStyle(FD); g.fillRect( 8,31,32, 7);
+        g.fillStyle(FM); g.fillRect( 9,32,30, 5);
+
+        gbBrow();
+        gbEyes(glow);
+        gbMuzzle();
+        gbMouth(mth);
+
+        // Neck (skip for ROAR — mouth fills the space)
+        if (mth < 3) {
+          g.fillStyle(FO); g.fillRect(14,37,20,5);
+          g.fillStyle(FD); g.fillRect(15,37,18,5);
+          g.fillStyle(FM); g.fillRect(16,38,16,4);
+        }
+      };
+
+      // ── Shirt with V-neck collar, side shadows, chest creases ─────────
       const gbShirt = () => {
-        g.fillStyle(WSH); g.fillRect(6,42,36,22);
-        g.fillStyle(SHD); g.fillRect(6,62,36, 2);
-        g.fillStyle(FUR); g.fillRect(18,42,12, 5); // collar
+        g.fillStyle(S3); g.fillRect( 5,42,38,22);  // outer shadow
+        g.fillStyle(WH); g.fillRect( 6,42,36,22);  // main white
+        g.fillStyle(S1); g.fillRect(12,43,24,18);  // centre highlight
+        g.fillStyle(S2); g.fillRect( 6,42, 4,22);  // L side shadow
+        g.fillStyle(S2); g.fillRect(38,42, 4,22);  // R side shadow
+        g.fillStyle(S2); g.fillRect(14,46, 2,14);  // L chest crease
+        g.fillStyle(S2); g.fillRect(32,46, 2,14);  // R chest crease
+        g.fillStyle(S3); g.fillRect( 6,62,36, 2);  // hem shadow
+        // V-neck collar
+        g.fillStyle(FO); g.fillRect(18,42,12,2);
+        g.fillStyle(FO); g.fillRect(18,42, 2,5); g.fillRect(28,42, 2,5);
+        g.fillStyle(FO); g.fillRect(20,44, 2,4); g.fillRect(26,44, 2,4);
+        g.fillStyle(FM); g.fillRect(19,43,10,5);  // neck/fur fill
+        g.fillStyle(FL); g.fillRect(20,43, 6,2);  // fur highlight
       };
 
+      // ── Arms: 8px wide, bicep highlight, 3-shade paw, 3 claws ─────────
       const gbArm = (lx: number, ly: number, rx: number, ry: number) => {
-        g.fillStyle(FUR); g.fillRect(lx,ly,6,22); g.fillStyle(SNT); g.fillRect(lx,ly+19,6,4);
-        g.fillStyle(FUR); g.fillRect(rx,ry,6,22); g.fillStyle(SNT); g.fillRect(rx,ry+19,6,4);
+        // Left
+        g.fillStyle(FO); g.fillRect(lx,   ly, 8,23);
+        g.fillStyle(FD); g.fillRect(lx+1, ly, 6,21);
+        g.fillStyle(FM); g.fillRect(lx+1, ly, 6,21);
+        g.fillStyle(FL); g.fillRect(lx+2, ly, 2,12);  // bicep highlight
+        g.fillStyle(FO); g.fillRect(lx,   ly+20, 8,5);
+        g.fillStyle(SM); g.fillRect(lx+1, ly+20, 6,4);
+        g.fillStyle(SL); g.fillRect(lx+1, ly+20, 3,2);
+        g.fillStyle(FO); g.fillRect(lx+1,ly+24,1,3); g.fillRect(lx+3,ly+24,1,3); g.fillRect(lx+5,ly+24,1,3);
+        g.fillStyle(CL); g.fillRect(lx+1,ly+24,1,2); g.fillRect(lx+3,ly+24,1,2); g.fillRect(lx+5,ly+24,1,2);
+        // Right
+        g.fillStyle(FO); g.fillRect(rx,   ry, 8,23);
+        g.fillStyle(FD); g.fillRect(rx,   ry, 6,21);
+        g.fillStyle(FM); g.fillRect(rx,   ry, 6,21);
+        g.fillStyle(FL); g.fillRect(rx+2, ry, 2,12);
+        g.fillStyle(FO); g.fillRect(rx,   ry+20, 8,5);
+        g.fillStyle(SM); g.fillRect(rx,   ry+20, 6,4);
+        g.fillStyle(SL); g.fillRect(rx,   ry+20, 3,2);
+        g.fillStyle(FO); g.fillRect(rx+1,ry+24,1,3); g.fillRect(rx+3,ry+24,1,3); g.fillRect(rx+5,ry+24,1,3);
+        g.fillStyle(CL); g.fillRect(rx+1,ry+24,1,2); g.fillRect(rx+3,ry+24,1,2); g.fillRect(rx+5,ry+24,1,2);
       };
 
+      // Single arm helper for throw frames (detailed, one side at a time)
+      const gbArmL = (lx: number, ly: number) => {
+        g.fillStyle(FO); g.fillRect(lx,   ly, 8,23);
+        g.fillStyle(FD); g.fillRect(lx+1, ly, 6,21);
+        g.fillStyle(FM); g.fillRect(lx+1, ly, 6,21);
+        g.fillStyle(FL); g.fillRect(lx+2, ly, 2,12);
+        g.fillStyle(FO); g.fillRect(lx,   ly+20, 8,5);
+        g.fillStyle(SM); g.fillRect(lx+1, ly+20, 6,4);
+        g.fillStyle(SL); g.fillRect(lx+1, ly+20, 3,2);
+        g.fillStyle(FO); g.fillRect(lx+1,ly+24,1,3); g.fillRect(lx+3,ly+24,1,3); g.fillRect(lx+5,ly+24,1,3);
+        g.fillStyle(CL); g.fillRect(lx+1,ly+24,1,2); g.fillRect(lx+3,ly+24,1,2); g.fillRect(lx+5,ly+24,1,2);
+      };
+      const gbArmR = (rx: number, ry: number) => {
+        g.fillStyle(FO); g.fillRect(rx,   ry, 8,23);
+        g.fillStyle(FD); g.fillRect(rx,   ry, 6,21);
+        g.fillStyle(FM); g.fillRect(rx,   ry, 6,21);
+        g.fillStyle(FL); g.fillRect(rx+2, ry, 2,12);
+        g.fillStyle(FO); g.fillRect(rx,   ry+20, 8,5);
+        g.fillStyle(SM); g.fillRect(rx,   ry+20, 6,4);
+        g.fillStyle(SL); g.fillRect(rx,   ry+20, 3,2);
+        g.fillStyle(FO); g.fillRect(rx+1,ry+24,1,3); g.fillRect(rx+3,ry+24,1,3); g.fillRect(rx+5,ry+24,1,3);
+        g.fillStyle(CL); g.fillRect(rx+1,ry+24,1,2); g.fillRect(rx+3,ry+24,1,2); g.fillRect(rx+5,ry+24,1,2);
+      };
+
+      // ── Legs: 3-shade layering, paw at base ───────────────────────────
       const gbLegs = (lo = 0, ro = 0) => {
-        g.fillStyle(FUR);
-        g.fillRect(11,64+lo,11,7); g.fillRect(26,64+ro,11,7);
-        g.fillStyle(NOZ);
-        g.fillRect(11,69+lo,11,2); g.fillRect(26,69+ro,11,2);
+        g.fillStyle(FO); g.fillRect(10,64+lo,12,8); g.fillRect(26,64+ro,12,8);
+        g.fillStyle(FD); g.fillRect(11,64+lo,10,7); g.fillRect(27,64+ro,10,7);
+        g.fillStyle(FM); g.fillRect(11,65+lo, 8,5); g.fillRect(27,65+ro, 8,5);
+        g.fillStyle(FL); g.fillRect(12,65+lo, 3,4); g.fillRect(28,65+ro, 3,4);
+        g.fillStyle(FO); g.fillRect(10,70+lo,12,2); g.fillRect(26,70+ro,12,2);
+        g.fillStyle(SM); g.fillRect(11,70+lo,10,2); g.fillRect(27,70+ro,10,2);
       };
 
-      // Walk frames 0-3
-      g.clear(); gbHead(0,false); gbShirt(); gbArm(0,42,42,42); gbLegs();
+      // ══ Walk frames 0-3 (arms at rx=40 for 8px width) ════════════════
+      g.clear(); gbHead(0,false); gbShirt(); gbArm(0,42,40,42); gbLegs();
       g.generateTexture('enemy-giant-bear', 48, 72);
 
-      g.clear(); gbHead(0,false); gbShirt(); gbArm(0,40,42,44); gbLegs(-2,2);
+      g.clear(); gbHead(0,false); gbShirt(); gbArm(0,40,40,44); gbLegs(-2,2);
       g.generateTexture('enemy-giant-bear-2', 48, 72);
 
-      g.clear(); gbHead(1,false); gbShirt(); gbArm(0,42,42,42); gbLegs();
+      g.clear(); gbHead(1,false); gbShirt(); gbArm(0,42,40,42); gbLegs();
       g.generateTexture('enemy-giant-bear-3', 48, 72);
 
-      g.clear(); gbHead(0,false); gbShirt(); gbArm(0,44,42,40); gbLegs(2,-2);
+      g.clear(); gbHead(0,false); gbShirt(); gbArm(0,44,40,40); gbLegs(2,-2);
       g.generateTexture('enemy-giant-bear-4', 48, 72);
 
-      // Growl frames 4-7
-      g.clear(); gbHead(1,false); gbShirt(); gbArm(0,38,42,38); gbLegs();
+      // ══ Growl frames 4-7 ══════════════════════════════════════════════
+      g.clear(); gbHead(1,false); gbShirt(); gbArm(0,38,40,38); gbLegs();
       g.generateTexture('enemy-giant-bear-growl-1', 48, 72);
 
-      g.clear(); gbHead(2,false); gbShirt(); gbArm(0,32,42,32); gbLegs();
+      g.clear(); gbHead(2,false); gbShirt(); gbArm(0,32,40,32); gbLegs();
       g.generateTexture('enemy-giant-bear-growl-2', 48, 72);
 
-      g.clear(); gbHead(3,false); gbShirt(); gbArm(0,24,42,24); gbLegs();
+      g.clear(); gbHead(3,false); gbShirt(); gbArm(0,24,40,24); gbLegs();
       g.generateTexture('enemy-giant-bear-growl-3', 48, 72);
 
-      // Growl-4 peak: arms above head — draw arms first so head sits on top
+      // Growl-4 peak: arms raised above head — draw before head so skull overlaps
       g.clear();
-      g.fillStyle(FUR); g.fillRect( 0,16,6,30); g.fillStyle(SNT); g.fillRect( 0,42,6,4);
-      g.fillStyle(FUR); g.fillRect(42,16,6,30); g.fillStyle(SNT); g.fillRect(42,42,6,4);
+      g.fillStyle(FO); g.fillRect( 0,16,8,30); g.fillStyle(FM); g.fillRect( 1,16,6,28);
+      g.fillStyle(FL); g.fillRect( 2,16,2,12);
+      g.fillStyle(FO); g.fillRect( 0,44,8, 6); g.fillStyle(SM); g.fillRect( 1,44,6, 5);
+      g.fillStyle(FO); g.fillRect(40,16,8,30); g.fillStyle(FM); g.fillRect(40,16,6,28);
+      g.fillStyle(FL); g.fillRect(42,16,2,12);
+      g.fillStyle(FO); g.fillRect(40,44,8, 6); g.fillStyle(SM); g.fillRect(40,44,6, 5);
       gbHead(3,true); gbShirt(); gbLegs();
       g.generateTexture('enemy-giant-bear-growl-4', 48, 72);
 
-      // Throw frames 8-11
+      // ══ Throw frames 8-11 ═════════════════════════════════════════════
+      // Throw-1: L arm resting, R arm raised high with beer
       g.clear(); gbHead(1,false); gbShirt();
-      g.fillStyle(FUR); g.fillRect( 0,42,6,22); g.fillStyle(SNT); g.fillRect( 0,61,6,4); // L arm
-      g.fillStyle(FUR); g.fillRect(42,16,6,30); g.fillStyle(SNT); g.fillRect(42,37,6,4); // R arm raised
-      g.fillStyle(0xcc8800); g.fillRect(43, 6,4,12); g.fillStyle(0xeeeedd); g.fillRect(43, 6,4,4); // beer
+      gbArmL(0,42);
+      g.fillStyle(FO); g.fillRect(40,14,8,23); g.fillStyle(FM); g.fillRect(40,14,6,21);
+      g.fillStyle(FL); g.fillRect(42,14,2,12);
+      g.fillStyle(FO); g.fillRect(40,34,8,5);  g.fillStyle(SM); g.fillRect(40,34,6,4);
+      // Beer above raised arm
+      g.fillStyle(0x220011); g.fillRect(42, 2,14,14);
+      g.fillStyle(0xcc8800); g.fillRect(43, 3,12,12);
+      g.fillStyle(0xeeeedd); g.fillRect(43, 3,12, 4);
+      g.fillStyle(0xffcc44); g.fillRect(44, 4, 3,10);
+      g.fillStyle(0x220011); g.fillRect(44, 9, 4, 1); // handle
       gbLegs();
       g.generateTexture('enemy-giant-bear-throw-1', 48, 72);
 
+      // Throw-2: R arm at mid-throw, beer still in hand
       g.clear(); gbHead(2,false); gbShirt();
-      g.fillStyle(FUR); g.fillRect( 0,42,6,22); g.fillStyle(SNT); g.fillRect( 0,61,6,4);
-      g.fillStyle(FUR); g.fillRect(42,24,6,30); g.fillStyle(SNT); g.fillRect(42,45,6,4);
-      g.fillStyle(0xcc8800); g.fillRect(43,14,4,12); g.fillStyle(0xeeeedd); g.fillRect(43,14,4,4);
+      gbArmL(0,42);
+      g.fillStyle(FO); g.fillRect(40,22,8,23); g.fillStyle(FM); g.fillRect(40,22,6,21);
+      g.fillStyle(FL); g.fillRect(42,22,2,12);
+      g.fillStyle(FO); g.fillRect(40,42,8,5);  g.fillStyle(SM); g.fillRect(40,42,6,4);
+      g.fillStyle(0x220011); g.fillRect(42,10,14,14);
+      g.fillStyle(0xcc8800); g.fillRect(43,11,12,12);
+      g.fillStyle(0xeeeedd); g.fillRect(43,11,12, 4);
+      g.fillStyle(0xffcc44); g.fillRect(44,12, 3,10);
+      g.fillStyle(0x220011); g.fillRect(44,17, 4, 1);
       gbLegs();
       g.generateTexture('enemy-giant-bear-throw-2', 48, 72);
 
-      g.clear(); gbHead(3,false); gbShirt(); // release — arm extended stub at edge
-      g.fillStyle(FUR); g.fillRect( 0,42,6,22); g.fillStyle(SNT); g.fillRect( 0,61,6,4);
-      g.fillStyle(FUR); g.fillRect(42,42,6, 6); // short horizontal stub
+      // Throw-3: release — arm fully forward as stub (beer spawned in world)
+      g.clear(); gbHead(3,false); gbShirt();
+      gbArmL(0,42);
+      g.fillStyle(FO); g.fillRect(40,42,8,6); g.fillStyle(FM); g.fillRect(40,42,7,5);
       gbLegs();
       g.generateTexture('enemy-giant-bear-throw-3', 48, 72);
 
+      // Throw-4: follow-through — arm drops below horizontal
       g.clear(); gbHead(1,false); gbShirt();
-      g.fillStyle(FUR); g.fillRect( 0,42,6,22); g.fillStyle(SNT); g.fillRect( 0,61,6,4);
-      g.fillStyle(FUR); g.fillRect(42,36,6,28); g.fillStyle(SNT); g.fillRect(42,55,6,4); // follow-through
+      gbArmL(0,42);
+      gbArmR(40,36);
       gbLegs();
       g.generateTexture('enemy-giant-bear-throw-4', 48, 72);
 
-      // Charge frames 12-15
-      g.clear(); gbHead(1,false); gbShirt(); gbArm(0,43,42,41); gbLegs(-1,1);
+      // ══ Charge frames 12-15 ═══════════════════════════════════════════
+      g.clear(); gbHead(1,false); gbShirt(); gbArm(0,43,40,41); gbLegs(-1,1);
       g.generateTexture('enemy-giant-bear-charge-1', 48, 72);
 
-      g.clear(); gbHead(2,false); gbShirt(); gbArm(0,45,42,39); gbLegs(2,-2);
+      g.clear(); gbHead(2,false); gbShirt(); gbArm(0,45,40,39); gbLegs(2,-2);
       g.generateTexture('enemy-giant-bear-charge-2', 48, 72);
 
-      g.clear(); gbHead(3,false); gbShirt(); gbArm(0,46,42,38); gbLegs(3,-3);
+      g.clear(); gbHead(3,false); gbShirt(); gbArm(0,46,40,38); gbLegs(3,-3);
       g.generateTexture('enemy-giant-bear-charge-3', 48, 72);
 
-      g.clear(); gbHead(3,true);  gbShirt(); gbArm(0,44,42,40); gbLegs(-2,2);
+      g.clear(); gbHead(3,true);  gbShirt(); gbArm(0,44,40,40); gbLegs(-2,2);
       g.generateTexture('enemy-giant-bear-charge-4', 48, 72);
     }
 
