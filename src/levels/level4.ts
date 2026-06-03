@@ -57,13 +57,13 @@ export const level4: LevelData = {
       x: 400,
       y: 240,
     },
-    // Actuary Man flies between throne and mid area
+    // Actuary Man patrols the ground, laptop head-shake at each end
     {
       type: 'actuary-man',
-      x: 360,
-      y: 49,
-      posA: { x: 360, y: 49  },
-      posB: { x: 360, y: 236 },
+      x: 200,
+      y: 407,
+      patrolLeft: 50,
+      patrolRight: 740,
     },
     // Puffin Golfer stands on left edge of right column base, drives golf balls left
     {

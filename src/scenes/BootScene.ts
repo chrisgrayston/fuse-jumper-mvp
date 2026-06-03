@@ -2163,13 +2163,218 @@ export class BootScene extends Phaser.Scene {
       g.generateTexture('enemy-giant-bear-charge-4', 48, 72);
     }
 
-    // ── Actuary Man — Liverpool red suit, glasses ─────────────────────────
-    g.clear();
-    g.fillStyle(0xcc0000); g.fillRect(2, 8, 22, 22);
-    g.fillStyle(0xffcc88); g.fillRect(7, 0, 12, 10);
-    g.fillStyle(0x333333); g.fillRect(6, 4, 5, 3); g.fillRect(15, 4, 5, 3); // glasses
-    g.fillStyle(0xffffff); g.fillRect(9, 14, 8, 10);   // calculator/shirt
-    g.generateTexture('enemy-actuary-man', 26, 30);
+    // ── Actuary Man — 40×50, 16 frames, ground patrol + laptop head-shake ──
+    {
+      const W = 40, H = 50;
+
+      // Palette
+      const SK  = 0xf5c5a0;  // skin
+      const SKD = 0xd49870;  // skin shadow
+      const HR  = 0x6b1a08;  // dark auburn hair
+      const HRL = 0xaa3015;  // hair highlight
+      const SU  = 0x620015;  // dark maroon suit
+      const SUM = 0x8a0020;  // suit mid
+      const SUL = 0xb00030;  // suit lighter
+      const CP  = 0x3e000c;  // cape very dark
+      const CPM = 0x580015;  // cape mid
+      const CPL = 0x780020;  // cape lighter
+      const MK  = 0x080820;  // eye mask near-black navy
+      const BT  = 0x161630;  // belt dark
+      const BK  = 0xd0a020;  // belt buckle gold
+      const TR  = 0x5520bb;  // purple trainer
+      const TRL = 0x7744dd;  // trainer lighter
+      const TRD = 0x3311aa;  // trainer darker
+      const TW  = 0xffffff;  // trainer sole white
+      const EG  = 0xeec020;  // emblem gold
+      const EMB = 0x111130;  // emblem bg
+      const LTC = 0x1a2840;  // laptop closed
+      const LTL = 0x2a4468;  // laptop lid
+      const LSC = 0x88aadd;  // laptop screen
+      const BLK = 0x0a0a0a;  // near black
+      const WH  = 0xffffff;
+
+      // Cape drawn first (body overlaps it). sway<0 = billows further left.
+      const amCape = (sway: number) => {
+        const s = sway;
+        g.fillStyle(CP);  g.fillRect(s,    11, 14, 25);  // cape outer dark
+        g.fillStyle(CPM); g.fillRect(s+2,  11, 10, 21);  // cape mid
+        g.fillStyle(CPL); g.fillRect(s+3,  12,  6, 15);  // cape inner lighter edge
+        g.fillStyle(CP);  g.fillRect(s,    33, 15,  5);  // cape lower sweep
+        g.fillStyle(CPM); g.fillRect(s+2,  35, 10,  2);  // hem highlight
+        // Cape shoulder wrap (right shoulder, fades across neck)
+        g.fillStyle(CPM); g.fillRect(10+s,  11,  6,  4);
+      };
+
+      // Head. tilt: -1=left, 0=centre, +1=right
+      const amHead = (tilt: number) => {
+        const hx = 20 + tilt * 2;
+        // Hair — dark auburn arch
+        g.fillStyle(HR);  g.fillRect(hx-9, 0, 18, 6);
+        g.fillStyle(HR);  g.fillRect(hx-8, 2, 16, 6);
+        g.fillStyle(HRL); g.fillRect(hx-5, 0, 10, 3);   // highlight centre
+        g.fillStyle(HRL); g.fillRect(hx-7, 3,  4, 2);   // left temple
+        // Face
+        g.fillStyle(SK);  g.fillRect(hx-7, 4, 14, 10);
+        g.fillStyle(SKD); g.fillRect(hx-7,12, 14,  2);  // jaw shadow
+        // Eye mask — full-width band, heroic look
+        g.fillStyle(MK);  g.fillRect(hx-9, 5, 18,  5);
+        g.fillStyle(0x1a3a88); g.fillRect(hx-8, 6, 5, 3); // left lens glint
+        g.fillStyle(0x1a3a88); g.fillRect(hx+3, 6, 5, 3); // right lens glint
+        g.fillStyle(0x4466cc); g.fillRect(hx-7, 6, 2, 2); // left lens bright
+        g.fillStyle(0x4466cc); g.fillRect(hx+4, 6, 2, 2); // right lens bright
+        // Nose
+        g.fillStyle(SK);  g.fillRect(hx-1, 9, 3, 3);
+        g.fillStyle(SKD); g.fillRect(hx-1,11, 3, 1);
+        // Mouth — determined set jaw
+        g.fillStyle(BLK); g.fillRect(hx-3,11, 7, 1);
+        g.fillStyle(0xcc7755); g.fillRect(hx-2,11, 5, 1);
+        g.fillStyle(SKD); g.fillRect(hx-4,12, 9, 2); // chin
+        // Neck
+        g.fillStyle(SK);  g.fillRect(hx-3,13, 6, 2);
+      };
+
+      // Torso + belt + emblem (drawn over cape)
+      const amBody = () => {
+        g.fillStyle(SU);  g.fillRect(11, 13, 18, 22);   // suit main
+        g.fillStyle(SUM); g.fillRect(13, 13, 14, 20);   // suit mid
+        g.fillStyle(SUL); g.fillRect(15, 14, 10,  8);   // chest highlight
+        g.fillStyle(SU);  g.fillRect(11, 13,  3, 22);   // left edge shadow
+        g.fillStyle(SU);  g.fillRect(26, 13,  3, 22);   // right edge shadow
+        // Chest emblem: shield outline + abacus
+        g.fillStyle(EMB); g.fillRect(16, 16,  8, 10);
+        g.fillStyle(EG);  g.fillRect(17, 17,  6,  1);   // top bar
+        g.fillStyle(EG);  g.fillRect(17, 19,  6,  1);   // mid bar
+        g.fillStyle(EG);  g.fillRect(18, 21,  2,  4);   // left column
+        g.fillStyle(EG);  g.fillRect(21, 21,  2,  4);   // right column
+        g.fillStyle(WH);  g.fillRect(18, 22,  1,  1);   // bead 1
+        g.fillStyle(WH);  g.fillRect(21, 20,  1,  1);   // bead 2
+        g.fillStyle(WH);  g.fillRect(19, 24,  1,  1);   // bead 3
+        // Belt
+        g.fillStyle(BT);  g.fillRect(11, 33, 18,  3);
+        g.fillStyle(BK);  g.fillRect(17, 33,  6,  3);   // buckle gold
+        g.fillStyle(BLK); g.fillRect(19, 33,  2,  3);   // buckle slot
+        g.fillStyle(0xf0e060); g.fillRect(17, 33,  1,  1); // buckle glint
+      };
+
+      // Arms. lOff/rOff = vertical offset (negative = arm raised)
+      const amArms = (lOff: number, rOff: number) => {
+        // Left arm — partially behind cape, hand peeking out
+        g.fillStyle(SU);  g.fillRect( 6, 17+lOff,  7, 13);
+        g.fillStyle(SK);  g.fillRect( 7, 28+lOff,  6,  5);  // hand
+        g.fillStyle(SKD); g.fillRect( 7, 31+lOff,  6,  2);  // hand shadow
+        // Right arm — fully visible, front of body
+        g.fillStyle(SUM); g.fillRect(28, 17+rOff,  7, 13);
+        g.fillStyle(SUL); g.fillRect(29, 17+rOff,  5,  8);  // arm highlight
+        g.fillStyle(SK);  g.fillRect(28, 28+rOff,  7,  5);  // hand
+        g.fillStyle(SKD); g.fillRect(28, 31+rOff,  7,  2);  // hand shadow
+      };
+
+      // Legs. lOff/rOff shrink/grow the leg rectangle to simulate knee bend.
+      // Negative = thigh raised (forward stride), positive = extended (back stride).
+      const amLegs = (lOff: number, rOff: number) => {
+        const base = 35; const fullH = 9;
+        g.fillStyle(SU);  g.fillRect(11, base+lOff, 8, fullH-lOff);
+        g.fillStyle(SUM); g.fillRect(12, base+lOff, 6, Math.max(1, fullH-lOff-2));
+        g.fillStyle(SU);  g.fillRect(21, base+rOff, 8, fullH-rOff);
+        g.fillStyle(SUM); g.fillRect(22, base+rOff, 6, Math.max(1, fullH-rOff-2));
+      };
+
+      // Purple trainers — fixed position, slight sway offset only
+      const amTrainers = (lOff: number, rOff: number) => {
+        const lo = Math.max(-1, Math.min(1, Math.round(lOff * 0.25)));
+        const ro = Math.max(-1, Math.min(1, Math.round(rOff * 0.25)));
+        // Left
+        g.fillStyle(TRD); g.fillRect( 9, 44+lo, 13,  6);
+        g.fillStyle(TR);  g.fillRect(10, 43+lo, 11,  5);
+        g.fillStyle(TRL); g.fillRect(11, 43+lo,  8,  2);  // top highlight
+        g.fillStyle(TW);  g.fillRect( 9, 48+lo, 13,  2);  // sole
+        // Right
+        g.fillStyle(TRD); g.fillRect(19, 44+ro, 13,  6);
+        g.fillStyle(TR);  g.fillRect(20, 43+ro, 11,  5);
+        g.fillStyle(TRL); g.fillRect(21, 43+ro,  8,  2);
+        g.fillStyle(TW);  g.fillRect(19, 48+ro, 13,  2);
+      };
+
+      // Laptop held in right arm. phase: 0=closed, 1=open neutral, 2=open alarmed
+      const amLaptop = (phase: number) => {
+        if (phase === 0) {
+          // Closed, being pulled from suit
+          g.fillStyle(LTC); g.fillRect(28, 26, 11,  7);
+          g.fillStyle(LTL); g.fillRect(29, 27,  9,  3);
+          g.fillStyle(0x445566); g.fillRect(32, 26,  2,  7); // hinge
+        } else {
+          // Open — base (keyboard) + screen (lid)
+          g.fillStyle(LTC); g.fillRect(24, 24, 14,  5);  // keyboard tray
+          g.fillStyle(0x223344); g.fillRect(25, 25, 12,  3); // keys
+          g.fillStyle(0x334455); g.fillRect(26, 26,  2,  1); g.fillRect(29, 26, 2, 1); g.fillRect(32, 26, 2, 1); // key tops
+          g.fillStyle(LTL); g.fillRect(25, 13, 13, 12);  // lid
+          g.fillStyle(LSC); g.fillRect(26, 14, 11, 10);  // screen glow
+          // Screen data
+          g.fillStyle(WH);  g.fillRect(27, 15,  4,  1);
+          g.fillStyle(WH);  g.fillRect(27, 17,  7,  1);
+          g.fillStyle(WH);  g.fillRect(27, 19,  5,  1);
+          if (phase === 2) {
+            // Alarmed: red warning line replaces one data row
+            g.fillStyle(0xff4444); g.fillRect(27, 15,  9,  1);
+            g.fillStyle(0xffaa00); g.fillRect(27, 17,  6,  1);
+          }
+        }
+      };
+
+      // Compose a full frame
+      const amFrame = (
+        tilt: number, capeSway: number,
+        lArm: number, rArm: number,
+        lLeg: number, rLeg: number,
+        laptop: number,  // -1 = none
+      ) => {
+        g.clear();
+        amCape(capeSway);
+        amBody();
+        if (laptop >= 0) amLaptop(laptop);
+        else amArms(lArm, rArm);
+        amLegs(lLeg, rLeg);
+        amTrainers(lLeg, rLeg);
+        amHead(tilt);
+      };
+
+      // ── Walk frames 1-8 ──────────────────────────────────────────────────
+      // Neutral — also the default idle texture
+      amFrame(0,  0,  0,  0,  0,  0, -1); g.generateTexture('enemy-actuary-man',       W, H);
+      amFrame(0,  0,  0,  0,  0,  0, -1); g.generateTexture('enemy-actuary-man-walk-1', W, H);
+      // Right foot forward
+      amFrame(0, -1,  2, -2, -4,  3, -1); g.generateTexture('enemy-actuary-man-walk-2', W, H);
+      // Peak right stride, cape billows
+      amFrame(0, -2,  3, -3, -6,  4, -1); g.generateTexture('enemy-actuary-man-walk-3', W, H);
+      // Weight transfer
+      amFrame(0, -1,  1, -1, -2,  2, -1); g.generateTexture('enemy-actuary-man-walk-4', W, H);
+      // Neutral cross-step
+      amFrame(0,  0,  0,  0,  0,  0, -1); g.generateTexture('enemy-actuary-man-walk-5', W, H);
+      // Left foot forward
+      amFrame(0,  1, -2,  2,  3, -4, -1); g.generateTexture('enemy-actuary-man-walk-6', W, H);
+      // Peak left stride, cape billows other way
+      amFrame(0,  2, -3,  3,  4, -6, -1); g.generateTexture('enemy-actuary-man-walk-7', W, H);
+      // Weight transfer back
+      amFrame(0,  1, -1,  1,  2, -2, -1); g.generateTexture('enemy-actuary-man-walk-8', W, H);
+
+      // ── Laptop frames 1-8 (standing still at boundary) ──────────────────
+      // 1: reaching hand down to hip for laptop
+      amFrame(0,  0,  0,  5,  0,  0, -1); g.generateTexture('enemy-actuary-man-laptop-1', W, H);
+      // 2: pulling laptop out, closed
+      amFrame(0,  0,  0,  3,  0,  0,  0); g.generateTexture('enemy-actuary-man-laptop-2', W, H);
+      // 3: laptop raised, opening it
+      amFrame(0,  0, -2,  1,  0,  0,  0); g.generateTexture('enemy-actuary-man-laptop-3', W, H);
+      // 4: laptop open, neutral head — reading
+      amFrame(0,  0, -3,  0,  0,  0,  1); g.generateTexture('enemy-actuary-man-laptop-4', W, H);
+      // 5: head shake LEFT — appalled at the numbers
+      amFrame(-1, 0, -3,  0,  0,  0,  2); g.generateTexture('enemy-actuary-man-laptop-5', W, H);
+      // 6: head shake RIGHT
+      amFrame( 1, 0, -3,  0,  0,  0,  2); g.generateTexture('enemy-actuary-man-laptop-6', W, H);
+      // 7: head shake LEFT again — deepest disapproval
+      amFrame(-1, 0, -3,  0,  0,  0,  2); g.generateTexture('enemy-actuary-man-laptop-7', W, H);
+      // 8: closing laptop, sigh — arms return to sides
+      amFrame(0,  0, -1,  2,  0,  0,  0); g.generateTexture('enemy-actuary-man-laptop-8', W, H);
+    }
 
     // ── Puffin Golfer — 40×50px, faces LEFT, 12-frame swing ─────────────────
     {

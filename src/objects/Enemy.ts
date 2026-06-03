@@ -71,7 +71,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     };
 
     const body = this.body as Phaser.Physics.Arcade.Body;
-    const floaters: EnemyType[] = ['rushy', 'condor', 'actuary-man', 'vascular-man', 'skeletor'];
+    const floaters: EnemyType[] = ['rushy', 'condor', 'vascular-man', 'skeletor'];
     if (floaters.includes(this.eType)) {
       body.allowGravity = false;
       body.setImmovable(false);
@@ -142,6 +142,12 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       body.setSize(40, 60);
       body.setOffset(4, 10);
       this.st.nextKick = Phaser.Math.Between(15000, 20000);  // long delay before first charge
+    }
+    if (this.eType === 'actuary-man') {
+      body.setSize(24, 44);
+      body.setOffset(8, 4);
+      this.st.direction = 1;
+      this.st.kickClock = 0;
     }
 
     // Ground patrol — set initial velocity
@@ -713,24 +719,38 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       }
 
       case 'actuary-man': {
-        if (!this.st.travelling) {
-          if (this.st.clock >= this.st.nextAction) {
-            this.st.clock = 0;
-            this.st.nextAction = Phaser.Math.Between(3000, 5000);
-            this.st.atPosA = !this.st.atPosA;
-            this.st.travelling = true;
-            this.st.travelTimer = 900;
+        const AM_SPEED = 22;
+        const pL = this.eData.patrolLeft  ?? 50;
+        const pR = this.eData.patrolRight ?? 740;
+
+        if (this.st.isCharging) {
+          // ── LAPTOP animation ─────────────────────────────────────────
+          body.setVelocityX(0);
+          this.st.kickClock += delta;
+          const frame = Math.min(7, Math.floor(this.st.kickClock / 350));
+          this.setTexture(`enemy-actuary-man-laptop-${frame + 1}`);
+          if (this.st.kickClock >= 2800) {
+            // Done — flip and walk the other way
+            this.st.isCharging = false;
+            this.st.direction *= -1;
+            this.st.sineT     = 0;
+            this.st.kickClock = 0;
           }
         } else {
-          this.st.travelTimer -= delta;
-          const target = this.st.atPosA ? this.eData.posA! : this.eData.posB!;
-          const startX = this.st.atPosA ? this.eData.posB!.x : this.eData.posA!.x;
-          const startY = this.st.atPosA ? this.eData.posB!.y : this.eData.posA!.y;
-          const lerp = 1 - Math.max(0, this.st.travelTimer) / 900;
-          this.x = Phaser.Math.Linear(startX, target.x, Phaser.Math.Easing.Cubic.InOut(lerp));
-          this.y = Phaser.Math.Linear(startY, target.y, Phaser.Math.Easing.Cubic.InOut(lerp));
-          body.reset(this.x, this.y);
-          if (this.st.travelTimer <= 0) this.st.travelling = false;
+          // ── PATROL walk ──────────────────────────────────────────────
+          this.st.sineT += delta;
+          if (this.x <= pL) { this.st.direction =  1; }
+          else if (this.x >= pR) { this.st.direction = -1; }
+          body.setVelocityX(AM_SPEED * this.st.direction);
+          this.setFlipX(this.st.direction < 0);
+          const wf = Math.floor(this.st.sineT / 180) % 8;
+          this.setTexture(`enemy-actuary-man-walk-${wf + 1}`);
+          // At boundary: enter laptop animation
+          if (this.x <= pL || this.x >= pR) {
+            this.st.isCharging = true;
+            this.st.kickClock  = 0;
+            this.st.sineT      = 0;
+          }
         }
         break;
       }
@@ -1028,7 +1048,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     this.setTexture(`enemy-${this.eType}`);
     this.setFlipX(false);
 
-    const floaters: EnemyType[] = ['rushy', 'condor', 'actuary-man', 'vascular-man', 'skeletor'];
+    const floaters: EnemyType[] = ['rushy', 'condor', 'vascular-man', 'skeletor'];
     body.allowGravity = !floaters.includes(this.eType);
 
     const speed = SPEEDS[this.eType];
