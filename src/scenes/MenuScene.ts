@@ -39,7 +39,7 @@ export class MenuScene extends Phaser.Scene {
     }).setOrigin(0.5);
 
     // Game aim
-    this.add.text(width / 2, height * 0.555, 'Navigate 4 clubs  ·  Collect 11 players  ·  Survive the other players', {
+    this.add.text(width / 2, height * 0.555, 'Navigate 4 clubs  ·  Collect 11 players  ·  Survive the other fantasy league members', {
       fontSize: '13px', fontFamily: 'monospace', color: '#aaddff',
     }).setOrigin(0.5);
 
