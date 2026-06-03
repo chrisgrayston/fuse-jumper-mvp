@@ -57,13 +57,14 @@ export const level4: LevelData = {
       x: 400,
       y: 240,
     },
-    // Actuary Man patrols the ground, laptop head-shake at each end
+    // Actuary Man: superman fly L↔R, land + laptop at each end
     {
       type: 'actuary-man',
       x: 200,
-      y: 407,
-      patrolLeft: 110,
-      patrolRight: 690,
+      y: 185,                    // cruise altitude
+      posA: { x: 0, y: 407 },   // ground landing y
+      patrolLeft:  80,
+      patrolRight: 720,
     },
     // Puffin Golfer stands on left edge of right column base, drives golf balls left
     {
