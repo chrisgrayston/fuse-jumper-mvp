@@ -19,7 +19,7 @@ const INTRO_DEFS: LevelIntroDef[] = [
     bgArt: 'art-club1800',
     heading: "TONIGHT'S THREAT",
     villains: [
-      { key: 'art-bubble-blower', name: 'BUBBLE BLOWER', desc: 'Small but loud.\nFires triple bubbles.\nDeceptively fast.' },
+      { key: 'art-bubble-blower', name: 'BUBBLE BLOWER', desc: 'Small but loud.\nFires triple bubbles.\nVolleys footballs.\nDeceptively fast.' },
     ],
   },
   {
