@@ -71,13 +71,13 @@ export const level4: LevelData = {
       x: 700,
       y: 307,
     },
-    // Vascular Man glides between sides
+    // Vascular Man swings under upper-left and upper-right platforms
     {
       type: 'vascular-man',
-      x: 120,
-      y: 290,
-      posA: { x: 120, y: 290 },
-      posB: { x: 680, y: 290 },
+      x: 165,
+      y: 246,
+      posA: { x: 165, y: 246 },
+      posB: { x: 635, y: 246 },
     },
     // Skeletor at the top
     {

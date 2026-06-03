@@ -123,6 +123,15 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       this.st.kickClock = 0;
       this.st.kickDir   = 0;
     }
+    if (this.eType === 'vascular-man') {
+      body.setSize(28, 52);
+      body.setOffset(6, 6);
+      this.st.nextKick    = 0;  // VM_PULLUP
+      this.st.atPosA      = true;
+      this.st.direction   = 1;
+      this.st.kickClock   = 0;
+      this.st.chargeTimer = Phaser.Math.Between(2, 4);
+    }
     if (this.eType === 'giant-bear') {
       body.setSize(40, 60);
       body.setOffset(4, 10);
@@ -806,26 +815,72 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       }
 
       case 'vascular-man': {
-        // Glides along underside of platforms — represented as horizontal sine drift
-        if (!this.st.travelling) {
-          if (this.st.clock >= this.st.nextAction) {
-            this.st.clock = 0;
-            this.st.nextAction = Phaser.Math.Between(3500, 5500);
-            this.st.atPosA = !this.st.atPosA;
-            this.st.travelling = true;
-            this.st.travelTimer = 1000;
+        const VM_PULLUP = 0, VM_SWING = 1, VM_ARRIVE = 2;
+        const TRAVEL_MS = 1400, ARRIVE_MS = 450, FRAME_MS = 200;
+        const PULL_FRAMES = [
+          'enemy-vascular-man',
+          'enemy-vascular-man-hang-2',
+          'enemy-vascular-man-flex-1',
+          'enemy-vascular-man-flex-2',
+          'enemy-vascular-man-pullup-1',
+          'enemy-vascular-man-pullup-2',
+          'enemy-vascular-man-pullup-3',
+          'enemy-vascular-man-pullup-4',
+          'enemy-vascular-man-lower-1',
+          'enemy-vascular-man-lower-2',
+        ];
+        const pos = this.st.atPosA ? this.eData.posA! : this.eData.posB!;
+
+        if (this.st.nextKick === VM_PULLUP) {
+          body.reset(pos.x, pos.y);
+          this.setFlipX(!this.st.atPosA);
+          this.st.kickClock += delta;
+          const fi = Math.floor(this.st.kickClock / FRAME_MS) % PULL_FRAMES.length;
+          this.setTexture(PULL_FRAMES[fi]);
+          const reps = Math.floor(this.st.kickClock / (FRAME_MS * PULL_FRAMES.length));
+          if (reps >= this.st.chargeTimer) {
+            this.st.atPosA      = !this.st.atPosA;
+            this.st.direction   = this.st.atPosA ? -1 : 1;
+            this.st.nextKick    = VM_SWING;
+            this.st.travelTimer = TRAVEL_MS;
+            this.st.kickClock   = 0;
           }
-        } else {
+        } else if (this.st.nextKick === VM_SWING) {
           this.st.travelTimer -= delta;
           const target = this.st.atPosA ? this.eData.posA! : this.eData.posB!;
-          const startX = this.st.atPosA ? this.eData.posB!.x : this.eData.posA!.x;
-          const startY = this.st.atPosA ? this.eData.posB!.y : this.eData.posA!.y;
-          const lerp = 1 - Math.max(0, this.st.travelTimer) / 1000;
-          this.x = Phaser.Math.Linear(startX, target.x, lerp);
-          // Somersault arc — inverted sine (hangs below then swings over)
-          this.y = startY - Math.sin(lerp * Math.PI) * 40 + (target.y - startY) * lerp;
+          const start  = this.st.atPosA ? this.eData.posB! : this.eData.posA!;
+          const t = 1 - Math.max(0, this.st.travelTimer) / TRAVEL_MS;
+          this.x = Phaser.Math.Linear(start.x, target.x, t);
+          this.y = start.y - Math.sin(t * Math.PI) * 40 + (target.y - start.y) * t;
           body.reset(this.x, this.y);
-          if (this.st.travelTimer <= 0) this.st.travelling = false;
+          this.setFlipX(this.st.direction < 0);
+          const swingTex =
+            t < 0.10 ? 'enemy-vascular-man-swing-1' :
+            t < 0.20 ? 'enemy-vascular-man-swing-2' :
+            t < 0.32 ? 'enemy-vascular-man-pike-1'  :
+            t < 0.46 ? 'enemy-vascular-man-pike-2'  :
+            t < 0.56 ? 'enemy-vascular-man-pike-3'  :
+            t < 0.68 ? 'enemy-vascular-man-pike-4'  :
+            t < 0.78 ? 'enemy-vascular-man-fly-1'   :
+            t < 0.87 ? 'enemy-vascular-man-fly-2'   :
+            t < 0.93 ? 'enemy-vascular-man-reach-1' :
+                       'enemy-vascular-man-reach-2';
+          this.setTexture(swingTex);
+          if (this.st.travelTimer <= 0) {
+            this.st.nextKick    = VM_ARRIVE;
+            this.st.travelTimer = ARRIVE_MS;
+          }
+        } else {  // VM_ARRIVE
+          body.reset(pos.x, pos.y);
+          this.setFlipX(this.st.direction < 0);
+          this.st.travelTimer -= delta;
+          const ta = 1 - Math.max(0, this.st.travelTimer) / ARRIVE_MS;
+          this.setTexture(ta < 0.5 ? 'enemy-vascular-man-catch-1' : 'enemy-vascular-man-catch-2');
+          if (this.st.travelTimer <= 0) {
+            this.st.nextKick    = VM_PULLUP;
+            this.st.kickClock   = 0;
+            this.st.chargeTimer = Phaser.Math.Between(2, 4);
+          }
         }
         break;
       }
@@ -868,6 +923,20 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       this.st.atPosA      = true;
       this.st.sineT       = 0;
       this.setTexture('enemy-butter-fingers');
+      this.setFlipX(false);
+      return;
+    }
+    if (this.eType === 'vascular-man') {
+      const startPos = this.eData.posA ?? this.eData;
+      body.reset(startPos.x, startPos.y);
+      body.setVelocity(0, 0);
+      this.x = startPos.x; this.y = startPos.y;
+      this.st.nextKick    = 0;
+      this.st.atPosA      = true;
+      this.st.direction   = 1;
+      this.st.kickClock   = 0;
+      this.st.chargeTimer = Phaser.Math.Between(2, 4);
+      this.setTexture('enemy-vascular-man');
       this.setFlipX(false);
       return;
     }

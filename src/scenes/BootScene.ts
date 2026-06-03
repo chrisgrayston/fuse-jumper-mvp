@@ -2385,14 +2385,171 @@ export class BootScene extends Phaser.Scene {
       g.clear(); head(); torso(); armsF5(); clubF5();  g.generateTexture('enemy-puffin-golfer-follow-5', W, H);
     }
 
-    // ── Vascular Man — muscular, West Ham claret/blue ─────────────────────
-    g.clear();
-    g.fillStyle(0x7b003c); g.fillRect(0, 4, 32, 26);
-    g.fillStyle(0xff8866);                               // veins/muscles
-    g.fillRect(2, 8, 4, 16); g.fillRect(26, 8, 4, 16);
-    g.fillRect(8, 4, 16, 4);
-    g.fillStyle(0xffcc88); g.fillRect(8, 0, 16, 6);
-    g.generateTexture('enemy-vascular-man', 32, 30);
+    // ── Vascular Man — 22-frame gymnast, 40×64, bald & muscular ─────────────
+    {
+      const W = 40, H = 64;
+      const SK  = 0xffbb88, SK2 = 0xcc8855, SK3 = 0xffdcaa, MUS = 0xff9944;
+      const VT  = 0xdd1100, VT2 = 0x991100, VT3 = 0xff5533;
+      const SH  = 0x111130, SH2 = 0x222255, SHs = 0xff2200;
+      const WB  = 0xffffff, WB2 = 0xbbbbbb;
+      const EY  = 0x111122, MO  = 0xaa2200;
+
+      const vmHead = (cx: number, ty: number) => {
+        g.fillStyle(SK);  g.fillCircle(cx, ty + 9, 9);
+        g.fillStyle(SK2); g.fillRect(cx - 9, ty + 4, 4, 10);
+        g.fillStyle(SK3); g.fillRect(cx + 3, ty + 1, 4, 6);
+        g.fillStyle(SK2); g.fillRect(cx - 7, ty + 4, 5, 3); g.fillRect(cx + 2, ty + 4, 5, 3);
+        g.fillStyle(EY);  g.fillRect(cx - 6, ty + 7, 3, 3); g.fillRect(cx + 3, ty + 7, 3, 3);
+        g.fillStyle(0xffffff); g.fillRect(cx - 6, ty + 7, 1, 1); g.fillRect(cx + 3, ty + 7, 1, 1);
+        g.fillStyle(SK2); g.fillRect(cx - 1, ty + 11, 2, 3);
+        g.fillStyle(MO);  g.fillRect(cx - 4, ty + 14, 8, 2);
+        g.fillStyle(0xffffff); g.fillRect(cx - 3, ty + 14, 6, 1);
+        g.fillStyle(SK2); g.fillRect(cx - 5, ty + 16, 10, 2);
+      };
+
+      const vmWrists = () => {
+        g.fillStyle(WB);  g.fillRect(3, 0, 7, 4); g.fillRect(30, 0, 7, 4);
+        g.fillStyle(WB2); g.fillRect(3, 2, 7, 2); g.fillRect(30, 2, 7, 2);
+        g.fillStyle(0xff3300); g.fillRect(3, 1, 7, 1); g.fillRect(30, 1, 7, 1);
+      };
+
+      const vmArmsStr = (sY: number) => {
+        g.fillStyle(SK);  g.fillRect(5, 0, 4, sY); g.fillRect(31, 0, 4, sY);
+        g.fillStyle(SK2); g.fillRect(5, 0, 2, sY);
+        g.fillStyle(SK3); g.fillRect(34, 0, 1, sY);
+        vmWrists();
+      };
+
+      const vmArmsBent = (sY: number, frac: number) => {
+        const elbow = Math.round(4 + (sY - 4) * (1 - frac * 0.65));
+        g.fillStyle(SK);  g.fillRect(5, 4, 4, elbow - 4); g.fillRect(31, 4, 4, elbow - 4);
+        g.fillStyle(SK2); g.fillRect(5, 4, 2, elbow - 4);
+        g.fillStyle(SK3); g.fillRect(34, 4, 1, elbow - 4);
+        const b = Math.round(frac * 5);
+        g.fillStyle(MUS); g.fillRect(2, elbow, 9 + b, sY - elbow); g.fillRect(29 - b, elbow, 9 + b, sY - elbow);
+        g.fillStyle(SK);  g.fillRect(4, elbow, 6 + b, sY - elbow); g.fillRect(30 - b, elbow, 6 + b, sY - elbow);
+        g.fillStyle(SK3); g.fillRect(34, elbow, 1, sY - elbow);
+        vmWrists();
+      };
+
+      const vmTorso = (ty: number) => {
+        g.fillStyle(SK);  g.fillRect(2, ty, 36, 8);
+        g.fillStyle(SK3); g.fillRect(8, ty, 24, 3);
+        g.fillStyle(MUS); g.fillRect(2, ty, 7, 7);    g.fillRect(31, ty, 7, 7);
+        g.fillStyle(SK2); g.fillRect(2, ty+5, 6, 3);  g.fillRect(32, ty+5, 6, 3);
+        g.fillStyle(VT);  g.fillRect(10, ty+7, 20, 29);
+        g.fillStyle(VT3); g.fillRect(10, ty+7, 2, 27);
+        g.fillStyle(VT2); g.fillRect(10, ty+35, 20, 1);
+        g.fillStyle(VT2); g.fillRect(19, ty+14, 2, 22);
+        g.fillStyle(VT2); g.fillRect(12, ty+18, 16, 1); g.fillRect(12, ty+23, 16, 1); g.fillRect(12, ty+28, 16, 1);
+        g.fillStyle(VT);  g.fillRect(11, ty+6, 4, 3);  g.fillRect(25, ty+6, 4, 3);
+        g.fillStyle(SK);  g.fillRect(4, ty+8, 6, 10);  g.fillRect(30, ty+8, 6, 10);
+        g.fillStyle(MUS); g.fillRect(5, ty+8, 5, 9);   g.fillRect(30, ty+8, 5, 9);
+        g.fillStyle(SK2); g.fillRect(4, ty+17, 6, 1);  g.fillRect(30, ty+17, 6, 1);
+        g.fillStyle(SK);  g.fillRect(4, ty+18, 6, 18); g.fillRect(30, ty+18, 6, 18);
+        g.fillStyle(MUS); g.fillRect(5, ty+20, 4, 14); g.fillRect(31, ty+20, 4, 14);
+        g.fillStyle(SK2); g.fillRect(4, ty+32, 6, 4);  g.fillRect(30, ty+32, 6, 4);
+        g.fillStyle(SH);  g.fillRect(7, ty+36, 26, 14);
+        g.fillStyle(SH2); g.fillRect(9, ty+38, 22, 10);
+        g.fillStyle(SHs); g.fillRect(7, ty+36, 2, 14); g.fillRect(31, ty+36, 2, 14);
+        g.fillStyle(0x3344bb); g.fillRect(9, ty+36, 3, 2); g.fillRect(28, ty+36, 3, 2);
+        const lT = ty + 50;
+        if (lT < H) {
+          const lh = H - lT;
+          g.fillStyle(SK);  g.fillRect(9, lT, 8, lh); g.fillRect(23, lT, 8, lh);
+          g.fillStyle(SK2); g.fillRect(9, lT+2, 5, Math.max(0,lh-2)); g.fillRect(25, lT+2, 5, Math.max(0,lh-2));
+          g.fillStyle(SK3); g.fillRect(15, lT, 2, lh); g.fillRect(23, lT, 2, lh);
+        }
+      };
+
+      g.clear(); vmTorso(22); vmHead(20, 3); vmArmsStr(22);
+      g.generateTexture('enemy-vascular-man', W, H);
+
+      g.clear(); vmTorso(23); vmHead(21, 4); vmArmsStr(23);
+      g.generateTexture('enemy-vascular-man-hang-2', W, H);
+
+      g.clear(); vmTorso(22); vmHead(20, 3); vmArmsStr(22);
+      g.fillStyle(MUS); g.fillRect(26, 10, 12, 12);
+      g.fillStyle(SK);  g.fillRect(28, 10, 10, 12); g.fillRect(31, 4, 4, 10);
+      g.fillStyle(SK2); g.fillRect(28, 10, 4, 12);
+      g.fillStyle(SK3); g.fillRect(35, 10, 2, 12);
+      g.fillStyle(WB);  g.fillRect(30, 0, 7, 4); g.fillStyle(WB2); g.fillRect(30, 2, 7, 2);
+      g.fillStyle(0xff3300); g.fillRect(30, 1, 7, 1);
+      g.generateTexture('enemy-vascular-man-flex-1', W, H);
+
+      g.clear(); vmTorso(20); vmHead(20, 1); vmArmsBent(20, 0.85);
+      g.fillStyle(MUS); g.fillCircle(8, 13, 6); g.fillCircle(32, 13, 6);
+      g.fillStyle(SK);  g.fillCircle(8, 13, 5); g.fillCircle(32, 13, 5);
+      g.generateTexture('enemy-vascular-man-flex-2', W, H);
+
+      g.clear(); vmTorso(16); vmHead(20, 0); vmArmsBent(16, 0.30);
+      g.generateTexture('enemy-vascular-man-pullup-1', W, H);
+
+      g.clear(); vmTorso(9);  vmHead(20, 0); vmArmsBent(9,  0.60);
+      g.generateTexture('enemy-vascular-man-pullup-2', W, H);
+
+      g.clear(); vmTorso(3);  vmHead(20, 0); vmArmsBent(3,  0.88);
+      g.generateTexture('enemy-vascular-man-pullup-3', W, H);
+
+      g.clear(); vmTorso(3);  vmHead(20, 0); vmArmsBent(3,  1.0);
+      g.fillStyle(MUS); g.fillCircle(7, 6, 6); g.fillCircle(33, 6, 6);
+      g.fillStyle(SK);  g.fillCircle(7, 6, 5); g.fillCircle(33, 6, 5);
+      g.generateTexture('enemy-vascular-man-pullup-4', W, H);
+
+      g.clear(); vmTorso(9);  vmHead(20, 0); vmArmsBent(9,  0.55);
+      g.generateTexture('enemy-vascular-man-lower-1', W, H);
+
+      g.clear(); vmTorso(16); vmHead(20, 0); vmArmsBent(16, 0.28);
+      g.generateTexture('enemy-vascular-man-lower-2', W, H);
+
+      g.clear(); vmTorso(24); vmHead(21, 5); vmArmsStr(24);
+      g.generateTexture('enemy-vascular-man-swing-1', W, H);
+
+      g.clear(); vmTorso(26); vmHead(23, 7); vmArmsStr(26);
+      g.generateTexture('enemy-vascular-man-swing-2', W, H);
+
+      g.clear(); vmTorso(10); vmHead(21, 0); vmArmsBent(10, 0.55);
+      g.generateTexture('enemy-vascular-man-pike-1', W, H);
+
+      g.clear(); vmTorso(2);  vmHead(20, 0); vmArmsBent(2,  0.90);
+      g.fillStyle(SK);  g.fillRect(2, 46, 10, 18); g.fillRect(28, 46, 10, 18);
+      g.fillStyle(SK2); g.fillRect(2, 48, 8, 16);  g.fillRect(30, 48, 8, 16);
+      g.fillStyle(SH);  g.fillRect(7, 38, 26, 10);
+      g.fillStyle(SHs); g.fillRect(7, 38, 2, 10);  g.fillRect(31, 38, 2, 10);
+      g.generateTexture('enemy-vascular-man-pike-2', W, H);
+
+      g.clear(); vmTorso(2);  vmHead(20, 0); vmArmsBent(2,  0.80);
+      g.fillStyle(SK);  g.fillRect(2, 46, 10, 18); g.fillRect(28, 46, 10, 18);
+      g.fillStyle(SK2); g.fillRect(2, 48, 8, 16);  g.fillRect(30, 48, 8, 16);
+      g.fillStyle(SH);  g.fillRect(7, 38, 26, 10);
+      g.fillStyle(SHs); g.fillRect(7, 38, 2, 10);  g.fillRect(31, 38, 2, 10);
+      g.generateTexture('enemy-vascular-man-pike-3', W, H);
+
+      g.clear(); vmTorso(10); vmHead(20, 0); vmArmsBent(10, 0.48);
+      g.generateTexture('enemy-vascular-man-pike-4', W, H);
+
+      g.clear(); vmTorso(22); vmHead(20, 3); vmArmsStr(22);
+      g.generateTexture('enemy-vascular-man-fly-1', W, H);
+
+      g.clear(); vmTorso(20); vmHead(19, 1); vmArmsStr(20);
+      g.fillStyle(SK3); g.fillRect(2, 20, 36, 2);
+      g.generateTexture('enemy-vascular-man-fly-2', W, H);
+
+      g.clear(); vmTorso(22); vmHead(20, 3); vmArmsStr(22);
+      g.fillStyle(SK);  g.fillRect(31, 0, 5, 20);
+      g.fillStyle(WB);  g.fillRect(30, 0, 7, 4); g.fillStyle(WB2); g.fillRect(30, 2, 7, 2);
+      g.fillStyle(0xff3300); g.fillRect(30, 1, 7, 1);
+      g.generateTexture('enemy-vascular-man-reach-1', W, H);
+
+      g.clear(); vmTorso(24); vmHead(20, 5); vmArmsStr(24);
+      g.generateTexture('enemy-vascular-man-reach-2', W, H);
+
+      g.clear(); vmTorso(28); vmHead(20, 9); vmArmsBent(28, 0.18);
+      g.generateTexture('enemy-vascular-man-catch-1', W, H);
+
+      g.clear(); vmTorso(24); vmHead(20, 5); vmArmsStr(24);
+      g.generateTexture('enemy-vascular-man-catch-2', W, H);
+    }
 
     // ── Skeletor — Man City sky blue, skull, purple magic ────────────────
     g.clear();
