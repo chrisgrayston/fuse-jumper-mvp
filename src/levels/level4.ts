@@ -48,8 +48,8 @@ export const level4: LevelData = {
       type: 'giant-bear',
       x: 360,
       y: 316,
-      patrolLeft: 310,
-      patrolRight: 480,
+      patrolLeft: 316,
+      patrolRight: 484,
     },
     // Condor sine-waves through middle
     {
