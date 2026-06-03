@@ -62,8 +62,8 @@ export const level4: LevelData = {
       type: 'actuary-man',
       x: 200,
       y: 407,
-      patrolLeft: 50,
-      patrolRight: 740,
+      patrolLeft: 110,
+      patrolRight: 690,
     },
     // Puffin Golfer stands on left edge of right column base, drives golf balls left
     {

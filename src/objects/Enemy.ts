@@ -745,8 +745,8 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
           this.setFlipX(this.st.direction < 0);
           const wf = Math.floor(this.st.sineT / 180) % 8;
           this.setTexture(`enemy-actuary-man-walk-${wf + 1}`);
-          // At boundary: enter laptop animation
-          if (this.x <= pL || this.x >= pR) {
+          // At boundary heading INTO it: enter laptop animation
+          if ((this.x <= pL && this.st.direction < 0) || (this.x >= pR && this.st.direction > 0)) {
             this.st.isCharging = true;
             this.st.kickClock  = 0;
             this.st.sineT      = 0;
