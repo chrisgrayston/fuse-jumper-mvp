@@ -29,7 +29,7 @@ const INTRO_DEFS: LevelIntroDef[] = [
     villains: [
       { key: 'art-flanker',      name: 'THE FLANKER',   desc: 'Patrols then charges.\nGives no warning.' },
       { key: 'art-rushy',        name: 'RUSHY',         desc: 'Weaves through the air.\nImpossible to predict.' },
-      { key: 'art-smaller-bear', name: 'SMALLER BEAR',  desc: 'Hurls his coat.\nJumps between spots.' },
+      { key: 'art-smaller-bear', name: 'SMALLER BEAR',  desc: 'Hurls his coat.\nThen goes to find it.' },
     ],
   },
   {
