@@ -771,7 +771,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
           if (this.st.kickClock >= 1000) {
             const elevDeg = 10 + this.st.kickDir * 10;
             const angle   = Phaser.Math.DegToRad(elevDeg);
-            const speed   = Phaser.Math.Between(580, 720);
+            const speed   = Phaser.Math.Between(290, 360);
             this.padelBall = this.spawn(
               this.x - 16, this.y - 22, 'golf-ball',
               -Math.cos(angle) * speed, -Math.sin(angle) * speed,
