@@ -18,9 +18,9 @@ export class MenuScene extends Phaser.Scene {
     this.add.rectangle(width / 2, height / 2, width, height, 0x000000, 0.62);
 
     // Flashing top alert bar — transfer window closing
-    const alertBar = this.add.rectangle(width / 2, 18, width, 36, 0xcc0000, 0.88);
+    const alertBar = this.add.rectangle(width / 2, 18, width, 36, 0x007700, 0.88);
     this.tweens.add({ targets: alertBar, alpha: 0.5, duration: 400, yoyo: true, repeat: -1 });
-    this.add.text(width / 2, 18, '  TRANSFER WINDOW CLOSES: 23:00  ', {
+    this.add.text(width / 2, 18, '  TRANSFER WINDOW CLOSES: 18:30  ', {
       fontSize: '13px', fontFamily: 'monospace', color: '#ffff00',
     }).setOrigin(0.5);
 
@@ -39,7 +39,11 @@ export class MenuScene extends Phaser.Scene {
     }).setOrigin(0.5);
 
     // Game aim
-    this.add.text(width / 2, height * 0.575, 'Navigate 4 clubs  ·  Collect 11 players  ·  Survive the villains', {
+    this.add.text(width / 2, height * 0.555, 'Navigate 4 clubs  ·  Collect 11 players  ·  Survive the other players', {
+      fontSize: '13px', fontFamily: 'monospace', color: '#aaddff',
+    }).setOrigin(0.5);
+
+    this.add.text(width / 2, height * 0.605, 'Watch out for the eels', {
       fontSize: '13px', fontFamily: 'monospace', color: '#aaddff',
     }).setOrigin(0.5);
 
