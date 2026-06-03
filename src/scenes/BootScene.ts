@@ -1600,9 +1600,10 @@ export class BootScene extends Phaser.Scene {
       g.generateTexture('enemy-padel-punisher-follow-2', 40, 50);
     }
 
-    // ── Condor — half-man half-condor, Crystal Palace kit, 40×50, 12 wing-flap frames ─
+    // ── Condor — half-man half-condor, Crystal Palace kit, 80×50, 12 wing-flap frames ─
+    // Body is 18px wide centred at x=40. Wings span tip-to-tip ≈ 79px.
     {
-      const W = 40, H = 50;
+      const W = 80, H = 50;
 
       // Palette
       const CPR  = 0xc4122e;  // Crystal Palace red
@@ -1628,29 +1629,26 @@ export class BootScene extends Phaser.Scene {
       const TAL2 = 0x906820;  // talon highlight
       const GLD  = 0xffd700;  // badge gold
 
-      // Left wing: upper shoulder (11,17), trailing edge (12,30)
+      // Body centred at x=40: left edge=31, right edge=48
+      // Left wing: shoulder (31,17), trailing (32,30)
       const drawLeftWing = (tipX: number, tipY: number, fold: boolean) => {
-        const ax = 11, ay = 17;
-        const trailX = fold ? 14 : 12;
+        const ax = 31, ay = 17;
+        const trailX = fold ? 36 : 32;
         const trailY = fold ? 27 : 30;
 
-        // Main feather body (near-black)
         g.fillStyle(WF);
         g.fillTriangle(ax, ay, tipX, tipY, trailX, trailY);
 
-        // Secondary coverts — inner ~42%, slightly lighter
         const iMx = Math.round(ax + (tipX - ax) * 0.42);
         const iMy = Math.round(ay + (tipY - ay) * 0.42);
         g.fillStyle(WF2);
         g.fillTriangle(ax + 1, ay + 3, iMx, iMy + 2, trailX, trailY);
 
-        // White underwing bar (Andean Condor's signature marking)
         const wEx = Math.round(ax + (tipX - ax) * 0.28);
         const wEy = Math.round(ay + (tipY - ay) * 0.28);
         g.fillStyle(WW);
         g.fillTriangle(ax + 1, ay + 5, wEx, wEy + 2, trailX - 1, trailY - 4);
 
-        // Iridescent leading-edge sheen
         const lEx = Math.round(ax + (tipX - ax) * 0.50);
         const lEy = Math.round(ay + (tipY - ay) * 0.50);
         const lMx = Math.round(ax + (tipX - ax) * 0.28);
@@ -1659,10 +1657,10 @@ export class BootScene extends Phaser.Scene {
         g.fillTriangle(ax, ay, lEx, lEy, lMx, lMy);
       };
 
-      // Right wing: upper shoulder (29,17), trailing edge (28,30)
+      // Right wing: shoulder (49,17), trailing (48,30)
       const drawRightWing = (tipX: number, tipY: number, fold: boolean) => {
-        const ax = 29, ay = 17;
-        const trailX = fold ? 26 : 28;
+        const ax = 49, ay = 17;
+        const trailX = fold ? 44 : 48;
         const trailY = fold ? 27 : 30;
 
         g.fillStyle(WF);
@@ -1686,119 +1684,117 @@ export class BootScene extends Phaser.Scene {
         g.fillTriangle(ax, ay, lEx, lEy, lMx, lMy);
       };
 
+      // All body x coords = original 40px coords + 20
       const drawBody = () => {
-        // ── BEAK (drawn first; head circle overlaps the base) ──
+        // ── BEAK ──
         g.fillStyle(BKC);
-        g.fillTriangle(21, 3, 33, 7, 21, 9);   // upper mandible pointing right
+        g.fillTriangle(41, 3, 53, 7, 41, 9);   // upper mandible
         g.fillStyle(BKC);
-        g.fillRect(29, 5, 4, 5);               // hooked tip block
+        g.fillRect(49, 5, 4, 5);               // hooked tip block
         g.fillStyle(BKC2);
-        g.fillRect(30, 9, 3, 2);               // hook curves down
+        g.fillRect(50, 9, 3, 2);               // hook curves down
         g.fillStyle(BKC2);
-        g.fillTriangle(21, 8, 28, 8, 21, 11);  // lower mandible (shorter)
-        g.fillStyle(0xf0a030);                 // cere (fleshy beak base)
-        g.fillRect(21, 6, 3, 3);
+        g.fillTriangle(41, 8, 48, 8, 41, 11);  // lower mandible
+        g.fillStyle(0xf0a030);
+        g.fillRect(41, 6, 3, 3);               // cere
 
-        // ── HEAD (bald reddish condor skin) ──
+        // ── HEAD ──
         g.fillStyle(HDS);
-        g.fillCircle(17, 8, 7);
+        g.fillCircle(37, 8, 7);
         g.fillStyle(HDS2);
-        g.fillRect(10, 6, 3, 5);               // left shadow
-        g.fillRect(11, 2, 3, 5);               // top-left shadow
-        // Caruncle (fleshy crown knob)
+        g.fillRect(30, 6, 3, 5);
+        g.fillRect(31, 2, 3, 5);
         g.fillStyle(0xcc3838);
-        g.fillRect(14, 1, 5, 3);
-        g.fillRect(15, 0, 3, 2);
+        g.fillRect(34, 1, 5, 3);               // caruncle
+        g.fillRect(35, 0, 3, 2);
 
         // ── EYE ──
         g.fillStyle(EYC);
-        g.fillRect(20, 6, 3, 2);
+        g.fillRect(40, 6, 3, 2);
         g.fillStyle(0xffffff);
-        g.fillRect(20, 6, 1, 1);               // catchlight
-        g.fillStyle(0xff8822);                 // amber iris
-        g.fillRect(21, 6, 1, 1);
+        g.fillRect(40, 6, 1, 1);
+        g.fillStyle(0xff8822);
+        g.fillRect(41, 6, 1, 1);
 
-        // ── NECK RUFF (white fluffy feathers) ──
+        // ── NECK RUFF ──
         g.fillStyle(RUF);
-        g.fillRect(11, 14, 18, 4);
+        g.fillRect(31, 14, 18, 4);
         g.fillStyle(RUF2);
-        g.fillRect(11, 17, 18, 1);             // bottom shadow
+        g.fillRect(31, 17, 18, 1);
         g.fillStyle(0xdddddd);
-        for (let rfx = 13; rfx < 29; rfx += 3) {
-          g.fillRect(rfx, 14, 1, 3);           // feather division lines
+        for (let rfx = 33; rfx < 49; rfx += 3) {
+          g.fillRect(rfx, 14, 1, 3);
         }
 
         // ── CRYSTAL PALACE SHIRT (vertical red/blue stripes) ──
-        // x=11–28 (6 stripes × 3px), y=18–31
         for (let s = 0; s < 6; s++) {
-          const sx = 11 + s * 3;
+          const sx = 31 + s * 3;
           g.fillStyle(s % 2 === 0 ? CPR : CPB);
           g.fillRect(sx, 18, 3, 14);
           g.fillStyle(s % 2 === 0 ? CPR2 : CPB2);
-          g.fillRect(sx + 2, 18, 1, 14);       // right-edge shadow on each stripe
+          g.fillRect(sx + 2, 18, 1, 14);
         }
-        // White V-neck collar
         g.fillStyle(CPW);
-        g.fillRect(17, 17, 6, 2);
-        g.fillRect(18, 19, 4, 1);
-        // Club badge (small gold diamond, left chest)
+        g.fillRect(37, 17, 6, 2);              // collar
+        g.fillRect(38, 19, 4, 1);
         g.fillStyle(GLD);
-        g.fillRect(14, 21, 3, 2);
-        g.fillRect(15, 20, 1, 1);
+        g.fillRect(34, 21, 3, 2);              // badge
+        g.fillRect(35, 20, 1, 1);
 
-        // ── SHORTS (white with red side stripe) ──
+        // ── SHORTS ──
         g.fillStyle(CPW);
-        g.fillRect(11, 32, 18, 8);
+        g.fillRect(31, 32, 18, 8);
         g.fillStyle(CPW2);
-        g.fillRect(20, 32, 1, 8);             // center seam
-        g.fillRect(11, 39, 18, 1);            // hem shadow
+        g.fillRect(40, 32, 1, 8);
+        g.fillRect(31, 39, 18, 1);
         g.fillStyle(CPR);
-        g.fillRect(11, 32, 2, 8);             // left red stripe
-        g.fillRect(27, 32, 2, 8);             // right red stripe
+        g.fillRect(31, 32, 2, 8);
+        g.fillRect(47, 32, 2, 8);
 
-        // ── LEGS (human skin) ──
+        // ── LEGS ──
         g.fillStyle(SK);
-        g.fillRect(13, 40, 6, 7);             // left
-        g.fillRect(21, 40, 6, 7);             // right
+        g.fillRect(33, 40, 6, 7);
+        g.fillRect(41, 40, 6, 7);
         g.fillStyle(SK2);
-        g.fillRect(13, 40, 2, 7);
-        g.fillRect(21, 40, 2, 7);
+        g.fillRect(33, 40, 2, 7);
+        g.fillRect(41, 40, 2, 7);
 
-        // ── CONDOR TALONS ──
+        // ── TALONS ──
         g.fillStyle(TAL);
-        g.fillRect(11, 47, 8, 2);             // L foot
-        g.fillRect( 9, 48, 3, 1);             // L rear talon
-        g.fillRect(11, 48, 2, 2);             // L inner toe
-        g.fillRect(14, 48, 2, 3);             // L middle toe (longest)
-        g.fillRect(17, 48, 2, 2);             // L outer toe
+        g.fillRect(31, 47, 8, 2);
+        g.fillRect(29, 48, 3, 1);
+        g.fillRect(31, 48, 2, 2);
+        g.fillRect(34, 48, 2, 3);
+        g.fillRect(37, 48, 2, 2);
         g.fillStyle(TAL2);
-        g.fillRect(11, 47, 8, 1);
+        g.fillRect(31, 47, 8, 1);
 
         g.fillStyle(TAL);
-        g.fillRect(21, 47, 8, 2);             // R foot
-        g.fillRect(29, 48, 3, 1);             // R rear talon
-        g.fillRect(21, 48, 2, 2);
-        g.fillRect(24, 48, 2, 3);
-        g.fillRect(27, 48, 2, 2);
+        g.fillRect(41, 47, 8, 2);
+        g.fillRect(49, 48, 3, 1);
+        g.fillRect(41, 48, 2, 2);
+        g.fillRect(44, 48, 2, 3);
+        g.fillRect(47, 48, 2, 2);
         g.fillStyle(TAL2);
-        g.fillRect(21, 47, 8, 1);
+        g.fillRect(41, 47, 8, 1);
       };
 
       // 12-frame flap cycle: [leftTipX, leftTipY, rightTipX, rightTipY, fold]
-      // Frames 0–7 = downstroke (fully spread); 8–11 = upstroke (slightly folded)
+      // Canvas is 80px wide. Shoulder at x=31(L)/49(R). Tips reach x=0–79 → ~79px span.
+      // Downstroke (0–7): wings fully spread. Upstroke (8–11): tips pull inward ~10px (fold).
       const FRAMES: Array<[number, number, number, number, boolean]> = [
-        [ 3,  2, 37,  2, false],   // 0  UP MAX
-        [ 1,  7, 39,  7, false],   // 1  UP HIGH
-        [ 0, 13, 40, 13, false],   // 2  UP MID
-        [ 0, 18, 40, 18, false],   // 3  LEVEL (horizontal)
-        [ 0, 23, 40, 23, false],   // 4  DOWN 1
-        [ 1, 29, 39, 29, false],   // 5  DOWN 2
-        [ 2, 34, 38, 34, false],   // 6  DOWN 3
-        [ 3, 38, 37, 38, false],   // 7  DOWN MAX
-        [ 6, 34, 34, 34,  true],   // 8  RECOVER 1 (fold begins)
-        [ 6, 27, 34, 27,  true],   // 9  RECOVER 2
-        [ 5, 20, 35, 20,  true],   // 10 RECOVER 3
-        [ 4, 10, 36, 10,  true],   // 11 RECOVER 4
+        [ 4,  2, 76,  2, false],   // 0  UP MAX
+        [ 1,  6, 79,  6, false],   // 1  UP HIGH
+        [ 0, 12, 79, 12, false],   // 2  UP MID
+        [ 0, 17, 79, 17, false],   // 3  LEVEL (horizontal)
+        [ 0, 23, 79, 23, false],   // 4  DOWN 1
+        [ 1, 29, 79, 29, false],   // 5  DOWN 2
+        [ 2, 34, 78, 34, false],   // 6  DOWN 3
+        [ 3, 38, 77, 38, false],   // 7  DOWN MAX
+        [10, 34, 70, 34,  true],   // 8  RECOVER 1 (fold)
+        [10, 27, 70, 27,  true],   // 9  RECOVER 2
+        [ 8, 20, 72, 20,  true],   // 10 RECOVER 3
+        [ 5, 10, 75, 10,  true],   // 11 RECOVER 4
       ];
 
       FRAMES.forEach(([lx, ly, rx, ry, fold], i) => {

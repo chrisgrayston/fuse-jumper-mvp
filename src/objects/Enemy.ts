@@ -100,7 +100,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     }
     if (this.eType === 'condor') {
       body.setSize(18, 36);
-      body.setOffset(11, 8);   // body hitbox only — wings are visual only
+      body.setOffset(31, 8);   // body hitbox only — wings are visual only
     }
     if (this.eType === 'butter-fingers') {
       body.allowGravity = false;
