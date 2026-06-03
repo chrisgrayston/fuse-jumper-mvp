@@ -19,7 +19,7 @@ export const level4: LevelData = {
     // Upper
     { x: 100, y: 202, width: 130, height: 12 },
     { x: 570, y: 202, width: 130, height: 12 },
-    { x: 300, y: 260, width: 200, height: 12 },  // Puffin platform (lowered from y=182)
+    { x: 300, y: 350, width: 200, height: 12 },  // Middle platform (below column bases)
     // High
     { x: 148, y: 142, width: 140, height: 12 },
     { x: 512, y: 142, width: 140, height: 12 },
@@ -32,24 +32,24 @@ export const level4: LevelData = {
     { number: 1,  x: 200, y: 415 },
     { number: 2,  x: 560, y: 415 },
     { number: 3,  x: 55,  y: 314 },  // column base left (330-16)
-    { number: 4,  x: 730, y: 314 },  // column base right (330-16)
+    { number: 4,  x: 755, y: 314 },  // column base right — shirt moved right
     { number: 5,  x: 635, y: 186 },  // upper right
     { number: 6,  x: 218, y: 126 },  // high left
     { number: 7,  x: 582, y: 126 },  // high right
     { number: 8,  x: 130, y: 186 },  // upper left
-    { number: 9,  x: 360, y: 244 },  // puffin platform (260-16)
+    { number: 9,  x: 360, y: 334 },  // middle platform (350-16)
     { number: 10, x: 360, y: 95  },  // high centre
     { number: 11, x: 400, y: 39  },  // throne (55-16)
   ],
 
   enemies: [
-    // Giant Bear patrols ground
+    // Giant Bear patrols middle platform
     {
       type: 'giant-bear',
-      x: 250,
-      y: 398,
-      patrolLeft: 90,
-      patrolRight: 540,
+      x: 360,
+      y: 316,
+      patrolLeft: 310,
+      patrolRight: 480,
     },
     // Condor sine-waves through middle
     {
@@ -65,10 +65,10 @@ export const level4: LevelData = {
       posA: { x: 360, y: 49  },
       posB: { x: 360, y: 236 },
     },
-    // Puffin Golfer stands on bottom-right column base, drives golf balls left
+    // Puffin Golfer stands on left edge of right column base, drives golf balls left
     {
       type: 'puffin',
-      x: 730,
+      x: 700,
       y: 307,
     },
     // Vascular Man glides between sides
