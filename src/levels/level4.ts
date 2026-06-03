@@ -63,8 +63,8 @@ export const level4: LevelData = {
       x: 200,
       y: 185,                    // cruise altitude
       posA: { x: 0, y: 407 },   // ground landing y
-      patrolLeft:  80,
-      patrolRight: 720,
+      patrolLeft:  160,
+      patrolRight: 640,
     },
     // Puffin Golfer stands on left edge of right column base, drives golf balls left
     {
