@@ -102,6 +102,12 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       body.setSize(18, 36);
       body.setOffset(31, 8);   // body hitbox only — wings are visual only
     }
+    if (this.eType === 'skeletor') {
+      body.setSize(18, 44);
+      body.setOffset(6, 3);
+      this.st.nextKick  = 0;  // SK_IDLE
+      this.st.kickClock = 0;
+    }
     if (this.eType === 'butter-fingers') {
       body.allowGravity = false;
       body.setSize(28, 48);
@@ -863,15 +869,34 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
 
       case 'skeletor': {
         body.reset(this.eData.x, this.eData.y);
-        if (this.st.clock >= this.st.nextAction) {
-          this.st.clock = 0;
-          this.st.nextAction = Phaser.Math.Between(2000, 3500);
-          // Aim dark magic at player
-          const dx = playerX - this.x;
-          const dy = playerY - this.y;
-          const len = Math.sqrt(dx * dx + dy * dy) || 1;
-          const spd = 240;
-          this.spawn(this.x, this.y + 10, 'dark-magic', (dx / len) * spd, (dy / len) * spd);
+        const SK_IDLE = 0, SK_CAST = 1;
+
+        if (this.st.nextKick === SK_IDLE) {
+          this.setTexture('enemy-skeletor');
+          if (this.st.clock >= this.st.nextAction) {
+            this.st.clock      = 0;
+            this.st.nextAction = Phaser.Math.Between(2000, 3500);
+            this.st.nextKick   = SK_CAST;
+            this.st.kickClock  = 0;
+            this.st.isCharging = false; // projectile not yet fired
+          }
+        } else {
+          this.st.kickClock += delta;
+          const frame = Math.min(15, Math.floor(this.st.kickClock / 80));
+          this.setTexture(`enemy-skeletor-cast-${frame}`);
+          // Fire at frame 4 — the visual RELEASE moment
+          if (!this.st.isCharging && frame >= 4) {
+            this.st.isCharging = true;
+            const dx = playerX - this.x;
+            const dy = playerY - this.y;
+            const len = Math.sqrt(dx * dx + dy * dy) || 1;
+            this.spawn(this.x, this.y + 10, 'dark-magic', (dx / len) * 240, (dy / len) * 240);
+          }
+          if (this.st.kickClock >= 1280) {
+            this.st.nextKick   = SK_IDLE;
+            this.st.kickClock  = 0;
+            this.st.isCharging = false;
+          }
         }
         break;
       }
@@ -949,6 +974,18 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       this.st.sineT     = 0;
       this.padelBall    = null;
       this.setTexture('enemy-padel-punisher');
+      return;
+    }
+    if (this.eType === 'skeletor') {
+      body.reset(this.eData.x, this.eData.y);
+      body.setVelocity(0, 0);
+      this.st.clock      = 0;
+      this.st.nextAction = Phaser.Math.Between(1000, 2000);
+      this.st.nextKick   = 0;   // SK_IDLE
+      this.st.kickClock  = 0;
+      this.st.isCharging = false;
+      this.setTexture('enemy-skeletor');
+      this.setFlipX(false);
       return;
     }
     if (this.eType === 'giant-bear') {

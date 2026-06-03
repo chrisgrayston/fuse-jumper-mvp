@@ -2551,13 +2551,214 @@ export class BootScene extends Phaser.Scene {
       g.generateTexture('enemy-vascular-man-catch-2', W, H);
     }
 
-    // ── Skeletor — Man City sky blue, skull, purple magic ────────────────
-    g.clear();
-    g.fillStyle(0x6600aa); g.fillRect(2, 8, 24, 22);
-    g.fillStyle(0x66ccff); g.fillRect(4, 8, 20, 8);    // City kit hint
-    g.fillStyle(0xddddaa); g.fillCircle(14, 5, 8);     // skull
-    g.fillStyle(0x222222); g.fillRect(9, 3, 4, 3); g.fillRect(15, 3, 4, 3); // eye sockets
-    g.generateTexture('enemy-skeletor', 28, 30);
+    // ── Skeletor — skull villain, purple staff, Man City trim, 40×50, 17 frames ─
+    // 1 idle + 16 cast/laugh frames. jawOpen drives the laugh; eyeGlow + staffGlow the cast.
+    {
+      const W = 40, H = 50;
+
+      const SKB  = 0xe8dda0;  // bone
+      const SKB2 = 0xb8a860;  // bone shadow
+      const SKB3 = 0xfaf4e0;  // bone highlight
+      const SYE  = 0x080808;  // eye socket void
+      const MCC  = 0x6cc4f0;  // Man City sky blue
+      const MCC2 = 0x3a8abf;  // MC blue shadow
+      const PRP  = 0x5500aa;  // deep purple robe
+      const PRP2 = 0x3a0077;  // purple shadow
+      const PRP3 = 0x8833dd;  // purple mid (cowl)
+      const STF  = 0x7733bb;  // staff shaft
+      const STF2 = 0xaa55ff;  // staff glow
+      const MGC2 = 0xdd00ff;  // magic blast bright
+      const WHT  = 0xffffff;  // teeth
+      const DRK  = 0x0a0015;  // mouth void
+      const GLW  = 0xcc66ff;  // eye glow purple
+      const GLD  = 0xffd700;  // gold trim line
+
+      // jawOpen 0=closed 1–9=open px; skullUp 0–2 shifts skull up (head thrown back);
+      // eyeGlow: blazing sockets; staffGlow: charging/firing staff
+      const drawSkeletor = (jawOpen: number, skullUp: number, eyeGlow: boolean, staffGlow: boolean) => {
+        const sy = -skullUp; // skull y-offset (negative = moves up)
+
+        // ── STAFF (behind body) ──
+        // Ram skull topper
+        g.fillStyle(SKB);
+        g.fillRect(26, 0, 10, 6);
+        g.fillStyle(SKB2);
+        g.fillRect(26, 0, 2, 6);
+        g.fillStyle(SYE);
+        g.fillRect(27, 1, 3, 3);              // L eye socket
+        g.fillRect(32, 1, 3, 3);              // R eye socket
+        if (staffGlow) {
+          g.fillStyle(MGC2);
+          g.fillRect(28, 2, 2, 2);            // L eye blazing
+          g.fillRect(33, 2, 2, 2);            // R eye blazing
+        }
+        // Ram horns
+        g.fillStyle(SKB);
+        g.fillRect(20, 0, 7, 2);              // L horn
+        g.fillRect(20, 2, 4, 3);              // L horn curve
+        g.fillRect(35, 0, 5, 2);              // R horn (x 35–39 ✓)
+        g.fillRect(35, 2, 3, 3);              // R horn curve
+        g.fillStyle(SKB2);
+        g.fillRect(20, 0, 1, 2);
+
+        // Staff shaft
+        if (staffGlow) {
+          g.fillStyle(0x220044);
+          g.fillRect(28, 5, 1, 37);           // left aura fringe
+          g.fillRect(32, 5, 1, 37);           // right aura fringe
+          g.fillStyle(MGC2);
+          g.fillRect(29, 5, 3, 4);            // magic burst at skull joint
+        }
+        g.fillStyle(staffGlow ? STF2 : STF);
+        g.fillRect(29, 6, 3, 42);             // shaft
+        g.fillStyle(PRP2);
+        g.fillRect(31, 6, 1, 42);             // shaft right-edge shadow
+
+        // ── HOOD BACK ──
+        g.fillStyle(PRP2);
+        g.fillRect(7, Math.max(0, 1 + sy), 18, 20);
+
+        // ── ROBES ──
+        g.fillStyle(PRP);
+        g.fillRect(8, 17, 16, 14);            // torso
+        g.fillStyle(PRP2);
+        g.fillRect(8, 17, 2, 14);
+        g.fillRect(22, 17, 2, 14);
+        // Man City blue trim band
+        g.fillStyle(GLD);
+        g.fillRect(8, 23, 16, 1);             // gold edge line
+        g.fillStyle(MCC);
+        g.fillRect(8, 24, 16, 3);
+        g.fillStyle(MCC2);
+        g.fillRect(8, 26, 16, 1);             // trim lower shadow
+        // Lower robe
+        g.fillStyle(PRP);
+        g.fillRect(6, 31, 20, 7);
+        g.fillStyle(PRP2);
+        g.fillRect(6, 31, 2, 7);
+        g.fillRect(24, 31, 2, 7);
+        // Robe hem flare
+        g.fillStyle(PRP);
+        g.fillRect(4, 38, 24, 9);
+        g.fillStyle(PRP2);
+        g.fillRect(4, 38, 2, 9);
+        g.fillRect(26, 38, 2, 9);
+        g.fillRect(4, 46, 24, 1);             // hem bottom edge
+
+        // ── LEFT ARM (bone skeleton) ──
+        g.fillStyle(SKB);
+        g.fillRect(4, 17, 5, 13);
+        g.fillStyle(SKB2);
+        g.fillRect(4, 17, 2, 13);
+        g.fillRect(4, 28, 5, 3);              // left hand
+
+        // ── RIGHT ARM (grips staff) ──
+        g.fillStyle(SKB);
+        g.fillRect(24, 17, 5, 13);
+        g.fillStyle(SKB2);
+        g.fillRect(27, 17, 2, 13);
+        g.fillRect(26, 28, 6, 3);             // hand overlaps staff at x=29–31
+        g.fillStyle(PRP2);
+        g.fillRect(29, 28, 1, 3);             // grip shadow on shaft
+
+        // ── SKULL ──
+        const headY = 8 + sy;
+
+        g.fillStyle(SKB);
+        g.fillCircle(15, headY, 8);           // cranium
+        g.fillStyle(SKB2);
+        g.fillRect(7, headY - 2, 3, 7);       // left shadow
+        g.fillStyle(SKB3);
+        g.fillRect(14, headY - 6, 5, 4);      // top highlight
+
+        // Eye sockets
+        g.fillStyle(SYE);
+        g.fillRect(9,  headY - 3, 5, 5);
+        g.fillRect(17, headY - 3, 5, 5);
+        if (eyeGlow) {
+          g.fillStyle(GLW);
+          g.fillRect(10, headY - 2, 3, 3);
+          g.fillRect(18, headY - 2, 3, 3);
+          g.fillStyle(0xffffff);
+          g.fillRect(11, headY - 1, 1, 1);    // bright centre L
+          g.fillRect(19, headY - 1, 1, 1);    // bright centre R
+        }
+
+        // Nose cavity
+        g.fillStyle(SYE);
+        g.fillRect(13, headY + 2, 4, 4);
+
+        // Upper teeth
+        const teethY = headY + 6;
+        g.fillStyle(WHT);
+        g.fillRect(9,  teethY, 3, 2);
+        g.fillRect(13, teethY, 3, 2);
+        g.fillRect(17, teethY, 2, 2);
+
+        // Jaw
+        if (jawOpen > 0) {
+          g.fillStyle(DRK);
+          g.fillRect(9, teethY + 2, 12, jawOpen); // mouth void
+          if (jawOpen >= 7) {                      // tongue flash on wide-open laugh
+            g.fillStyle(0x993366);
+            g.fillRect(11, teethY + 2 + jawOpen - 3, 6, 2);
+          }
+          const jawY = teethY + 2 + jawOpen;
+          g.fillStyle(SKB);
+          g.fillRect(9, jawY, 12, 3);             // lower mandible
+          g.fillStyle(SKB2);
+          g.fillRect(9, jawY, 2, 3);
+          g.fillStyle(WHT);
+          g.fillRect(10, jawY, 2, 2);             // lower teeth
+          g.fillRect(14, jawY, 2, 2);
+          g.fillRect(17, jawY, 2, 2);
+        } else {
+          g.fillStyle(SKB);
+          g.fillRect(9, teethY + 2, 12, 3);       // closed jaw
+          g.fillStyle(SKB2);
+          g.fillRect(9, teethY + 2, 2, 3);
+        }
+
+        // ── HOOD COWLS (drawn over skull sides) ──
+        g.fillStyle(PRP3);
+        g.fillRect(5, Math.max(0, sy), 5, 24);
+        g.fillRect(21, Math.max(0, sy), 4, 24);
+        g.fillStyle(PRP2);
+        g.fillRect(5, Math.max(0, sy), 2, 24);    // L cowl shadow
+      };
+
+      // ── Idle frame ──
+      g.clear();
+      drawSkeletor(0, 0, false, false);
+      g.generateTexture('enemy-skeletor', W, H);
+
+      // ── 16 cast + laugh frames — [jawOpen, skullUp, eyeGlow, staffGlow] ──
+      // Frame 4 is the RELEASE moment — projectile fires here in Enemy.ts.
+      const SK_FRAMES: Array<[number, number, boolean, boolean]> = [
+        [1, 0, false, false],  // 0  jaw barely cracks — windup begins
+        [2, 0, true,  false],  // 1  eyes ignite
+        [4, 0, true,  true ],  // 2  staff charges
+        [6, 0, true,  true ],  // 3  full charge
+        [9, 0, true,  true ],  // 4  RELEASE — jaw BLASTS open, magic fires
+        [9, 2, true,  true ],  // 5  head thrown back, blazing
+        [9, 2, true,  false],  // 6  staff spent — laugh begins
+        [2, 1, true,  false],  // 7  jaw snaps shut
+        [8, 2, true,  false],  // 8  jaw cracks wide again
+        [0, 1, false, false],  // 9  snap shut
+        [7, 2, false, false],  // 10 open — glow fading
+        [0, 1, false, false],  // 11 snap shut
+        [5, 1, false, false],  // 12 half-open, slowing
+        [2, 0, false, false],  // 13 settling
+        [1, 0, false, false],  // 14 nearly closed
+        [0, 0, false, false],  // 15 closed — returns to idle
+      ];
+
+      SK_FRAMES.forEach(([jaw, up, eGlow, sGlow], i) => {
+        g.clear();
+        drawSkeletor(jaw, up, eGlow, sGlow);
+        g.generateTexture(`enemy-skeletor-cast-${i}`, W, H);
+      });
+    }
 
     // ── Football player jerseys (1–11) ────────────────────────────────────
     // 3×5 pixel font — bit 2 = left col, bit 0 = right col
