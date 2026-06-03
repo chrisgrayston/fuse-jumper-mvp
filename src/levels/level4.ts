@@ -39,7 +39,7 @@ export const level4: LevelData = {
     { number: 8,  x: 130, y: 186 },  // upper left
     { number: 9,  x: 360, y: 334 },  // middle platform (350-16)
     { number: 10, x: 360, y: 95  },  // high centre
-    { number: 11, x: 400, y: 39  },  // throne (55-16)
+    { number: 11, x: 466, y: 39  },  // throne right edge
   ],
 
   enemies: [
@@ -83,7 +83,7 @@ export const level4: LevelData = {
     {
       type: 'skeletor',
       x: 400,
-      y: 41,
+      y: 32,
     },
   ],
 };

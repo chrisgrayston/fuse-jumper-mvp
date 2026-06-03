@@ -875,7 +875,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
           this.setTexture('enemy-skeletor');
           if (this.st.clock >= this.st.nextAction) {
             this.st.clock      = 0;
-            this.st.nextAction = Phaser.Math.Between(2000, 3500);
+            this.st.nextAction = 2000;
             this.st.nextKick   = SK_CAST;
             this.st.kickClock  = 0;
             this.st.isCharging = false; // projectile not yet fired
@@ -980,7 +980,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       body.reset(this.eData.x, this.eData.y);
       body.setVelocity(0, 0);
       this.st.clock      = 0;
-      this.st.nextAction = Phaser.Math.Between(1000, 2000);
+      this.st.nextAction = 2000;
       this.st.nextKick   = 0;   // SK_IDLE
       this.st.kickClock  = 0;
       this.st.isCharging = false;
