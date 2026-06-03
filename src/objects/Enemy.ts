@@ -628,25 +628,11 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       // ── Club 2200 ───────────────────────────────────────────────────────
 
       case 'giant-bear': {
-        const GB  = SPEEDS['giant-bear']!;   // 22 px/s
+        const GB  = 8;   // very slow shuffle
         const pL  = this.eData.patrolLeft  ?? 90;
         const pR  = this.eData.patrolRight ?? 540;
 
-        if (this.st.isCharging) {
-          // ── CHARGE ──────────────────────────────────────────────────
-          this.st.chargeTimer -= delta;
-          this.st.sineT       += delta;
-          body.setVelocityX(260 * this.st.direction);
-          this.setFlipX(this.st.direction < 0);
-          const cf = Math.floor(this.st.sineT / 110) % 4;
-          this.setTexture(`enemy-giant-bear-charge-${cf + 1}`);
-          if (this.st.chargeTimer <= 0) {
-            this.st.isCharging = false;
-            this.st.sineT      = 0;
-            this.st.clock      = 0;
-            this.st.nextAction = Phaser.Math.Between(1500, 3000);
-          }
-        } else if (this.st.atPosA) {
+        if (this.st.atPosA) {
           // ── THROW ───────────────────────────────────────────────────
           this.st.kickClock -= delta;
           body.setVelocityX(0);
@@ -683,8 +669,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
           }
         } else {
           // ── PATROL ──────────────────────────────────────────────────
-          this.st.clock     += delta;
-          this.st.nextKick  -= delta;
+          this.st.clock += delta;
           // Re-assert patrol velocity every frame (reliable vs patrolBounce)
           if (this.x <= pL) {
             this.st.direction = 1;
@@ -703,15 +688,6 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
             this.st.travelTimer = 1400;
             this.st.clock       = 0;
             this.st.nextAction  = Phaser.Math.Between(2500, 5000);
-          }
-          // Trigger charge (only if not entering growl this same frame)
-          if (!this.st.travelling && this.st.nextKick <= 0) {
-            this.st.isCharging  = true;
-            this.st.chargeTimer = 700;
-            this.st.sineT       = 0;
-            this.st.nextKick    = Phaser.Math.Between(12000, 18000);
-            this.st.clock       = 0;
-            this.st.nextAction  = Phaser.Math.Between(1500, 3000);
           }
         }
         break;
