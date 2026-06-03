@@ -228,11 +228,13 @@ export class GameScene extends Phaser.Scene {
       if (available.length > 0 && this.coinList.length === 0 && Math.random() < 0.5) this.spawnCoin(available);
     }
 
-    // Eel spawner — every 5 s
-    this.eelTimer += delta;
-    if (this.eelTimer >= 5500) {
-      this.eelTimer = 0;
-      this.spawnEel();
+    // Eel spawner — every 5 s (disabled on level 4)
+    if (this.levelIndex < 3) {
+      this.eelTimer += delta;
+      if (this.eelTimer >= 5500) {
+        this.eelTimer = 0;
+        this.spawnEel();
+      }
     }
 
     // Update eels — gravity + leftward velocity, animate frames
