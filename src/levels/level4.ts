@@ -51,11 +51,11 @@ export const level4: LevelData = {
       patrolLeft: 316,
       patrolRight: 484,
     },
-    // Condor sine-waves through middle
+    // Condor sine-waves high — above actuary man (y=185) and vascular man (y=246)
     {
       type: 'condor',
       x: 400,
-      y: 240,
+      y: 110,
     },
     // Actuary Man: superman fly L↔R, land + laptop at each end
     {
