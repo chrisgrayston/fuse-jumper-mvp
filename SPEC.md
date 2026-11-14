@@ -331,7 +331,13 @@ interface TouchState { left: boolean; right: boolean; jumpPressed: boolean; jump
 - `btn-level-1..4` (dev-only buttons, always rendered in the DOM — see `index.html`): set
   a module-level `requestedLevel` index; `GameScene.update()` calls
   `consumeRequestedLevel()` every frame and, if non-null, immediately restarts `GameScene`
-  at that level with `score: 0, lives: MAX_LIVES`.
+  at that level with `score: 0, lives: MAX_LIVES`. **`requestedLevel` is 0-indexed**,
+  matching `levelIndex` everywhere else in this spec (scene data payloads, `LEVELS[]`
+  array indexing) — button `btn-level-1` sets `requestedLevel = 0`, `btn-level-2` sets
+  `1`, and so on (`idx = buttonNumber - 1`). This mirrors the keyboard dev keys in §7.5,
+  which do the same `parseInt(e.key, 10) - 1` conversion. Do not make this 1-indexed —
+  `consumeRequestedLevel()`'s return value is passed straight through to
+  `scene.start('GameScene', { levelIndex: devLevel, ... })` with no further offset.
 
 ### 7.5 Dev keyboard shortcuts (active only inside `GameScene`)
 
