@@ -952,11 +952,25 @@ codebase is twofold:
 |---|---|---|---|
 | `bubble` | off | exits only through top (`y < -60`) | Sine-wave horizontal drift (`freq` 0.3–0.7, `amp` 80–160 px, random phase per bubble); vertical speed decays toward a slow −25 px/s "float up" each frame; bounces (phase-flips) off left/right/bottom world edges |
 | `mallet` | on (natural) | bounces top/bottom, exits left/right (`x<-60 or x>860`) | simple ballistic arc; **not currently spawned by any enemy** in the present code (clippy/melonhead no longer fire it — see §13.6/13.5) |
-| `crate` | reduced (`setGravityY(-520)` → effective ~80 of the world's 600) | destroyed on platform contact (see §15) or exits any edge (±60/±520 margins) | spawned only by butter-fingers |
+| `crate` | set to reduced at construction (`setGravityY(-520)`), **but see the confirmed quirk below** | destroyed on platform contact (see §15) or exits any edge (`x<-60 or x>860`, `y<-60 or y>520` — note the y margins are asymmetric: 60px above vs. 70px below the 450px canvas, not a symmetric "±520") | spawned only by butter-fingers |
 | `pie` | off | exits any edge | `pieVX` re-asserted every frame (see gotcha above); spawned in pairs by butter-fingers |
 | `glass-shard` | on (full) | self-destructs after 1600ms (`glassLifespan`) regardless of position, or on edge exit | only created by the crate-smash system (§15), never by `spawnFn` directly from an enemy |
 | `padel-ball` | off, but bounces (`setBounce(1,1)`, `setCollideWorldBounds(true)`) | 2000ms lifespan (`glassLifespan` field reused for timing), then destroys on its *next* platform/world-bound contact after expiry; also force-destroyed if it strays far out of bounds (±30/±490 margins) | spawned only by padel-punisher |
 | `golf-ball` | off, bounces, world-bound-collides | identical lifecycle rule to `padel-ball` | spawned only by puffin |
+
+**Confirmed quirk — crate's gravity reduction does not survive a real spawn.** `crate`'s
+`setGravityY(-520)` is set in the `Projectile` constructor, but every projectile is then
+added to `projectilesGroup` inside `spawnFn`, and `group.add()` wipes `gravity.{x,y}` back
+to `0` along with velocity/bounce/collideWorldBounds (§20 point 2). `spawnFn` only
+re-applies the extra flags for `padel-ball`/`golf-ball` (gravity off + bounce +
+collideWorldBounds) and `dark-magic` (gravity off) — **it never re-applies crate's
+`setGravityY(-520)`.** The practical result: a crate spawned through `spawnFn` falls under
+the *full* world gravity (600), not the "~80 effective" the constructor's own comment and
+intent describe. This is a real, verified behavior of the shipped game (confirmed by
+inspecting `spawnFn`'s exact scope, not a hypothetical) — **preserve it when rebuilding,
+don't silently "fix" crate to actually fall slowly**, unless a deliberate design change is
+in scope. If a slower crate lob is ever wanted, the fix is adding crate to `spawnFn`'s
+re-application list, analogous to padel-ball/golf-ball/dark-magic.
 | `dark-magic` | off | exits any edge | aimed at player at spawn time, then flies in a straight line (no homing) |
 | `coat` | — (not a `Projectile` subclass at all — a plain `Image`) | removed manually by smaller-bear's own logic | decorative only, never has a hitbox, never goes through `spawnFn` |
 | `football` | off | bounces top/bottom, exits left/right | `footballVX` re-asserted every frame; spawned only by bubble-blower |
@@ -1191,9 +1205,12 @@ boundary. "Exit" = the entity is destroyed once sufficiently outside the stated 
    every frame for anything that must hold a constant zero-gravity velocity indefinitely
    (football, pie, beer — see §14).
 3. **Coordinate system:** +y is down. Upward velocity/gravity must be negative. World
-   gravity (600) plus a projectile's own `setGravityY(g)` sums to its *effective* gravity —
-   e.g. crate's `setGravityY(-520)` on top of world 600 nets ~80 effective downward
-   acceleration (a slow "lob").
+   gravity (600) plus a projectile's own `setGravityY(g)` sums to its *effective* gravity
+   — e.g. crate's constructor sets `setGravityY(-520)` intending ~80 effective downward
+   acceleration (a slow "lob"). **In practice this reduction never survives a real spawn**
+   (see §14's "confirmed quirk" note) — `spawnFn`'s `group.add()` wipes it and nothing
+   restores it, so a spawned crate actually falls at the full 600. Preserve this when
+   rebuilding.
 4. **`fillEllipse` is broken in this Phaser build — use `fillCircle` or composed
    rectangles/circles instead.**
 5. **Crate spawn offset must clear the throwing platform's body**, or the crate smashes
