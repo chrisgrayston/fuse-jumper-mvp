@@ -244,8 +244,8 @@ scene's `init()`/`create(data)`:
 ## 6. BootScene
 
 - `preload()`:
-  - Loads 19 JPEG images from `public/art/` (one game-logo/menu poster, 5 club backgrounds,
-    13 villain portraits — see §12.1 for the exact key→file table).
+  - Loads 20 JPEG images from `public/art/` (one game-logo/menu poster, 5 club backgrounds,
+    14 villain portraits — see §12.1 for the exact key→file table).
   - Calls `this.generateTextures()` synchronously (no async texture generation — pure
     Phaser `Graphics` draw calls baked to textures via `generateTexture(key, w, h)`).
   - Auto-transitions to `MenuScene` once preload completes (no loading bar in current
