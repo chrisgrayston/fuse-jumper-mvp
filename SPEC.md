@@ -601,7 +601,7 @@ can land on the same platform).
 |---|---|
 | `art-heroes` | HeroesAndVillains.jpeg (menu poster) |
 | `art-club1800` | Club1800c.jpeg |
-| `art-club1900` | Club1900.jpeg *(used only as the level-2 intro-screen backdrop, see §5/LevelIntroScene — note the off-by-one club-name vs art-file naming)* |
+| `art-club1900` | Club1900.jpeg *(used only as the Club 2000 / levelIndex 1 intro-screen backdrop, see §5/LevelIntroScene — note the off-by-one club-name vs art-file naming)* |
 | `art-club2000` | Club2000.jpeg |
 | `art-club2100` | Club2100.jpeg |
 | `art-club2200` | Club2200.jpeg |
@@ -1075,8 +1075,9 @@ data), `isInvincible`, `isRespawning`, `godMode`.
 
 ### 18.2 LevelIntroScene
 
-- Per-level backdrop (`art-club1800/1900/2100/2200` — **note:** level-index-2 uses the
-  `art-club1900` key, not `art-club2000`, for its intro screen only; `GameScene` uses
+- Per-level backdrop (`art-club1800/1900/2100/2200` — **note:** level-index-1 (Club
+  2000) uses the `art-club1900` key, not `art-club2000`, for its intro screen only;
+  `GameScene` uses
   `art-club2000` for actual gameplay at that same level — this file-key mismatch is
   intentional in the current build (different image for the "reveal" vs. the arena), not a
   bug to silently "fix" when rebuilding unless art direction says otherwise), alpha 0.42,
