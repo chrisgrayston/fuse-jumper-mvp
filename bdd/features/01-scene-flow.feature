@@ -44,8 +44,8 @@ Feature: Scene flow and data carried between scenes
   Scenario: Finishing the game restarts fresh, not carrying score forward
     Given LevelCompleteScene is active with nextLevelIndex -1
     When the player taps "TAP TO PLAY AGAIN"
-    Then LevelIntroScene is started with levelIndex 0, score 0, lives 0
-    And lives is reset to 3, not carried from the completed run
+    Then LevelIntroScene is started with levelIndex 0, score 0, lives 3
+    And lives is reset to 3, not carried from the completed run's remaining lives
 
   Scenario: Running out of lives ends the run
     Given GameScene is active with lives 1 and score 1350
